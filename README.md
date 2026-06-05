@@ -10,7 +10,7 @@ A defining trait: this is an **AI-first project**. The AI infrastructure that bu
 
 ## Status
 
-**Phase 0: bootstrap.** Documentation and decisions only; no application code yet. Current progress always lives in `./STATUS.md`.
+**Phase 1: AI infrastructure.** Orchestration roles, agents, and commands exist; no application code yet. Current progress always lives in `./STATUS.md`.
 
 ## Architecture at a glance
 

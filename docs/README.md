@@ -7,6 +7,8 @@ Navigation index for Corral documentation. All `.md` files live in sanctioned lo
 | Doc | Purpose |
 |---|---|
 | `./architecture/OVERVIEW.md` | One-page runtime shape: services, data flow, the MCP seam |
+| `./ai-orchestration/roles/ORCHESTRATOR-ROLE.md` | Orchestrator role: coordination, review, pattern mining, the dispatch loop |
+| `./ai-orchestration/roles/WORKER-ROLE.md` | Worker role: kickoff execution, pinned report shape, checker dispatches |
 
 ## Elsewhere in the repo
 
@@ -18,8 +20,8 @@ Navigation index for Corral documentation. All `.md` files live in sanctioned lo
 | `../OBSERVATIONS.md` | Append-only pattern log (`COR-NN` IDs) |
 | `../decisions/` | ADRs: every binding choice and every queued open question |
 | `../tasks/README.md` | Bootstrap task convention (canonical for the markdown era) |
+| `../.claude/` | AI-infrastructure artifacts (ADR-023): slash commands (`commands/`), agent definitions (`agents/`), agent specs (`agents/specs/`), gitignored scratch handoffs (`artifacts/tmp/`) |
 
 ## Expected to grow here (Phase 1+)
 
-- `./ai-orchestration/roles/` : orchestrator and worker role docs (task COR-T-001)
 - A canonical task-coordination policy doc at the dogfood milestone (ADR-008)

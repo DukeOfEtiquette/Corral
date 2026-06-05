@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-001
 title: "Author orchestrator and worker role docs, right-sized from rogue"
-status: backlog
+status: in-progress
 labels: [dept:agent-development]
 priority: P1
 created: 2026-06-05
@@ -16,3 +16,4 @@ Create `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and `./docs/ai-orche
 ## Activity log
 
 - 2026-06-05: Created in backlog during Phase 0 bootstrap.
+- 2026-06-05: Moved to in-progress; scope widened with user approval to include the slash commands, the full drafter+checker dispatch loop (four universal subagents plus specs), and ADR-023 recording the decision.

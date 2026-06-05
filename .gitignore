@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Scratch handoff artifacts: kickoffs and worker reports (ADR-023)
+.claude/artifacts/tmp/
+
 # Python
 __pycache__/
 *.pyc
