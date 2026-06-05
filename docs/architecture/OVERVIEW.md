@@ -22,7 +22,7 @@ Four services under docker compose (ADR-003):
                          workers) connect ONLY here
 ```
 
-- **postgres**: owns all tracker data: issues, labels, views, users, invites (schema pending, ADR-012).
+- **postgres**: owns all tracker data: issues, labels, views (schema ADR-012); users, invites (schema pending, ADR-011).
 - **api**: FastAPI. Serves the client, enforces auth (ADR-011), seeds the admin user from `.env` on first boot (ADR-006), mints invite tokens (ADR-007).
 - **frontend**: React kanban client. Multiple views over the same database, each with a label filter (ADR-001); build/dev workflow pending (ADR-015).
 - **mcp**: FastMCP server, the sole seam for LLM agents (ADR-004). Tool surface and house rules pending (ADR-013). Whether it calls the api service or postgres directly is pending (ADR-010).
