@@ -1,0 +1,17 @@
+# Secrets: admin bootstrap credentials live in .env, never in source (ADR-006)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Node / frontend (lands in a later phase)
+node_modules/
+dist/
+
+# Editor / OS
+.DS_Store
