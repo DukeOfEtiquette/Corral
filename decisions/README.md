@@ -1,6 +1,6 @@
 # Decisions
 
-Architectural Decision Records (ADRs) for GHIssuesClone. Append-only.
+Architectural Decision Records (ADRs) for Corral. Append-only.
 
 ## Filenames
 

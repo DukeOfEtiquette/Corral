@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-id: GHI-T-002
+id: COR-T-002
 title: "Resolve ADR-012: issue, label, and view schema"
 status: backlog
 labels: [dept:database]

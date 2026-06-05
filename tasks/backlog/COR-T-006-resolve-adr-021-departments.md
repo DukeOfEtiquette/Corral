@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-id: GHI-T-006
+id: COR-T-006
 title: "Resolve ADR-021: decide the initial departments"
 status: backlog
 labels: [dept:docs-curation]

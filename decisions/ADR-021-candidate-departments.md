@@ -53,7 +53,7 @@ Structure exists from day one, but most directories would sit empty and conventi
 
 ## Decision
 
-{Pending. To be resolved as task GHI-T-006.}
+{Pending. To be resolved as task COR-T-006.}
 
 ## Consequences
 

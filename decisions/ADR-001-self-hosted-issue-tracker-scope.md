@@ -35,7 +35,7 @@ Caching, batching, multiple tokens, or paying for higher limits.
 
 ## Decision
 
-Build GHIssuesClone: a self-hosted client+server web app where the server tracks issues in its own database and the client provides kanban views. Each view is defined over the same database with per-view label filtering. GitHub-style automation keywords and other quality-of-life layers are out of scope for v1.
+Build Corral: a self-hosted client+server web app where the server tracks issues in its own database and the client provides kanban views. Each view is defined over the same database with per-view label filtering. GitHub-style automation keywords and other quality-of-life layers are out of scope for v1.
 
 ## Consequences
 

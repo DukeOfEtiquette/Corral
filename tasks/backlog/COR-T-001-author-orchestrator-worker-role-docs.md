@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-id: GHI-T-001
+id: COR-T-001
 title: "Author orchestrator and worker role docs, right-sized from rogue"
 status: backlog
 labels: [dept:agent-development]

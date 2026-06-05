@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-id: GHI-T-005
+id: COR-T-005
 title: "Resolve ADR-011: auth and session mechanism"
 status: backlog
 labels: [dept:backend-api]

@@ -1,4 +1,4 @@
-# GHIssuesClone
+# Corral
 
 Self-hosted, narrow-scope GitHub Issues clone: an issue database with multi-view kanban boards, plus an MCP server as the only seam for LLM agents. This file is the operating rules for AI agents working in this repo. Humans should start at `./README.md`.
 
@@ -64,7 +64,7 @@ Use repo-root-relative paths with a `./` prefix (e.g. `./decisions/ADR-001-self-
 |---|---|
 | `./README.md` | Human orientation, roadmap |
 | `./STATUS.md` | Current phase, single source of truth; update at end of any session that makes progress |
-| `./OBSERVATIONS.md` | Append-only pattern log, `GHI-NN` IDs |
+| `./OBSERVATIONS.md` | Append-only pattern log, `COR-NN` IDs |
 | `./decisions/` | All ADRs, accepted and pending |
 | `./docs/README.md` | Docs navigation |
 | `./tasks/README.md` | Task convention (canonical, markdown era) |

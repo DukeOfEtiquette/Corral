@@ -19,7 +19,7 @@ ADR-005 makes AI infrastructure a first-class domain, which raises the question 
 
 ### Option A: Mirror rogue conventions directly, right-sized for a single fresh repo
 
-Adopt the ADR format, the append-only `OBSERVATIONS.md` with stable IDs (`GHI-NN` here), `STATUS.md` as the single source of truth for progress, orchestrator/worker role docs (authored in Phase 1), and the project-manager-style coordinator-plus-departments structure (ADR-021). Skip the parts a day-zero single project does not need (multiple workspaces, frontmatter query tooling, dashboards).
+Adopt the ADR format, the append-only `OBSERVATIONS.md` with stable IDs (`COR-NN` here), `STATUS.md` as the single source of truth for progress, orchestrator/worker role docs (authored in Phase 1), and the project-manager-style coordinator-plus-departments structure (ADR-021). Skip the parts a day-zero single project does not need (multiple workspaces, frontmatter query tooling, dashboards).
 
 **Selected because:** rogue is the user's most mature and actively maintained instance of these patterns. Per the user (2026-06-05), `~/rogue/ai-workspaces/project-manager` is the specific exemplar. Trade-off accepted: conventions are copied, not shared; improvements here do not automatically flow back.
 
@@ -33,11 +33,11 @@ Adopt the ADR format, the append-only `OBSERVATIONS.md` with stable IDs (`GHI-NN
 
 ## Decision
 
-This repo adopts the rogue-derived conventions: numbered frontmatter ADRs in `./decisions/`, an append-only `./OBSERVATIONS.md` with `GHI-NN` IDs, `./STATUS.md` as the single source of truth for current progress, orchestrator/worker role docs to be authored in Phase 1, and a coordinator-plus-departments structure (candidates recorded in ADR-021). The multiverse plugin is not used.
+This repo adopts the rogue-derived conventions: numbered frontmatter ADRs in `./decisions/`, an append-only `./OBSERVATIONS.md` with `COR-NN` IDs, `./STATUS.md` as the single source of truth for current progress, orchestrator/worker role docs to be authored in Phase 1, and a coordinator-plus-departments structure (candidates recorded in ADR-021). The multiverse plugin is not used.
 
 ## Consequences
 
-- Phase 1 includes right-sizing rogue's `ORCHESTRATOR-ROLE.md` and `WORKER-ROLE.md` for this repo (seeded as task GHI-T-001).
+- Phase 1 includes right-sizing rogue's `ORCHESTRATOR-ROLE.md` and `WORKER-ROLE.md` for this repo (seeded as task COR-T-001).
 - The Agent Discipline rule (verify before asserting) is carried into `./CLAUDE.md` as the authoritative copy for this repo.
 - The no-em-dashes-in-files writing rule is inherited.
 - If the multiverse plugin matures later, registering this project remains possible; nothing here conflicts with it.

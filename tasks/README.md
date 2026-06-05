@@ -19,12 +19,12 @@ Lifecycle: `backlog -> in-progress -> blocked -> done` (blocked is a detour, not
 
 ## File format
 
-Filename: `GHI-T-NNN-<kebab-slug>.md`. IDs are allocated from `.next-task-id` (read the integer, use it, write back the increment). IDs are never reused; slugs are unique across the whole tree.
+Filename: `COR-T-NNN-<kebab-slug>.md`. IDs are allocated from `.next-task-id` (read the integer, use it, write back the increment). IDs are never reused; slugs are unique across the whole tree.
 
 ```markdown
 ---
 schema_version: 1
-id: GHI-T-001
+id: COR-T-001
 title: "Short imperative title"
 status: backlog            # backlog | in-progress | blocked | done
 labels: []                 # e.g. [dept:ai-infra]

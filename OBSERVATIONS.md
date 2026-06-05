@@ -4,14 +4,14 @@ Append-only log of recurring patterns, friction points, and notable one-offs see
 
 ## Conventions
 
-- Stable IDs: `GHI-NN`, monotonically increasing, never reused.
+- Stable IDs: `COR-NN`, monotonically increasing, never reused.
 - Lifecycle: **seen-once** (handled ad hoc, not yet logged) -> **logged** (an entry below, with context) -> **promoted** (canonicalized into a rule, template, role doc, or ADR; the entry records where it went).
 - Entries are never edited after the fact except to update their lifecycle state and promotion pointer.
 
 ## Entry format
 
 ```markdown
-### GHI-NN: short title
+### COR-NN: short title
 - date: YYYY-MM-DD
 - state: logged | promoted -> <where>
 - context: what happened, where

@@ -1,4 +1,4 @@
-# GHIssuesClone
+# Corral
 
 A self-hosted, narrow-scope GitHub Issues clone: a server that tracks issues in its own database, and a client that renders them as kanban boards. Multiple board views can be defined over the same database, each with its own label filter, so for example every department can have its own board over the shared issue pool.
 
@@ -51,7 +51,7 @@ Rationale: `./decisions/ADR-002-tech-stack.md`.
 | Phase | Deliverable |
 |---|---|
 | **0. Bootstrap** (this iteration) | Docs, decision records, task convention |
-| **1. AI infrastructure** | Orchestrator/worker role docs (GHI-T-001); resolve blocking ADRs: schema (ADR-012), API shape (ADR-010), MCP surface (ADR-013), auth (ADR-011); department structure (ADR-021) |
+| **1. AI infrastructure** | Orchestrator/worker role docs (COR-T-001); resolve blocking ADRs: schema (ADR-012), API shape (ADR-010), MCP surface (ADR-013), auth (ADR-011); department structure (ADR-021) |
 | **2. MCP + DB core** | Postgres schema, FastMCP server with house rules, admin seeding. First moment the app can store an issue |
 | **3. API** | FastAPI endpoints, auth/sessions, invite tokens, migrations (ADR-014) |
 | **4. Kanban UI** | React multi-view board with per-view label filters (ADR-015, 017, 018), admin page |
