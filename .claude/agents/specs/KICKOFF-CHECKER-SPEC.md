@@ -47,7 +47,7 @@ PASS means "this kickoff passes the structural rules"; it does NOT mean "the kic
 
 | Input | Description | Example |
 |-------|-------------|---------|
-| `kickoff_path` | Repo-root-relative path to the drafted kickoff file | `./.claude/artifacts/tmp/COR-T-002-KICKOFF.md` |
+| `kickoff_path` | Repo-root-relative path to the drafted kickoff file | `./.claude/artifacts/handoffs/COR-T-002-KICKOFF.md` |
 
 ---
 

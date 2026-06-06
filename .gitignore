@@ -3,7 +3,8 @@
 .env.*
 !.env.example
 
-# Scratch handoff artifacts: kickoffs and worker reports (ADR-023)
+# Scratch artifacts: status snapshots, intermediate analyses (ADR-023, ADR-024).
+# Kickoffs and worker reports are tracked in .claude/artifacts/handoffs/ (ADR-024).
 .claude/artifacts/tmp/
 
 # Python

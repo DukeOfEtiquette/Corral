@@ -109,7 +109,7 @@ Every Worker session writes the six-section report to two channels:
 1. **Chat.** Print the six sections in the session transcript as the closing message, so the user can skim immediately.
 2. **File.** Write the same content (verbatim; no divergence between channels) to a markdown file at a derivable path.
 
-**Path derivation.** The report file is named after the kickoff and lives in the kickoff's own directory: `<kickoff-dir>/<KICKOFF-BASENAME>-REPORT.md`, where `<KICKOFF-BASENAME>` is the kickoff filename with the trailing `.md` removed. Example: a kickoff at `./.claude/artifacts/tmp/COR-T-007-KICKOFF.md` produces a report at `./.claude/artifacts/tmp/COR-T-007-KICKOFF-REPORT.md`. The derivation rule applies wherever the kickoff lives; the report sits next to its kickoff.
+**Path derivation.** The report file is named after the kickoff and lives in the kickoff's own directory: `<kickoff-dir>/<KICKOFF-BASENAME>-REPORT.md`, where `<KICKOFF-BASENAME>` is the kickoff filename with the trailing `.md` removed. Example: a kickoff at `./.claude/artifacts/handoffs/COR-T-007-KICKOFF.md` produces a report at `./.claude/artifacts/handoffs/COR-T-007-KICKOFF-REPORT.md`. The derivation rule applies wherever the kickoff lives; the report sits next to its kickoff.
 
 **Edge case.** If the derived directory is not writable or the convention is otherwise unworkable (for example, the kickoff was supplied as inline text without a path), surface the conflict to the user before ending the session and ask where to save the report. Do not skip the file write silently. The file is the durable cross-session handoff channel; omitting it without acknowledgement breaks the contract.
 
@@ -197,6 +197,6 @@ The role is instantiated by `./.claude/commands/corral-worker.md`. The command:
 1. Pins the model in frontmatter (`model: sonnet`).
 2. References this document so the session adopts the Worker role. Role name for the user: "Corral Worker".
 3. Loads the minimum context only. Do NOT load `./STATUS.md`, `./OBSERVATIONS.md`, ADRs, or task listings; the kickoff carries the context.
-4. Resolves the kickoff path: from `$ARGUMENTS` if provided, otherwise asks the user, suggesting `./.claude/artifacts/tmp/*KICKOFF*.md` as the default lookup.
+4. Resolves the kickoff path: from `$ARGUMENTS` if provided, otherwise asks the user, suggesting `./.claude/artifacts/handoffs/*KICKOFF*.md` as the default lookup.
 5. Reads the kickoff end-to-end, then dispatches the prelaunch checker, then executes.
 6. Performs the wrap-up STATUS hygiene and dual-channel report write, dispatches the close checker, and ends with the pinned report shape.

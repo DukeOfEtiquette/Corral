@@ -50,7 +50,7 @@ The orchestrator passes these via the Task tool prompt. The drafter parses them 
 
 | Input | Type | Description |
 |-------|------|-------------|
-| `kickoff_path` | repo-root-relative path (`./` prefix) | Where to write the file, under `./.claude/artifacts/tmp/` |
+| `kickoff_path` | repo-root-relative path (`./` prefix) | Where to write the file, under `./.claude/artifacts/handoffs/` |
 | `task_title` | string | Human-readable title (used as kickoff H1) |
 | `domain` | `ai-infrastructure` or `web-app` | Which Corral domain the task belongs to (ADR-005) |
 | `decisions_resolved` | markdown list | Decisions the orchestrator pinned in chat with the user |
@@ -264,7 +264,7 @@ Abort behaviour: return an error message in the standard return shape. Do not wr
 Author a kickoff file for a Worker session.
 
 Inputs:
-- kickoff_path: ./.claude/artifacts/tmp/COR-T-002-KICKOFF.md
+- kickoff_path: ./.claude/artifacts/handoffs/COR-T-002-KICKOFF.md
 - task_title: Resolve ADR-012 issue/label/view schema
 - domain: ai-infrastructure
 - decisions_resolved:
@@ -293,7 +293,7 @@ Return path + one-sentence summary + iteration number + unresolved findings (if 
 
 **Return**:
 ```
-**Path written**: ./.claude/artifacts/tmp/COR-T-002-KICKOFF.md
+**Path written**: ./.claude/artifacts/handoffs/COR-T-002-KICKOFF.md
 **Iteration**: 1
 **Summary**: Worker completes ADR-012's pending sections using the task-frontmatter migration mapping as the column baseline.
 ```
@@ -306,7 +306,7 @@ Return path + one-sentence summary + iteration number + unresolved findings (if 
 Author a kickoff file for a Worker session.
 
 Inputs:
-- kickoff_path: ./.claude/artifacts/tmp/COR-T-002-KICKOFF.md
+- kickoff_path: ./.claude/artifacts/handoffs/COR-T-002-KICKOFF.md
 - (all other inputs as iteration 1; copied verbatim)
 - iteration_number: 2
 - prior_iteration_findings:
@@ -323,7 +323,7 @@ Read ./.claude/agents/specs/KICKOFF-DRAFTER-SPEC.md and follow the seven workflo
 
 **Return**:
 ```
-**Path written**: ./.claude/artifacts/tmp/COR-T-002-KICKOFF.md
+**Path written**: ./.claude/artifacts/handoffs/COR-T-002-KICKOFF.md
 **Iteration**: 2
 **Summary**: Worker completes ADR-012's pending sections; resolved iteration-1 em-dash and intermediate-checkpoint findings.
 ```

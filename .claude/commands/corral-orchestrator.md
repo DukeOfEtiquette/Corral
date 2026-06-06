@@ -21,7 +21,7 @@ Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 ## Phase 3: Survey state
 
 1. **Tasks**: list `./tasks/backlog/`, `./tasks/in-progress/`, and `./tasks/blocked/`. Skip `./tasks/done/`. For in-progress and blocked entries, read the file and give a one-line characterisation (flag any that look stalled or whose blocker has cleared). For backlog entries list `id` and `title` only.
-2. **Scratch artifacts**: list `./.claude/artifacts/tmp/` for in-flight kickoffs and reports. A kickoff with no sibling `-REPORT.md` may be awaiting a Worker session; a kickoff with one may be awaiting review.
+2. **Handoff artifacts**: list `./.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024). A kickoff with no sibling `-REPORT.md` may be awaiting a Worker session; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `./.claude/artifacts/tmp/` for leftover scratch.
 3. **Recent observations**: note any `./OBSERVATIONS.md` entries added since the last STATUS update.
 
 ## Phase 4: Report findings
@@ -30,7 +30,7 @@ Report in a structured shape:
 
 - **Status**: current phase and next step per `./STATUS.md`.
 - **Tasks**: in-progress and blocked with one-line characterisations; backlog as id + title.
-- **Scratch artifacts**: each with a one-line characterisation; flag active vs stale.
+- **Handoff and scratch artifacts**: each with a one-line characterisation; flag active vs settled or stale.
 - **Observations and decisions**: brief synthesis of recent entries and any pending ADRs ready to resolve.
 - **Anything else**: notable inconsistencies (e.g., STATUS.md contradicting the task tree).
 
@@ -46,14 +46,14 @@ Do NOT proactively act on any surveyed item. Orchestrator sessions are response-
 - "Block / unblock `COR-T-NNN`" -> transition with the reason captured in the activity log.
 - "Resolve `COR-T-NNN`" -> commit gate per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then move to done.
 - "Add a new task" -> allocate the next ID from `./tasks/.next-task-id`, draft in `./tasks/backlog/` per `./tasks/README.md`.
-- "Draft a kickoff for X" -> resolve anticipated decisions with the user, then run the drafter+checker dispatch loop per `ORCHESTRATOR-ROLE.md`. Kickoff paths: `./.claude/artifacts/tmp/<TASK-OR-TOPIC>-KICKOFF.md`.
+- "Draft a kickoff for X" -> resolve anticipated decisions with the user, then run the drafter+checker dispatch loop per `ORCHESTRATOR-ROLE.md`. Kickoff paths: `./.claude/artifacts/handoffs/<TASK-OR-TOPIC>-KICKOFF.md`.
 - "Review the worker session's output" -> read the report at the derived `-REPORT.md` path, verify against the kickoff and the actual file state.
 - "Resolve a pending ADR" -> read the pending ADR, frame the alternatives with the user, fill in the decision.
 - "Promote a logged observation" -> propose the guide, spec, ADR, or check it should become.
 
 ## Notes
 
-- Scratch artifacts are safe to delete once consumed, but do not delete unless the user explicitly asks.
+- Scratch artifacts in `./.claude/artifacts/tmp/` are safe to delete once consumed, but do not delete unless the user explicitly asks. Handoff artifacts in `./.claude/artifacts/handoffs/` are tracked history and are not deleted (ADR-024).
 - If you notice a pattern that looks like a new observation candidate, flag it to the user rather than silently logging it. Promotion is a user-aware decision, not a silent side effect.
 - Tasks live in markdown per `./tasks/README.md` until the dogfood milestone (ADR-008); after migration, task operations move to the MCP server (ADR-004) and this command gets updated.
 - Update `./STATUS.md` at the end of any session that makes progress (universal hygiene: bump `last_updated`, append a `recent_updates` entry).

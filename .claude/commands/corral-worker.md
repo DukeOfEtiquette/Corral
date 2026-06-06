@@ -15,7 +15,7 @@ Read `./docs/ai-orchestration/roles/WORKER-ROLE.md` and adopt the Worker role fo
 
 ## Phase 3: Resolve and check the kickoff
 
-1. If `$ARGUMENTS` is non-empty, treat it as the kickoff prompt path and read that file. Otherwise, ask the user where the kickoff prompt is, suggesting `./.claude/artifacts/tmp/*KICKOFF*.md` as the default lookup.
+1. If `$ARGUMENTS` is non-empty, treat it as the kickoff prompt path and read that file. Otherwise, ask the user where the kickoff prompt is, suggesting `./.claude/artifacts/handoffs/*KICKOFF*.md` as the default lookup.
 2. Read the kickoff end-to-end before acting on any of its instructions.
 3. **Prelaunch dispatch**: dispatch `worker-prelaunch-checker` via the Task tool with the kickoff path. Branch per `WORKER-ROLE.md` (section "Worker-side checker dispatch"): PASS proceeds; FAIL is a hard gate with three exits surfaced to the user.
 

@@ -4,6 +4,7 @@ phase: 1
 phase_title: "AI infrastructure: role docs, agents, blocking ADRs"
 last_updated: "2026-06-05"
 recent_updates:
+  - "2026-06-05: COR-T-007 executed: ADR-024 accepted (kickoff/report handoffs git-tracked in .claude/artifacts/handoffs/, tmp/ stays gitignored scratch); four existing COR-T-002/003 artifacts adopted; path/classification sweep across CLAUDE.md, role docs, commands, agents, specs."
   - "2026-06-05: COR-T-003 executed: ADR-010 resolved from pending to accepted (REST API, /api/v1 prefix, MCP server as authenticated API client); README roadmap rows 2 and 3 swapped; OVERVIEW.md mcp bullet updated."
   - "2026-06-05: COR-T-002 executed: ADR-012 resolved from pending to accepted (issues/labels/views/comments/events schema pinned); OVERVIEW.md line 25 corrected to attribute users/invites to ADR-011."
   - "2026-06-05: COR-T-001 executed: orchestrator/worker role docs authored, full drafter+checker dispatch loop ported from rogue (ADR-023), /corral-orchestrator and /corral-worker commands created."

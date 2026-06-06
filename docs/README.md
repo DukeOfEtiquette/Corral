@@ -20,7 +20,7 @@ Navigation index for Corral documentation. All `.md` files live in sanctioned lo
 | `../OBSERVATIONS.md` | Append-only pattern log (`COR-NN` IDs) |
 | `../decisions/` | ADRs: every binding choice and every queued open question |
 | `../tasks/README.md` | Bootstrap task convention (canonical for the markdown era) |
-| `../.claude/` | AI-infrastructure artifacts (ADR-023): slash commands (`commands/`), agent definitions (`agents/`), agent specs (`agents/specs/`), gitignored scratch handoffs (`artifacts/tmp/`) |
+| `../.claude/` | AI-infrastructure artifacts (ADR-023, ADR-024): slash commands (`commands/`), agent definitions (`agents/`), agent specs (`agents/specs/`), tracked handoffs (`artifacts/handoffs/`), gitignored scratch (`artifacts/tmp/`) |
 
 ## Expected to grow here (Phase 1+)
 

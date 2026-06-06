@@ -44,7 +44,7 @@ Per `./decisions/ADR-006-admin-bootstrap-env-hash.md`: deployment credentials li
 
 ### Documentation placement
 
-All `.md` files go in sanctioned locations: the repo-root docs files (`CLAUDE.md`, `README.md`, `STATUS.md`, `OBSERVATIONS.md`), `./decisions/`, `./docs/`, and `./tasks/`. Never scatter `.md` files into source directories. Navigation index: `./docs/README.md`. Exception per ADR-023: `./.claude/` holds AI-infrastructure artifacts (slash commands, agent definitions, agent specs) plus gitignored scratch handoffs in `./.claude/artifacts/tmp/`; these are domain-2 working files, not documentation.
+All `.md` files go in sanctioned locations: the repo-root docs files (`CLAUDE.md`, `README.md`, `STATUS.md`, `OBSERVATIONS.md`), `./decisions/`, `./docs/`, and `./tasks/`. Never scatter `.md` files into source directories. Navigation index: `./docs/README.md`. Exception per ADR-023 and ADR-024: `./.claude/` holds AI-infrastructure artifacts (slash commands, agent definitions, agent specs), git-tracked handoff artifacts (kickoffs, worker reports) in `./.claude/artifacts/handoffs/`, and gitignored scratch in `./.claude/artifacts/tmp/`; these are domain-2 working files, not documentation.
 
 ### Writing style
 

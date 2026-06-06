@@ -48,7 +48,7 @@ PASS means "this kickoff carries no unanchored deferrals"; it does NOT guarantee
 
 | Input | Description | Example |
 |-------|-------------|---------|
-| `kickoff_path` | Repo-root-relative path to the drafted kickoff file | `./.claude/artifacts/tmp/COR-T-002-KICKOFF.md` |
+| `kickoff_path` | Repo-root-relative path to the drafted kickoff file | `./.claude/artifacts/handoffs/COR-T-002-KICKOFF.md` |
 
 ---
 

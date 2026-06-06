@@ -48,7 +48,7 @@ PASS means "this report's Follow-ups section is parseable by the Orchestrator (e
 
 | Input | Description | Example |
 |-------|-------------|---------|
-| `report_path` | Repo-root-relative path to the Worker's draft closing report (the dual-channel file copy) | `./.claude/artifacts/tmp/COR-T-002-KICKOFF-REPORT.md` |
+| `report_path` | Repo-root-relative path to the Worker's draft closing report (the dual-channel file copy) | `./.claude/artifacts/handoffs/COR-T-002-KICKOFF-REPORT.md` |
 
 ---
 

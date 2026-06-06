@@ -78,7 +78,7 @@ Five steps, applied per observation:
 - **Only the Orchestrator transitions tasks.** Workers and subagents read task files for context but never move, edit, or create them. Surfaced work lands in a Worker report's Follow-ups section; the Orchestrator triages it into `./tasks/backlog/` (or not).
 - **Pick up `COR-T-NNN`**: update frontmatter (`status: in-progress`, `updated`), append an activity-log line, `mv` to `./tasks/in-progress/`. Then begin the work described in the Description section.
 - **Block / unblock `COR-T-NNN`**: update frontmatter `status` and `updated`, append an activity-log line capturing the reason, `mv` between `./tasks/in-progress/` and `./tasks/blocked/`.
-- **Resolve `COR-T-NNN`** (on user confirmation): **commit gate**. Identify uncommitted file changes attributable to the task, draft commit message(s), get user approval, commit, and record the short hash(es) in the task's done activity-log line (the task schema carries no `commits` field; the activity log is the record). Then update `status: done` and `updated`, `mv` to `./tasks/done/`. Informational tasks with no attributable changes record "no commits" in the done line.
+- **Resolve `COR-T-NNN`** (on user confirmation): **commit gate**. Identify uncommitted file changes attributable to the task (including its kickoff/report pair in `./.claude/artifacts/handoffs/`, per ADR-024), draft commit message(s), get user approval, commit, and record the short hash(es) in the task's done activity-log line (the task schema carries no `commits` field; the activity log is the record). Then update `status: done` and `updated`, `mv` to `./tasks/done/`. Informational tasks with no attributable changes record "no commits" in the done line.
 - **Add a new task**: allocate the ID from `./tasks/.next-task-id` (read, use, write back the increment), draft `./tasks/backlog/COR-T-NNN-<slug>.md` per the schema in `./tasks/README.md`.
 - **Pattern-mining hook**: when resolving a task, consider whether the task-and-resolution pattern warrants an OBSERVATIONS entry, an ADR, or a spec/guide addition. Surface the candidate; the user decides.
 
@@ -87,7 +87,7 @@ Five steps, applied per observation:
 ## Handoff hygiene
 
 - **Self-contained prompts.** Every handoff artifact (kickoff, patch, resume prompt) carries the full context its receiver needs. A fresh session should not have to ask "what was the goal?" after reading the prompt.
-- **Consistent artifact locations.** Scratch artifacts live in `./.claude/artifacts/tmp/`. Durable artifacts live in the sanctioned documentation locations per `./CLAUDE.md`.
+- **Consistent artifact locations.** Handoff artifacts (kickoffs, reports) live in git-tracked `./.claude/artifacts/handoffs/` (ADR-024). Scratch artifacts live in gitignored `./.claude/artifacts/tmp/`. Durable documentation lives in the sanctioned locations per `./CLAUDE.md`.
 - **Structured reports back.** Worker sessions report in the pinned six-section shape defined in `./docs/ai-orchestration/roles/WORKER-ROLE.md`, so the Orchestrator can consume reports without parsing free-form prose.
 - **Explicit do-not-touch lists.** When directing a session to make changes, enumerate what is verified correct so the session does not accidentally regress it while fixing something else.
 
@@ -95,10 +95,10 @@ Five steps, applied per observation:
 
 | Category | Lifecycle | Examples |
 |---|---|---|
-| **Durable** | Append-only or evolving over the life of the project. Committed to version control. | ADRs, `./OBSERVATIONS.md`, role docs, agent specs, schemas, guides. |
-| **Scratch** | Single-use, generated per-run. Gitignored; safe to delete once consumed, but do not delete unless the user asks. | Kickoff prompts, worker reports, status snapshots, intermediate analyses, all under `./.claude/artifacts/tmp/`. |
+| **Durable** | Append-only or evolving over the life of the project. Committed to version control. | ADRs, `./OBSERVATIONS.md`, role docs, agent specs, schemas, guides; kickoff/report handoff pairs in `./.claude/artifacts/handoffs/`, committed at the task's resolve-time commit gate (ADR-024). |
+| **Scratch** | Single-use, generated per-run. Gitignored; safe to delete once consumed, but do not delete unless the user asks. | Status snapshots, intermediate analyses, all under `./.claude/artifacts/tmp/`. |
 
-The distinction matters when deciding where to put new content: if a future session will need it, it goes in a durable artifact; if it is specific to the current run, it is scratch. The durable record of a completed task is its task file's activity log plus the commits it names, not the scratch kickoff/report pair.
+The distinction matters when deciding where to put new content: if a future session will need it, it goes in a durable artifact; if it is specific to the current run, it is scratch. The durable record of a completed task is its task file's activity log, the commits it names, and its kickoff/report pair in `./.claude/artifacts/handoffs/` (ADR-024).
 
 ## Kickoff drafting convention
 
@@ -126,7 +126,7 @@ Per ADR-023, kickoff drafting is dispatched to specialised subagents. The Orches
 
 Once anticipated decisions are resolved in chat with the user, the Orchestrator executes the following protocol:
 
-1. **Compute the kickoff path**: `./.claude/artifacts/tmp/<TASK-OR-TOPIC>-KICKOFF.md` (uppercase basename containing `KICKOFF`; include the task ID when the kickoff serves a tracked task, e.g. `COR-T-007-KICKOFF.md`). Create `./.claude/artifacts/tmp/` if it does not exist; the directory is gitignored and the drafter aborts on a missing parent.
+1. **Compute the kickoff path**: `./.claude/artifacts/handoffs/<TASK-OR-TOPIC>-KICKOFF.md` (uppercase basename containing `KICKOFF`; include the task ID when the kickoff serves a tracked task, e.g. `COR-T-007-KICKOFF.md`). Create `./.claude/artifacts/handoffs/` if it does not exist; the directory is git-tracked (ADR-024) and the drafter aborts on a missing parent.
 
 2. **Dispatch `kickoff-drafter` via the Task tool.** Pass a structured prompt with these fields: `kickoff_path`, `task_title`, `domain` (ai-infrastructure | web-app, per ADR-005), `decisions_resolved` (markdown bullets, each a pinned answer with rationale or source citation), `deliverables`, `files_in_scope`, `files_out_of_scope`, `references`, `related_tasks_and_adrs` (curated list or the literal "none"), `status_deltas` (task-specific edits or the literal "universal hygiene only"), `iteration_number=1`, `prior_iteration_findings=` (empty on iteration 1). The drafter spec is `./.claude/agents/specs/KICKOFF-DRAFTER-SPEC.md`.
 
@@ -179,7 +179,7 @@ The role is instantiated by `./.claude/commands/corral-orchestrator.md`. The com
 
 Universal notes for the command, alongside any project-specific notes:
 
-- Scratch artifacts are safe to delete once consumed, but do not delete unless the user explicitly asks.
+- Scratch artifacts in `./.claude/artifacts/tmp/` are safe to delete once consumed, but do not delete unless the user explicitly asks. Handoff artifacts in `./.claude/artifacts/handoffs/` are tracked history and are not deleted (ADR-024).
 - If you notice a pattern that looks like a new observation candidate, flag it to the user rather than silently logging it. Promotion is a user-aware decision, not a silent side effect.
 
 One Orchestrator role per session. A session that needs to switch into execution work should hand off to a fresh `/corral-worker` session via a kickoff, not absorb the Worker role mid-session.
