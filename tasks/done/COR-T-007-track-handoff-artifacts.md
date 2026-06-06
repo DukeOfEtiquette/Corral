@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-007
 title: "Git-track kickoff and report handoff artifacts (ADR-024)"
-status: in-progress
+status: done
 labels: [dept:ai-infra]
 priority: P2
 created: 2026-06-05
@@ -24,3 +24,4 @@ Deliverables: ADR-024 authored as accepted; artifacts moved and tracked; `.gitig
 
 - 2026-06-05: Created in backlog.
 - 2026-06-05: Claimed by the Orchestrator session; moved to in-progress. Process-architecture work executed directly per role clusters 4 and 5.
+- 2026-06-05: Done. ADR-024 accepted, artifacts migrated and adopted, full path/classification sweep verified. Commit de073fa.
