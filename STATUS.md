@@ -4,6 +4,7 @@ phase: 1
 phase_title: "AI infrastructure: role docs, agents, blocking ADRs"
 last_updated: "2026-06-05"
 recent_updates:
+  - "2026-06-05: COR-T-003 executed: ADR-010 resolved from pending to accepted (REST API, /api/v1 prefix, MCP server as authenticated API client); README roadmap rows 2 and 3 swapped; OVERVIEW.md mcp bullet updated."
   - "2026-06-05: COR-T-002 executed: ADR-012 resolved from pending to accepted (issues/labels/views/comments/events schema pinned); OVERVIEW.md line 25 corrected to attribute users/invites to ADR-011."
   - "2026-06-05: COR-T-001 executed: orchestrator/worker role docs authored, full drafter+checker dispatch loop ported from rogue (ADR-023), /corral-orchestrator and /corral-worker commands created."
   - "2026-06-05: Project renamed from placeholder GHIssuesClone to Corral (ADR-022); ID prefixes GHI-T/GHI-NN renamed to COR-T/COR-NN."
@@ -20,7 +21,7 @@ Single source of truth for current progress. Update at the end of any session th
 
 ## Next step
 
-Work the remaining Phase 1 backlog: COR-T-003 (API shape, ADR-010), COR-T-004 (MCP surface, ADR-013), COR-T-005 (auth, ADR-011), COR-T-006 (departments, ADR-021). These are the first candidates for the new kickoff/worker workflow.
+Work the remaining Phase 1 backlog: COR-T-004 (MCP surface, ADR-013), COR-T-005 (auth, ADR-011), COR-T-006 (departments, ADR-021). These are the first candidates for the new kickoff/worker workflow.
 
 ## Blocked on
 

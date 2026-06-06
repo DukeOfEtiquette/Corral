@@ -52,8 +52,8 @@ Rationale: `./decisions/ADR-002-tech-stack.md`.
 |---|---|
 | **0. Bootstrap** (this iteration) | Docs, decision records, task convention |
 | **1. AI infrastructure** | Orchestrator/worker role docs (COR-T-001); resolve blocking ADRs: schema (ADR-012), API shape (ADR-010), MCP surface (ADR-013), auth (ADR-011); department structure (ADR-021) |
-| **2. MCP + DB core** | Postgres schema, FastMCP server with house rules, admin seeding. First moment the app can store an issue |
-| **3. API** | FastAPI endpoints, auth/sessions, invite tokens, migrations (ADR-014) |
+| **2. API + DB core** | Postgres schema, FastAPI endpoints with house rules, auth/sessions, invite tokens, migrations (ADR-014), admin seeding (ADR-006). First moment the app can store an issue |
+| **3. MCP server** | FastMCP server as an authenticated API client (ADR-004, ADR-010). The agent seam goes live |
 | **4. Kanban UI** | React multi-view board with per-view label filters (ADR-015, 017, 018), admin page |
 | **5. Dogfood milestone** | Import `./tasks/` markdown into the app via the MCP server; the project tracks itself; markdown tasks frozen (`./decisions/ADR-008-bootstrap-tasks-dogfood-milestone.md`). Multi-user/agent concurrency (ADR-020) becomes live here |
 

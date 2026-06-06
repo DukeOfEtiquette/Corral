@@ -38,6 +38,6 @@ A purpose-built MCP server is a first-class deliverable of this project and the 
 ## Consequences
 
 - The MCP tool surface and its house rules need their own design decision (ADR-013), and the contract needs a versioning policy once external agent fleets depend on it (ADR-019).
-- Whether the MCP server calls the HTTP API or the database directly is a pending decision (ADR-010).
+- Whether the MCP server calls the HTTP API or the database directly is decided in ADR-010: it calls the HTTP API, never the database directly.
 - Until the MCP server exists, the markdown task convention in `./tasks/` is the interim seam (ADR-008).
 - Agent-facing capability gaps surface as MCP tool requests, which is intended: the contract stays explicit.
