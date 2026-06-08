@@ -2,8 +2,9 @@
 schema_version: 1
 phase: 1
 phase_title: "AI infrastructure: role docs, agents, blocking ADRs"
-last_updated: "2026-06-05"
+last_updated: "2026-06-07"
 recent_updates:
+  - "2026-06-07: COR-T-004 executed: ADR-013 accepted (nine-tool MCP surface: issue_list/get/create/claim/move/comment/label/view_list/import; free status transitions; priority required at create; label-governance mechanism pinned, specifics deferred to ADR-018/ADR-021); ADR-025 queued pending (native epics); OVERVIEW.md mcp-bullet clause updated."
   - "2026-06-05: COR-T-007 executed: ADR-024 accepted (kickoff/report handoffs git-tracked in .claude/artifacts/handoffs/, tmp/ stays gitignored scratch); four existing COR-T-002/003 artifacts adopted; path/classification sweep across CLAUDE.md, role docs, commands, agents, specs."
   - "2026-06-05: COR-T-003 executed: ADR-010 resolved from pending to accepted (REST API, /api/v1 prefix, MCP server as authenticated API client); README roadmap rows 2 and 3 swapped; OVERVIEW.md mcp bullet updated."
   - "2026-06-05: COR-T-002 executed: ADR-012 resolved from pending to accepted (issues/labels/views/comments/events schema pinned); OVERVIEW.md line 25 corrected to attribute users/invites to ADR-011."
@@ -22,7 +23,7 @@ Single source of truth for current progress. Update at the end of any session th
 
 ## Next step
 
-Work the remaining Phase 1 backlog: COR-T-004 (MCP surface, ADR-013), COR-T-005 (auth, ADR-011), COR-T-006 (departments, ADR-021). These are the first candidates for the new kickoff/worker workflow.
+Work the remaining Phase 1 backlog: COR-T-005 (auth, ADR-011), COR-T-006 (departments, ADR-021). These are the first candidates for the new kickoff/worker workflow.
 
 ## Blocked on
 
