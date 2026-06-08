@@ -4,6 +4,7 @@ phase: 1
 phase_title: "AI infrastructure: role docs, agents, blocking ADRs"
 last_updated: "2026-06-08"
 recent_updates:
+  - "2026-06-08: COR-T-011 executed: ADR-027 accepted (AI-infrastructure workspace structure). Corral adopts the rogue coordinator-plus-departments model as a real ai-infrastructure/ directory structure with ai-infrastructure/project-manager/ as the coordinator workspace (root orchestration to move there in a follow-on restructure task), a single shared dept:-labeled task pool (deliberate rogue divergence dogfooding ADR-001), lazily-created sibling department workspaces, an amendment of ADR-009's skip-workspaces framing, and three named follow-on deliverables: restructure execution, create-department recipe, and project-manager dashboard."
   - "2026-06-08: Queued COR-T-010 (resolve ADR-026 per-agent MCP identity) and framed ADR-026 pending. Triaged from the COR-T-005 Worker follow-up: ADR-011's single shared MCP service identity defers per-agent attribution and claim-lease (ADR-020)."
   - "2026-06-08: COR-T-005 executed: ADR-011 accepted (server-side cookie sessions; hand-rolled on vetted primitives; argon2id hashing, closing ADR-006; invite-token mechanics pinned, closing ADR-007; MCP-to-API static service API key with a single shared service identity, closing ADR-010 Consequence #3; auth schema delta owned per ADR-012 Consequence #3); per-agent MCP identity deferred to a future ADR; OVERVIEW.md line-25 \"pending\" annotation dropped."
   - "2026-06-07: Queued COR-T-008 (resolve ADR-018 label taxonomy) and COR-T-009 (resolve ADR-025 native epics), triaged from COR-T-004 Worker follow-ups."
@@ -26,7 +27,7 @@ Single source of truth for current progress. Update at the end of any session th
 
 ## Next step
 
-Work the remaining Phase 1 backlog: COR-T-006 (departments, ADR-021) is the near-term candidate for the kickoff/worker workflow. COR-T-008 (label taxonomy, ADR-018), COR-T-009 (native epics, ADR-025), and COR-T-010 (per-agent MCP identity, ADR-026) are queued for later resolution.
+The foundational AI-infrastructure structure is now decided (ADR-027). The next backbone step is executing the restructure: moving root orchestration content into `ai-infrastructure/project-manager/` and reducing the repo root to a thin orientation layer. Following that are the create-department recipe (the `templates/department/` baseline and `/create-department` command) and the project-manager dashboard (a Python ETL over the shared task pool, compose-integrated, repointing to the Corral web app at the dogfood milestone). COR-T-006 (ADR-021 candidate-department finalization) rides alongside and is not blocked by the restructure. COR-T-008 (label taxonomy, ADR-018), COR-T-009 (native epics, ADR-025), and COR-T-010 (per-agent MCP identity, ADR-026) remain queued for resolution.
 
 ## Blocked on
 
