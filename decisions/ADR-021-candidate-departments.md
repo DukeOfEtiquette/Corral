@@ -2,16 +2,14 @@
 schema_version: 1
 adr: 21
 title: "Candidate departments: coordinator-plus-departments structure for this project"
-status: "pending"
-date: "2026-06-05"
-related_adrs: [5, 9, 18]
+status: "accepted"
+date: "2026-06-08"
+related_adrs: [1, 5, 8, 9, 18, 27]
 supersedes: []
 superseded_by: null
 ---
 
 # ADR-021: Candidate departments: coordinator-plus-departments structure for this project
-
-> Pending: resolve in Phase 1. Frames the candidate list per the user's request; which departments exist, and when each is created, is not yet decided.
 
 ## Context
 
@@ -47,14 +45,60 @@ Repo root stays the coordinator; a department is created (directory, conventions
 
 **Leaning selected:** matches the rogue history, where departments accreted as need emerged.
 
+**Selected.** Departments are created on demand, not in advance. The menu established by this ADR is the ready list the `project-manager` coordinator stamps from when sustained work justifies it, using the create-department recipe (ADR-027 Fork D). No department workspace is created by this ADR or at this time. The `dept:*` labels already present on existing task files represent taxonomy running ahead of formal workspace creation; this is consistent with ADR-027 and intentional. The `project-manager` coordinator is the sole exception: it is instantiated by the restructure (ADR-027), not lazily created.
+
 ### Option B: Create all departments up front
 
 Structure exists from day one, but most directories would sit empty and conventions would be guessed rather than earned.
 
+**Rejected.** Creating eight department workspaces at this point would produce empty scaffolding before any department has real work. Conventions for a department emerge from real work, not from a template written in advance. The structural overhead would be carried with no benefit until actual department work begins. Option A's lazy model is cheaper to maintain and consistent with how rogue's departments accreted.
+
 ## Decision
 
-{Pending. To be resolved as task COR-T-006.}
+This ADR blesses the nine-entry department menu and confirms the lazy-creation policy (Option A). ADR-027 is the authoritative workspace-structure ADR; ADR-021 is the menu feeding it.
+
+**Blessed menu:**
+
+Coordinator (instantiated by the restructure per ADR-027; not lazily created):
+
+| Entry | Scope |
+|---|---|
+| project-manager | Orchestration, dispatch, review, cross-department coordination, and the shared task pool |
+
+AI-infrastructure domain departments (lazily created, per ADR-005):
+
+| Entry | Would own |
+|---|---|
+| agent-development | Orchestrator/worker role docs, agent definitions, kickoff/report specs |
+| test-design | The test-designer agent and test-planning artifacts (ADR-016) |
+| docs-curation | Decision hygiene, observation promotion, docs navigation |
+
+Web-app domain departments (lazily created):
+
+| Entry | Would own |
+|---|---|
+| backend-api | FastAPI service, auth, invites |
+| database | Schema, migrations, seed logic |
+| mcp-server | The MCP tool surface and house rules (ADR-013) |
+| frontend-ui | React kanban client |
+| devops | Docker images, compose topology, deployment |
+
+**Coordinator/department distinction.** `project-manager` is the coordinator: it tracks, dispatches, and reviews; it does not author domain content. It holds write authority over the sibling department workspaces it coordinates (per ADR-027, "Coordinator write authority"). It is on the menu so coordinator-level work has a `dept:project-manager` label and its own filtered board, mirroring rogue's `workspace:project-manager`. Unlike the eight departments, it is not lazily created; it is instantiated by the restructure (ADR-027, a named follow-on task). It is not a tenth peer department.
+
+**Label and board mapping.** Each menu entry maps to a `dept:<slug>` label (taxonomy and enforcement owned by ADR-018). At the dogfood milestone (ADR-008), each `dept:*` label gets its own filtered kanban board (ADR-001, ADR-008).
+
+**Creation policy: lazy (Option A).** No department workspace is created by this task or at this time. The `project-manager` coordinator is the lone exception (see above). The `dept:*` labels already present on existing task files are taxonomy running ahead of formal workspace creation, which is consistent with ADR-027. The create-department recipe (ADR-027 Fork D) is how the `project-manager` stamps out a new department on demand; that recipe is a named follow-on task and is not built by this ADR.
 
 ## Consequences
 
-{Pending.}
+- **`project-manager` coordinator role.** `project-manager` is instantiated by the restructure (COR-T-012, the ADR-027 follow-on task), not lazily created. Its write authority over sibling department workspaces is established by ADR-027. The coordinator role and its scope are defined there; this ADR adds it to the menu so coordinator-level work is labeled and visible.
+
+- **`ai-infra` is a domain, not a department.** `ai-infra` is the ADR-005 domain name and is deliberately absent from this menu. One existing task (COR-T-007) carries an off-menu `dept:ai-infra` label. Reconciling that label is label-taxonomy hygiene owned by ADR-018 (its resolution is COR-T-008). COR-T-007 is not relabeled by this ADR; that is a COR-T-008 follow-up.
+
+- **`dept:*` labels as taxonomy ahead of workspace creation.** Task files already carry `dept:<slug>` labels before their department workspaces exist. This is consistent with ADR-027 and intentional: the shared labeled pool (ADR-027 Fork B) is the product model Corral is building. The labels are valid now; workspace creation follows when work warrants it.
+
+- **Create-department recipe.** How the `project-manager` stamps out a new department is defined in ADR-027 Fork D and implemented in a named follow-on task. That recipe is not provided by this ADR; this ADR provides the menu the recipe is stamped from.
+
+- **Departments map to filtered boards at the dogfood milestone.** Each `dept:<slug>` gets its own filtered kanban board at the dogfood milestone (ADR-008), when task management migrates off the markdown `tasks/` tree and into the Corral web app. The label taxonomy and enforcement (including exactly one `dept:*` per task) are owned by ADR-018. ADR-001 established the board-per-department-label headline use case; ADR-008 fixed the dogfood milestone as when it lands.
+
+- **ADR-027 is the authoritative structure ADR.** This ADR is the department menu; ADR-027 owns the coordinator/department model, the shared `dept:`-labeled task pool, the create-department recipe, and the coordinator write-authority grant. Readers who want the full workspace structure should read ADR-027. The two ADRs are complementary, not overlapping.
