@@ -4,6 +4,7 @@ phase: 1
 phase_title: "AI infrastructure: role docs, agents, blocking ADRs"
 last_updated: "2026-06-08"
 recent_updates:
+  - "2026-06-08: Queued COR-T-010 (resolve ADR-026 per-agent MCP identity) and framed ADR-026 pending. Triaged from the COR-T-005 Worker follow-up: ADR-011's single shared MCP service identity defers per-agent attribution and claim-lease (ADR-020)."
   - "2026-06-08: COR-T-005 executed: ADR-011 accepted (server-side cookie sessions; hand-rolled on vetted primitives; argon2id hashing, closing ADR-006; invite-token mechanics pinned, closing ADR-007; MCP-to-API static service API key with a single shared service identity, closing ADR-010 Consequence #3; auth schema delta owned per ADR-012 Consequence #3); per-agent MCP identity deferred to a future ADR; OVERVIEW.md line-25 \"pending\" annotation dropped."
   - "2026-06-07: Queued COR-T-008 (resolve ADR-018 label taxonomy) and COR-T-009 (resolve ADR-025 native epics), triaged from COR-T-004 Worker follow-ups."
   - "2026-06-07: COR-T-004 executed: ADR-013 accepted (nine-tool MCP surface: issue_list/get/create/claim/move/comment/label/view_list/import; free status transitions; priority required at create; label-governance mechanism pinned, specifics deferred to ADR-018/ADR-021); ADR-025 queued pending (native epics); OVERVIEW.md mcp-bullet clause updated."
@@ -25,7 +26,7 @@ Single source of truth for current progress. Update at the end of any session th
 
 ## Next step
 
-Work the remaining Phase 1 backlog: COR-T-006 (departments, ADR-021) is the near-term candidate for the kickoff/worker workflow. COR-T-008 (label taxonomy, ADR-018) and COR-T-009 (native epics, ADR-025) are queued for later resolution.
+Work the remaining Phase 1 backlog: COR-T-006 (departments, ADR-021) is the near-term candidate for the kickoff/worker workflow. COR-T-008 (label taxonomy, ADR-018), COR-T-009 (native epics, ADR-025), and COR-T-010 (per-agent MCP identity, ADR-026) are queued for later resolution.
 
 ## Blocked on
 
