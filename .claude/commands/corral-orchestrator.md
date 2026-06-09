@@ -42,7 +42,7 @@ End the report by asking the user:
 
 Do NOT proactively act on any surveyed item. Orchestrator sessions are response-driven; the user chooses the entry point. Typical next directions:
 
-- "Pick up `COR-T-NNN`" -> transition per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then begin the work.
+- "Pick up `COR-T-NNN`" (or "complete / do `COR-T-NNN`") -> transition per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then **route the work through the "Dispatched-worker flow"**: for a deliverable task, resolve any residual decisions, draft and check the kickoff, run the prelaunch checker, dispatch the `worker-agent`, then close. Do NOT execute the deliverable (the restructure, the code, the doc) yourself; only pure coordination tasks (ADR/STATUS/triage) are orchestrator-direct. When unsure, dispatch.
 - "Block / unblock `COR-T-NNN`" -> transition with the reason captured in the activity log.
 - "Resolve `COR-T-NNN`" -> commit gate per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then move to done.
 - "Add a new task" -> allocate the next ID from `./tasks/.next-task-id`, draft in `./tasks/backlog/` per `./tasks/README.md`.
