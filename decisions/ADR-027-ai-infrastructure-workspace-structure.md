@@ -11,6 +11,8 @@ superseded_by: null
 
 # ADR-027: AI-infrastructure workspace structure: project-manager coordinator and lazily-created departments
 
+> **Forward pointer (2026-06-09):** ADR-029 partially amends the Decision-section tree below, which placed all of `docs/` inside `project-manager/`. ADR-029 keeps the shared `docs/ai-orchestration/` role docs at the repo root (shared infrastructure, like `.claude/`) and moves only `docs/architecture/OVERVIEW.md` into `project-manager/docs/`. The four forks (A-E) and all other decisions here are unaffected. See ADR-029.
+
 ## Context
 
 At day zero, the repo root acts as the sole coordinator: `CLAUDE.md`, `STATUS.md`, `OBSERVATIONS.md`, `decisions/`, `docs/`, and `tasks/` all live at the root. No departments exist. ADR-009 established rogue's `~/rogue/ai-workspaces/project-manager` as Corral's exemplar and named the coordinator-plus-departments structure as the target (with ADR-021 recording the candidate list). ADR-009 Option A's parenthetical explicitly deferred it: "Skip the parts a day-zero single project does not need (multiple workspaces, frontmatter query tooling, dashboards)." That deferral was intentional MVP-maturity scoping.
