@@ -11,6 +11,8 @@ superseded_by: null
 
 # ADR-023: Adopt the full drafter+checker dispatch loop at day zero, with scratch handoffs in gitignored .claude/artifacts/tmp/
 
+> **Forward pointer (2026-06-09):** ADR-028 extends this ADR by promoting the worker into the same orchestrator-dispatched-subagent model the checkers use. The dispatched `worker-agent` is a leaf, so `worker-prelaunch-checker` and `worker-close-checker` are now dispatched by the Orchestrator (not by the worker), and the `/corral-worker` slash command named here was retired. The drafter+checker loop and the day-zero machinery decision are otherwise unchanged. See ADR-028 and `ORCHESTRATOR-ROLE.md` section "Dispatched-worker flow".
+
 ## Context
 
 COR-T-001 right-sizes rogue's orchestrator and worker role docs for this repo (ADR-009). The rogue source material includes enforcement machinery the role docs alone do not imply: kickoffs are authored by a `kickoff-drafter` subagent and validated by a `kickoff-checker` subagent in a bounded iteration loop, and worker sessions dispatch `worker-prelaunch-checker` and `worker-close-checker` subagents at two checkpoints. Rogue grew this machinery (its project-manager ADR-016) only after observing that orchestrators drift from prose rules under context pressure. ADR-009 left open whether a day-zero repo carries it, drops it, or defers it. Two adjacent questions surfaced at the same time: where kickoff prompts and worker reports (scratch handoff artifacts, all `.md` files) live given the documentation-placement rule in `./CLAUDE.md`, and whether the slash commands that instantiate the roles are authored alongside the role docs.

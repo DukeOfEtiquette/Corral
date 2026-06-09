@@ -11,6 +11,12 @@ superseded_by: null
 
 # ADR-009: Adopt rogue-derived AI-orchestration conventions, right-sized; not the multiverse plugin
 
+> **Forward pointer (2026-06-09):** ADR-028 partially supersedes the worker-invocation mechanism this
+> ADR established (the parallel human-driven `/corral-worker` session): the worker becomes an
+> orchestrator-dispatched subagent and `/corral-worker` is retired. The role split, report shape, and
+> handoff artifacts adopted here are retained. Per the partial-supersession convention the
+> `superseded_by` field is left null; see ADR-028.
+
 ## Context
 
 ADR-005 makes AI infrastructure a first-class domain, which raises the question of which conventions that infrastructure follows. The user maintains two candidate sources: the mature orchestration system in `~/rogue` (orchestrator/worker roles, kickoff/report handoffs, ADRs with YAML frontmatter, append-only OBSERVATIONS logs with stable IDs, STATUS.md as single source of truth, a coordinator workspace with departments), and the `~/claude_multiverse` plugin, which packages similar ideas as reusable skills.
