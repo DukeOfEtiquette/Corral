@@ -211,12 +211,12 @@ A kickoff body has this universal scaffold:
 
 ## Worker pointer
 
-The Worker session is `/corral-worker`. Universal worker conventions live in `./docs/ai-orchestration/roles/WORKER-ROLE.md`. The closing report is written to `{kickoff_dir}/{kickoff_basename}-REPORT.md` per WORKER-ROLE.md, section "Report shape".
+The worker is the dispatched `worker-agent` (ADR-028). Universal worker conventions live in `./docs/ai-orchestration/roles/WORKER-ROLE.md`. The closing report is written to `{kickoff_dir}/{kickoff_basename}-REPORT.md` per WORKER-ROLE.md, section "Report shape".
 ```
 
 The drafter NEVER includes:
 
-- "How to invoke" / "Open a fresh session" / "Run /corral-worker {path}" framings inside the kickoff body. These belong in the orchestrator's chat reply.
+- "How to invoke" / "Open a fresh session" / "run the worker" framings inside the kickoff body. The orchestrator dispatches the worker directly, so there is no invocation to name.
 - "Option A vs Option B" tradeoff lists for the worker to pick from.
 - "Worker, figure out X" delegations.
 - Intermediate checkpoints ("Optional Checkpoint A", mid-task "ask the user to verify" steps).

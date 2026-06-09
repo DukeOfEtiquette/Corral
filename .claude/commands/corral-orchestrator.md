@@ -6,7 +6,7 @@ description: Adopt the Corral Orchestrator role, survey project state, and wait 
 
 ## Phase 1: Adopt the role
 
-Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestrator role for this session. Your role name for the user is "Corral Orchestrator." All sections of that document apply, including the review discipline, the task lifecycle, the kickoff drafting convention, and the drafter+checker dispatch loop.
+Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestrator role for this session. Your role name for the user is "Corral Orchestrator." All sections of that document apply, including the review discipline, the task lifecycle, the kickoff drafting convention, the drafter+checker dispatch loop, and the dispatched-worker flow (the `worker-agent` is the single worker execution path per ADR-028).
 
 ## Phase 2: Load project context
 
@@ -21,7 +21,7 @@ Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 ## Phase 3: Survey state
 
 1. **Tasks**: list `./tasks/backlog/`, `./tasks/in-progress/`, and `./tasks/blocked/`. Skip `./tasks/done/`. For in-progress and blocked entries, read the file and give a one-line characterisation (flag any that look stalled or whose blocker has cleared). For backlog entries list `id` and `title` only.
-2. **Handoff artifacts**: list `./.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024). A kickoff with no sibling `-REPORT.md` may be awaiting a Worker session; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `./.claude/artifacts/tmp/` for leftover scratch.
+2. **Handoff artifacts**: list `./.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024). A kickoff with no sibling `-REPORT.md` may be awaiting dispatch or have had its worker dispatch interrupted; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `./.claude/artifacts/tmp/` for leftover scratch.
 3. **Recent observations**: note any `./OBSERVATIONS.md` entries added since the last STATUS update.
 
 ## Phase 4: Report findings
@@ -46,8 +46,9 @@ Do NOT proactively act on any surveyed item. Orchestrator sessions are response-
 - "Block / unblock `COR-T-NNN`" -> transition with the reason captured in the activity log.
 - "Resolve `COR-T-NNN`" -> commit gate per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then move to done.
 - "Add a new task" -> allocate the next ID from `./tasks/.next-task-id`, draft in `./tasks/backlog/` per `./tasks/README.md`.
-- "Draft a kickoff for X" -> resolve anticipated decisions with the user, then run the drafter+checker dispatch loop per `ORCHESTRATOR-ROLE.md`. Kickoff paths: `./.claude/artifacts/handoffs/<TASK-OR-TOPIC>-KICKOFF.md`.
-- "Review the worker session's output" -> read the report at the derived `-REPORT.md` path, verify against the kickoff and the actual file state.
+- "Draft a kickoff for X" -> resolve anticipated decisions with the user, then run the drafter+checker dispatch loop per `ORCHESTRATOR-ROLE.md` (section "Drafter+checker dispatch loop"). Kickoff paths: `./.claude/artifacts/handoffs/<TASK-OR-TOPIC>-KICKOFF.md`.
+- "Execute the kickoff" (or proceeding after a kickoff passes the loop) -> run the "Dispatched-worker flow" per `ORCHESTRATOR-ROLE.md`: dispatch the prelaunch checker, dispatch the `worker-agent` (Sonnet, foreground), branch on its `RETURN: COMPLETED` / `RETURN: ESCALATION` verdict, then run the close checker and verify the report against disk.
+- "Review the worker's output" -> the worker returns its report inline (and writes it to the derived `-REPORT.md` path); verify the report against the kickoff and the actual file state, independently re-deriving its claims.
 - "Resolve a pending ADR" -> read the pending ADR, frame the alternatives with the user, fill in the decision.
 - "Promote a logged observation" -> propose the guide, spec, ADR, or check it should become.
 

@@ -11,7 +11,7 @@ updated: 2026-06-08
 
 ## Description
 
-Execute the physical restructure decided in `./decisions/ADR-027-ai-infrastructure-workspace-structure.md` (its Decision section is the spec). `git mv` the root orchestration content (`CLAUDE.md` operating rules, `STATUS.md`, `OBSERVATIONS.md`, `decisions/`, `docs/`, `tasks/`) into `ai-infrastructure/project-manager/`; write a thin repo-root `CLAUDE.md` (orientation plus pointers into `ai-infrastructure/` and the future `app/`) and keep `README.md` for humans; rewrite path-convention references so `./`-prefixed paths resolve workspace-relative within `project-manager/` (the moved `CLAUDE.md`, the role docs, the `/corral-orchestrator` and `/corral-worker` slash commands, and the agent specs). `.claude/` stays at the repo root as shared infrastructure. No new ADRs and no tooling are authored. Gated on ADR-027 (accepted).
+Execute the physical restructure decided in `./decisions/ADR-027-ai-infrastructure-workspace-structure.md` (its Decision section is the spec). `git mv` the root orchestration content (`CLAUDE.md` operating rules, `STATUS.md`, `OBSERVATIONS.md`, `decisions/`, `docs/`, `tasks/`) into `ai-infrastructure/project-manager/`; write a thin repo-root `CLAUDE.md` (orientation plus pointers into `ai-infrastructure/` and the future `app/`) and keep `README.md` for humans; rewrite path-convention references so `./`-prefixed paths resolve workspace-relative within `project-manager/` (the moved `CLAUDE.md`, the role docs, the `/corral-orchestrator` slash command, the `worker-agent` and the other agent definitions, and the agent specs). `.claude/` stays at the repo root as shared infrastructure. No new ADRs and no tooling are authored. Gated on ADR-027 (accepted).
 
 ## Activity log
 

@@ -15,7 +15,7 @@
 
 The Worker Prelaunch Checker runs in a fresh context (no visibility into the Worker's reading pass, the Orchestrator's chat, or any drafter reasoning). Starting from the drafted kickoff file on disk plus the W1 rule definition in this spec, it scans for deferral items that lack an acceptance test or user-confirm flag and emits a structured report.
 
-This agent is dispatched by the Worker after it has read the kickoff end-to-end and before it begins executing the kickoff body (`./docs/ai-orchestration/roles/WORKER-ROLE.md`, section "Worker-side checker dispatch"). Its verdict is gating: a FAIL prevents the Worker from spending tokens on execution against a kickoff that pins deferrals without proving they are safe; instead, the Worker surfaces the verdict to the user with three exits (re-run orchestrator to redraft, authorise proceed with documented exceptions, or abort).
+This agent is dispatched by the Orchestrator after it has drafted and checked a kickoff and before it dispatches the `worker-agent` (`./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow", step 2). The Orchestrator runs it because the dispatched worker is a leaf and cannot dispatch its own checkers (ADR-028). Its verdict is gating: a FAIL prevents the Orchestrator from spending a worker dispatch against a kickoff that pins deferrals without proving they are safe; instead, the Orchestrator re-drafts the kickoff through the drafter+checker loop or surfaces the verdict to the user.
 
 W1 fires on any kickoff containing a deferral surface (Decisions rows with a "deferred" answer, an explicit Out-of-scope section beyond a plain file list, or a Follow-ups section in the kickoff body). Kickoffs with no such surface see PASS by vacuity.
 
@@ -25,9 +25,9 @@ PASS means "this kickoff carries no unanchored deferrals"; it does NOT guarantee
 
 ## Agent Purpose
 
-- **Worker-side enforcement of W1**, the failure mode where a kickoff pins a deferral without naming what proves the deferral is acceptable for this task. Without an acceptance test or user-confirm flag, the Worker absorbs the deferral as "do nothing here" and ships a regression (the deferred behaviour was load-bearing; the kickoff did not say so).
-- **Independent verdict.** The checker does not see the Worker's reading pass or the Orchestrator's chat. Its only inputs are the file and the rule definition; this independence catches drift the Worker's self-review would miss.
-- **Structured output.** The report schema is parsed by the Worker's dispatch wrapper; finding IDs and severity classifications are stable.
+- **Enforcement of W1**, the failure mode where a kickoff pins a deferral without naming what proves the deferral is acceptable for this task. Without an acceptance test or user-confirm flag, the worker absorbs the deferral as "do nothing here" and ships a regression (the deferred behaviour was load-bearing; the kickoff did not say so).
+- **Independent verdict.** The checker does not see the Orchestrator's chat or any drafter reasoning. Its only inputs are the file and the rule definition; this independence catches drift the Orchestrator's self-review would miss.
+- **Structured output.** The report schema is parsed by the Orchestrator's dispatch wrapper; finding IDs and severity classifications are stable.
 - **Read-only contract.** The checker never modifies the kickoff or any other file. Attempting to write or edit is a violation of the agent's core contract.
 
 ---
@@ -182,7 +182,7 @@ The checker does NOT:
 
 ## Design Rationale
 
-**Why W1 is the only prelaunch rule in v1.** W1 (deferral acceptance-test required) is the one prelaunch failure mode whose shape is universal: any kickoff that permits a "decision pinned to deferred" row, an "out of scope" rationale, or a "follow-ups" tail-list is exposed to silent-absorption regression. Rogue's workspace-scoped prelaunch rules depended on workspace conventions Corral does not have; if departments later introduce their own kickoff conventions (ADR-021), department-scoped checkers can layer beside this one per `WORKER-ROLE.md`, section "Worker-side checker dispatch".
+**Why W1 is the only prelaunch rule in v1.** W1 (deferral acceptance-test required) is the one prelaunch failure mode whose shape is universal: any kickoff that permits a "decision pinned to deferred" row, an "out of scope" rationale, or a "follow-ups" tail-list is exposed to silent-absorption regression. Rogue's workspace-scoped prelaunch rules depended on workspace conventions Corral does not have; if departments later introduce their own kickoff conventions (ADR-021), department-scoped checkers can layer beside this one per `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow".
 
 **Why Sonnet (not Opus).** W1 is LLM-judgement bounded by tight rule definitions for what constitutes an acceptance test or a user-confirm flag. Sonnet handles this scope efficiently. If real-world data shows W1 missing valid violations or producing chronic false positives, Opus is a v2 candidate.
 

@@ -25,7 +25,7 @@ The spec contains the seven workflow phases (load conventions, parse inputs, rea
 
 ## Core Principles
 
-- **Audience is the worker.** Write in second-person addressed to the worker. Never address the user. Never include invocation framing ("Open a fresh session", "Run /corral-worker", "How to invoke"); those belong in the orchestrator's chat reply.
+- **Audience is the worker.** Write in second-person addressed to the worker (the dispatched `worker-agent`, ADR-028). Never address the user. Never include invocation or session framing ("Open a fresh session", "How to invoke", "run the worker"); the orchestrator dispatches the worker directly, so there is no invocation to name.
 - **Decisions resolved are authoritative.** Render every decision as a pinned answer with a one-sentence rationale or source citation. No "Option A vs Option B" framing. No "decide between X and Y" delegation.
 - **Conventions ground the shape.** Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` (section "Kickoff drafting convention") at Phase 1; honour the scaffold and content rules named there. The global writing rules in `./CLAUDE.md` bind everything you write.
 - **Self-audit before writing.** Scan your draft for every rule violation (R1-R8 per the spec's Phase 5 list). Revise before write. The kickoff-checker runs after you; you should not be its first surfacing of these violations.
@@ -106,9 +106,9 @@ Before issuing the Write call, confirm:
 - **No paradigm-choice deferrals** ("decide if pattern A or B") (R3). Pinned choice with rationale or source citation.
 - **No intermediate checkpoints** ("Optional Checkpoint A", mid-task "ask the user to verify" steps) (R4). One acceptance gate.
 - **STATUS deltas section is present** with task-specific edits named, OR the body states "No task-specific STATUS deltas; universal hygiene only." (R6).
-- **No invocation framing in body** ("Open a fresh session", "Run /corral-worker") (R7). That content goes in the orchestrator's chat reply, not the kickoff.
+- **No invocation framing in body** ("Open a fresh session", "How to invoke", "run the worker") (R7). The orchestrator dispatches the worker directly; that meta-content does not belong in the kickoff.
 - **Related tasks and ADRs section is present** with COR-T-NNN / ADR-NNN entries or the literal "none" (R8).
-- **Worker pointer** is present (the kickoff body cites `/corral-worker` and `WORKER-ROLE.md` so the worker resolves the universal anchors correctly).
+- **Worker pointer** is present (the kickoff body cites `WORKER-ROLE.md`, and where useful the `worker-agent`, so the worker resolves the universal anchors correctly).
 
 If any check fires, revise the draft and re-check before writing. The kickoff-checker will catch these on its independent scan; you should not be relying on it to surface obvious violations.
 

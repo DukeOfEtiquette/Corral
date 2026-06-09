@@ -79,7 +79,7 @@ Scan prose regions for invocation instructions that belong in the orchestrator's
 
 Each hit is a FAIL: `R7, line L, evidence "...", recommendation "Move invocation framing to the orchestrator's chat reply per ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention'; the kickoff body is for worker task content only"`.
 
-Exception: the Worker pointer section's mention of `/corral-worker` as the role's command name (without an instruction to run it) is conventional and does not fire R7.
+Exception: the Worker pointer section's mention of `WORKER-ROLE.md` or the `worker-agent` (as references, without invocation framing) is conventional and does not fire R7.
 
 ### Phase 4: R4 intermediate-checkpoint scan (structural)
 
@@ -163,7 +163,7 @@ Aggregate all FAIL findings from Phases 2-9 (Phase 1 produces F-000 only on file
 
 Order findings by phase number (R5 first, then R7, R4, R6, R1, R2, R3, R8). Within a rule, order by line number ascending. Assign IDs `F-001`, `F-002`, ... in emit order.
 
-If zero FAIL findings exist, emit PASS. If zero FAIL findings and one or more cosmetic-only warnings exist, emit PASS_WITH_WARNINGS. WARNINGs in v1 are reserved for findings the checker recognises but does not block on (for example, a missing "Worker pointer" section: the convention recommends the kickoff body cite `/corral-worker` and `WORKER-ROLE.md` by name; absence is a WARNING, not a FAIL. Likewise, presence of an explicit report-path override without rationale is a WARNING).
+If zero FAIL findings exist, emit PASS. If zero FAIL findings and one or more cosmetic-only warnings exist, emit PASS_WITH_WARNINGS. WARNINGs in v1 are reserved for findings the checker recognises but does not block on (for example, a missing "Worker pointer" section: the convention recommends the kickoff body cite `WORKER-ROLE.md` (and where useful the `worker-agent`) by name; absence is a WARNING, not a FAIL. Likewise, presence of an explicit report-path override without rationale is a WARNING).
 
 ---
 

@@ -13,9 +13,9 @@
 
 ## Overview
 
-The Worker Close Checker runs in a fresh context (no visibility into the Worker's execution, the Orchestrator's chat, or any drafter reasoning). Starting from the Worker's draft closing report on disk plus the W2 rule definition in this spec, it scans the report's Follow-ups section for items that carry no coordination anchor, and emits a structured report.
+The Worker Close Checker runs in a fresh context (no visibility into the worker-agent's execution, the Orchestrator's chat, or any drafter reasoning). Starting from the worker's closing report on disk plus the W2 rule definition in this spec, it scans the report's Follow-ups section for items that carry no coordination anchor, and emits a structured report.
 
-This agent is dispatched by the Worker after it has assembled the draft closing report (in chat and on disk per `./docs/ai-orchestration/roles/WORKER-ROLE.md`, section "Report shape", dual-channel) and before it ends the session. Its verdict gates the close: a FAIL gives the Worker a single retry budget to patch the report, after which the FAIL is surfaced to the user with three exits (accept-with-rationale, manually-edit, escalate to Orchestrator).
+This agent is dispatched by the Orchestrator after the `worker-agent` returns COMPLETED with its dual-channel closing report written (in chat and on disk per `./docs/ai-orchestration/roles/WORKER-ROLE.md`, section "Report shape"). The Orchestrator runs it because the dispatched worker is a leaf and cannot dispatch its own checkers (ADR-028; `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow", step 5). Its verdict gates the close: on FAIL the Orchestrator surfaces a three-exit menu to the user (accept-with-rationale, manually-edit, re-dispatch a corrective worker).
 
 W2 fires on any closing report whose Follow-ups section contains items. The Follow-ups section is part of the universal six-section closing-report shape, so any Worker session's output may have items here.
 
@@ -25,9 +25,9 @@ PASS means "this report's Follow-ups section is parseable by the Orchestrator (e
 
 ## Agent Purpose
 
-- **Worker-close enforcement of W2**, the failure mode where a Worker records a Follow-ups item without a coordination anchor. Unanchored "out of scope this iteration" items are unparseable by the Orchestrator and disappear from the coordination surface.
-- **Independent verdict.** The checker does not see the Worker's execution or the Orchestrator's chat. Its only input is the report file plus the rule definition. This independence catches drift the Worker's self-review would miss.
-- **Structured output.** The report schema is parsed by the Worker's dispatch wrapper; finding IDs and severity classifications are stable across the single-retry loop.
+- **Enforcement of W2**, the failure mode where a worker records a Follow-ups item without a coordination anchor. Unanchored "out of scope this iteration" items are unparseable by the Orchestrator and disappear from the coordination surface.
+- **Independent verdict.** The checker does not see the worker-agent's execution or the Orchestrator's chat. Its only input is the report file plus the rule definition. This independence catches drift the Orchestrator's review would miss.
+- **Structured output.** The report schema is parsed by the Orchestrator's dispatch wrapper; finding IDs and severity classifications are stable.
 - **Read-only contract.** The checker never modifies the report or any other file. Attempting to write or edit is a violation of the agent's core contract.
 
 ---
@@ -173,7 +173,7 @@ The checker does NOT:
 
 ## Design Rationale
 
-**Why W2 is the only close rule in v1.** W2 (Follow-ups anchoring) is the one Worker-close failure mode whose shape is universal: the Follow-ups section is part of the universal six-section closing-report shape, so any Worker session's output may have unanchored items. Rogue's workspace-scoped close rules depended on workspace conventions Corral does not have; if departments later introduce their own report conventions (ADR-021), department-scoped checkers can layer beside this one per `WORKER-ROLE.md`, section "Worker-side checker dispatch".
+**Why W2 is the only close rule in v1.** W2 (Follow-ups anchoring) is the one Worker-close failure mode whose shape is universal: the Follow-ups section is part of the universal six-section closing-report shape, so any Worker session's output may have unanchored items. Rogue's workspace-scoped close rules depended on workspace conventions Corral does not have; if departments later introduce their own report conventions (ADR-021), department-scoped checkers can layer beside this one per `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow".
 
 **Why no kickoff_path input.** W2 only needs the closing report's Follow-ups section. The Follow-ups items stand alone; cross-referencing the report against the kickoff is the Orchestrator's review pass, not this checker's scope. Keeping inputs minimal keeps the dispatch trivial.
 
