@@ -2,11 +2,11 @@
 schema_version: 1
 id: COR-T-012
 title: "Execute the ai-infrastructure restructure (move root orchestration into project-manager)"
-status: in-progress
+status: done
 labels: [dept:agent-development]
 priority: P1
 created: 2026-06-08
-updated: 2026-06-09
+updated: 2026-06-10
 ---
 
 ## Description
@@ -50,3 +50,4 @@ These were resolved on 2026-06-09 ahead of drafting the kickoff. The kickoff enc
 - 2026-06-08: Created in backlog. Named follow-on deliverable 1 of ADR-027 (COR-T-011); the AI-infrastructure structure's execution step.
 - 2026-06-09: Anticipated decisions resolved (ADR-029 authored; remaining mechanical decisions pinned in "Resolved decisions" above). Corrected the stale path-rewrite framing in the original description. Task stays in backlog, ready for an orchestrator to pick up and route through the dispatched-worker flow.
 - 2026-06-09: Picked up; moved to in-progress. Grounding pass added `README.md` to the path-rewrite scope (14 references to moved content; user-confirmed mechanical rewrite only). Pinned three mechanical calls for the kickoff: Agent Discipline stays authoritative in the thin root `CLAUDE.md`; `./CLAUDE.md` references are split-routed per which half of the split the cited rule landed in; existing `.claude/artifacts/handoffs/*` pairs are out of scope. Routing through the dispatched-worker flow.
+- 2026-06-10: Executed via the dispatched-worker flow (drafter+checker loop took 2 iterations; prelaunch FAIL on a W1 deferral framing was fixed in iteration 2; worker returned COMPLETED). Deliverable committed as 2737aba (55 git-mv renames, the CLAUDE.md split, PM README charter, the bidirectional two-domain path sweep, kickoff/report pair per ADR-024). Independent disk re-derivation confirmed all load-bearing claims; corrected one leftover (removed empty untracked `docs/architecture/`) and noted one harmless false report claim (root `.env.example`, which does not exist anywhere in the repo). Close-checker W2 finding on follow-up item 6 accepted with rationale: it is a non-actionable observation, no task created. Moved to done.
