@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-019
 title: "Promote the ADR-resolution pattern into ORCHESTRATOR-ROLE.md"
-status: in-progress
+status: done
 labels: [dept:agent-development]
 priority: P3
 created: 2026-06-10
@@ -18,3 +18,4 @@ The role-doc edit is a documentation deliverable, so it routes through the dispa
 ## Activity log
 
 - 2026-06-10: Created and picked up in the same session (orchestrator-direct task allocation). Surfaced after COR-T-009 closed: two clean orchestrator-direct ADR-resolution runs (COR-T-008, COR-T-009) following an identical shape. User chose full canonical promotion now (vs. logging-and-waiting-for-a-third instance). Decisions pinned: home is a new ORCHESTRATOR-ROLE.md subsection "Pending-ADR resolution playbook" placed after "Task lifecycle"; content is the seven-step flow; cross-reference (not duplicate) the stale-reference sweep bullet; OBSERVATIONS COR-02 logged orchestrator-direct after the worker lands the subsection.
+- 2026-06-10: Done. Dispatched-worker flow ran clean: kickoff PASS (R1-R8), prelaunch PASS (W1), worker COMPLETED, close-check PASS (W2). Verified against disk: ORCHESTRATOR-ROLE.md subsection added (18 insertions, 0 deletions, no em dashes, correct placement, cross-references the stale-reference bullet without duplicating it); STATUS has one hygiene entry. OBSERVATIONS COR-02 logged orchestrator-direct (promoted -> the new subsection). Deliverable committed as e91efc8 (with the kickoff/report pair per ADR-024). Moved to done.
