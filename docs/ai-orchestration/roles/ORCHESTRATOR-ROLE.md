@@ -84,6 +84,24 @@ Five steps, applied per observation:
 
 **Seam swap ahead.** At the dogfood milestone (ADR-008), tasks migrate into the app's own database through the MCP server (`./ai-infrastructure/project-manager/decisions/ADR-004-mcp-server-as-llm-contract.md`), the markdown tree is frozen read-only, and a fuller coordination doc supersedes `./ai-infrastructure/project-manager/tasks/README.md`. This section is rewritten then; until then, the markdown convention is the interim seam.
 
+## Pending-ADR resolution playbook
+
+Resolving a pending ADR is orchestrator-direct work: it falls inside the `decisions/` carve-out named in the "Dispatched-worker flow", not the dispatched-worker path. This playbook is the repeatable flow, distilled from COR-T-008 (ADR-018) and COR-T-009 (ADR-025). When resolution spawns a separate deliverable (a doc, schema, or code touch-up), that deliverable routes through the dispatched-worker flow; the ADR edit itself stays orchestrator-direct.
+
+1. Read the pending ADR and its `related_adrs` in both directions. The ADR frames the question and the alternatives; the related ADRs, and any docs that cite it, are where leanings, deferrals, and forward-pointers live.
+
+2. Do the homework before surfacing anything to the user. Read every affected ADR end-to-end (the schema it amends, the surface it extends, the board and versioning neighbours) and form a recommendation for each binding dimension, grounded in the established philosophy of the existing decisions rather than presented as a bare option list.
+
+3. Frame only the binding decisions with the user; let the mechanical ones flow. Genuinely architectural dimensions (the data model, the tool surface) are the user's call; dimensions that follow mechanically from a chosen option (cardinality from a single FK, a deferral to a later phase) are stated, not asked. Never frame a question whose live answer path is "let a later step or agent decide."
+
+4. Take the ADR from pending to accepted: fill Decision and Consequences declaratively, bump date, expand `related_adrs`, and remove the "> Pending:" callout.
+
+5. Run the forward-pointer sweep in both directions, per the existing "Stale-reference sweep when resolving ADRs" bullet under "Kickoff drafting convention" (cross-reference that bullet by name; do not restate or duplicate its content). For each accepted ADR the decision amends, add a forward-pointer note while the amendment itself lives in the later ADR (the ADR-024 precedent: amend by a later ADR, never edit an accepted ADR's decision in place); mark resolved any "deferred to ADR-NNN (pending)" language in neighbours; and leave conditional leanings that did not fire accurate as written (do not edit what is still true). Contradicted leanings are decisions: surface them to the user. Stale cross-references are deliverables: fix them or triage them as follow-ups.
+
+6. Apply STATUS hygiene plus the task-specific deltas: bump `last_updated`, prepend a `recent_updates` entry, and update "Next step" and the roadmap milestone to drop the resolved task.
+
+7. Close with two commits: commit 1 is the ADR acceptance plus forward-pointer notes plus STATUS (task still in-progress); commit 2 is the task move to done, whose done activity-log line cites commit 1's short hash. The split sidesteps the chicken-and-egg of recording the deliverable's hash in the done line.
+
 ## Handoff hygiene
 
 - **Self-contained prompts.** Every handoff artifact (kickoff, patch, resume prompt) carries the full context its receiver needs. A fresh session should not have to ask "what was the goal?" after reading the prompt.
