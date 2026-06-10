@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-020
 title: "Live auto-rebuilding dashboard: watch sources and refresh the page"
-status: in-progress
+status: done
 labels: [dept:agent-development]
 priority: P2
 created: 2026-06-10
@@ -25,3 +25,4 @@ This is a dashboard/devops deliverable: it routes through the dispatched-worker 
 ## Activity log
 
 - 2026-06-10: Created and picked up in the same session. User asked for a watch that auto-rebuilds the page on source-of-truth updates and pointed at the rogue dashboard exemplar for the `--watch`/serve pattern. Homework done: read rogue's `build.py` run_watch (watchdog Observer, 350ms debounce, content-change-event filter) and `dashboard.js` poller (5s, compare generated_at, reload). Decisions pinned with the user: watchdog PollingObserver (bind-mount robust); single container with background `etl.py --watch`; client 5s poll with soft React re-render. Queued for the dispatched-worker flow.
+- 2026-06-10: Done. Dispatched-worker flow ran clean: kickoff PASS (R1-R8), prelaunch PASS (W1), worker COMPLETED, close-check PASS (W2). Verified against disk: etl.py --watch (PollingObserver, 350ms debounce, content-change filter, *.md allowlist, one-shot default unchanged), Dockerfile (watchdog==4.0.2, entrypoint.sh), entrypoint.sh (initial ETL, bg watch, fg http.server), App.jsx (5s poll keyed on meta.generated_at, soft setData, cleanup, error tolerance); no em dashes; docker-compose.yml and data.json contract untouched. Runtime confirmed live: user ran docker compose up --build, orchestrator injected a temporary STATUS recent_updates marker, the marker auto-appeared in the dashboard activity feed within ~5s without a manual refresh, then the marker was reverted. Deliverable committed as 446810a (with the kickoff/report pair per ADR-024). Worker follow-ups: PollingObserver ~1.35s latency (tunable, informational); COR-T-018 remains open (re-triaged separately). Moved to done.
