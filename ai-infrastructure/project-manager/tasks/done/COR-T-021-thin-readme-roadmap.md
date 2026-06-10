@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-021
 title: "Thin the README roadmap to stable orientation; STATUS frontmatter owns the detail"
-status: in-progress
+status: done
 labels: [dept:docs-curation]
 priority: P3
 created: 2026-06-10
@@ -20,3 +20,4 @@ This is a documentation deliverable on the repo-root human orientation file: it 
 ## Activity log
 
 - 2026-06-10: Created and picked up in the same session. Surfaced from a user question during the COR-T-020 wrap-up: the README roadmap duplicates STATUS frontmatter (phase/deliverable prose) and had drifted (stale "(this iteration)" on Phase 0). Verified the README roadmap carries no status of its own (it already defers live status to STATUS per README lines 13/42); the duplication is phase/deliverable prose. Decision pinned with the user: option #1, thin the README roadmap to stable one-line intents + a pointer to STATUS/dashboard; STATUS frontmatter remains the structured SSOT. Queued for the dispatched-worker flow.
+- 2026-06-10: Done. Dispatched-worker flow ran clean: kickoff PASS (R1-R8), prelaunch PASS (W1), worker COMPLETED, close-check PASS (W2). Verified against disk: README "## Roadmap" thinned to six one-line phase intents (column relabeled Deliverable -> Intent), granular deliverables / inline ADR refs / "(this iteration)" marker removed, pointer line to STATUS.md + dashboard added; only the Roadmap section changed; no em dashes. Pure-prose deliverable, orchestrator-self-certified (no runtime surface). Deliverable committed as 73426b9 (with the kickoff/report pair per ADR-024). Moved to done.
