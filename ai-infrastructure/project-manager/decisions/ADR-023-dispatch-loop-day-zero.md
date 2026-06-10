@@ -41,7 +41,7 @@ Kickoffs and worker reports are single-use handoff artifacts, not documentation.
 
 ## Decision
 
-Corral adopts the rogue dispatch-loop machinery at day zero. Kickoffs are authored by `kickoff-drafter` (Opus) and validated by `kickoff-checker` (Sonnet) in the bounded loop defined in `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`. Worker sessions dispatch `worker-prelaunch-checker` and `worker-close-checker` (both Sonnet) at the checkpoints defined in `./docs/ai-orchestration/roles/WORKER-ROLE.md`. Agent definitions live in `./.claude/agents/`, specs in `./.claude/agents/specs/`, and the instantiating slash commands (`/corral-orchestrator`, `/corral-worker`) in `./.claude/commands/`, all authored under COR-T-001. Scratch handoff artifacts (kickoffs, reports) live in gitignored `./.claude/artifacts/tmp/`. The `./.claude/` tree holds AI-infrastructure artifacts (ADR-005 domain 2), not documentation; the documentation-placement rule in `./CLAUDE.md` is clarified accordingly.
+Corral adopts the rogue dispatch-loop machinery at day zero. Kickoffs are authored by `kickoff-drafter` (Opus) and validated by `kickoff-checker` (Sonnet) in the bounded loop defined in `docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`. Worker sessions dispatch `worker-prelaunch-checker` and `worker-close-checker` (both Sonnet) at the checkpoints defined in `docs/ai-orchestration/roles/WORKER-ROLE.md`. Agent definitions live in `.claude/agents/`, specs in `.claude/agents/specs/`, and the instantiating slash commands (`/corral-orchestrator`, `/corral-worker`) in `.claude/commands/`, all authored under COR-T-001. Scratch handoff artifacts (kickoffs, reports) live in gitignored `.claude/artifacts/tmp/`. The `.claude/` tree holds AI-infrastructure artifacts (ADR-005 domain 2), not documentation; the documentation-placement rule in `CLAUDE.md` is clarified accordingly.
 
 ## Rule lineage
 
@@ -66,7 +66,7 @@ Dropped: rogue R4 (game-type comparisons; a rogue-domain instance of R2/R3) and 
 
 - COR-T-001's scope includes the four agent definitions, four specs, and two slash commands, not just the two role docs.
 - Kickoff quality is enforced mechanically from the first kickoff; the orchestrator is a dispatcher, not an inline author (Pure-B discipline per the role doc).
-- `./.gitignore` gains `.claude/artifacts/tmp/`; `./CLAUDE.md` documentation placement gains a clarifying line about `./.claude/`.
+- `.gitignore` gains `.claude/artifacts/tmp/`; `CLAUDE.md` documentation placement gains a clarifying line about `.claude/`.
 - Four specs and four agent definitions become maintained artifacts; spec changes follow the same review discipline as any domain-2 artifact.
 - If a rule fires falsely or a needed rule is missing, the fix is a spec edit plus an OBSERVATIONS entry, mirroring rogue's false-positive protocol.
 - When departments land (ADR-021), department-scoped checkers can layer beside the universal four, mirroring rogue's universal-vs-workspace-scoped split.

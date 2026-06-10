@@ -3,7 +3,7 @@
 **Status**: Implemented
 **Created**: 2026-06-05
 **Purpose**: Independently lint a Worker's draft closing report at Worker close time against the universal Worker-close rule W2 (Follow-ups anchoring required) and emit a structured PASS / FAIL report. Read-only. Fresh context per dispatch.
-**Lineage**: Ported and right-sized from rogue's `WORKER-CLOSE-CHECKER-SPEC.md` v1.1 per `./decisions/ADR-023-dispatch-loop-day-zero.md` (corral W2 = rogue W5).
+**Lineage**: Ported and right-sized from rogue's `WORKER-CLOSE-CHECKER-SPEC.md` v1.1 per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md` (corral W2 = rogue W5).
 
 > **Usage**: This is the detailed execution specification for the `worker-close-checker` agent.
 > The agent file at `./.claude/agents/worker-close-checker.md` references this spec.
@@ -115,7 +115,7 @@ If the `Observed cleanly` list is empty (W2 produced findings), omit the section
 - **FAIL** (blocking): any W2 violation as defined in Phase 2.
 - **PASS**: zero findings.
 
-When in doubt on W2 LLM-judgement (does this anchor count as a coordination signal?), classify as FAIL. The Worker's single-retry budget and 3-exit menu (accept-with-rationale, manually-edit, escalate to Orchestrator) is the calibration channel for false positives. False-positive observation pattern: append a `COR-NN` entry to `./OBSERVATIONS.md` with the evidence.
+When in doubt on W2 LLM-judgement (does this anchor count as a coordination signal?), classify as FAIL. The Worker's single-retry budget and 3-exit menu (accept-with-rationale, manually-edit, escalate to Orchestrator) is the calibration channel for false positives. False-positive observation pattern: append a `COR-NN` entry to `./ai-infrastructure/project-manager/OBSERVATIONS.md` with the evidence.
 
 ---
 

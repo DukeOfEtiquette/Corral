@@ -73,4 +73,4 @@ Worker (Sonnet)
 - **FAIL** (blocking): any W2 violation (a Follow-ups item with no coordination anchor and no triage flag).
 - **PASS**: zero findings, including PASS by vacuity when Follow-ups is empty or absent.
 
-No WARNING severity in v1; W2 is binary and borderline cases default to FAIL. False-positive pattern: the user's exit choice is logged and a `COR-NN` entry in `./OBSERVATIONS.md` feeds spec tuning.
+No WARNING severity in v1; W2 is binary and borderline cases default to FAIL. False-positive pattern: the user's exit choice is logged and a `COR-NN` entry in `./ai-infrastructure/project-manager/OBSERVATIONS.md` feeds spec tuning.

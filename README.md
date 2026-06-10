@@ -4,17 +4,17 @@ A self-hosted, narrow-scope GitHub Issues clone: a server that tracks issues in 
 
 ## Why
 
-This replaces a working but rate-limited setup: LLM orchestrator/worker agents managing development tasks through GitHub Issues + a Projects kanban board via a GitHub MCP server. The feature surface actually used is small (issues, labels, kanban views), so this project rebuilds exactly that, self-hosted, with no external rate limits. GitHub's quality-of-life automation (e.g. `closes #N` moving an issue to done) is deliberately out of scope for v1. See `./decisions/ADR-001-self-hosted-issue-tracker-scope.md`.
+This replaces a working but rate-limited setup: LLM orchestrator/worker agents managing development tasks through GitHub Issues + a Projects kanban board via a GitHub MCP server. The feature surface actually used is small (issues, labels, kanban views), so this project rebuilds exactly that, self-hosted, with no external rate limits. GitHub's quality-of-life automation (e.g. `closes #N` moving an issue to done) is deliberately out of scope for v1. See `./ai-infrastructure/project-manager/decisions/ADR-001-self-hosted-issue-tracker-scope.md`.
 
-A defining trait: this is an **AI-first project**. The AI infrastructure that builds the web app (orchestrators, workers, agents, specs) is a first-class domain alongside the app itself, and it gets built first (`./decisions/ADR-005-two-domains-ai-first.md`). Humans read this file; agents read `./CLAUDE.md`.
+A defining trait: this is an **AI-first project**. The AI infrastructure that builds the web app (orchestrators, workers, agents, specs) is a first-class domain alongside the app itself, and it gets built first (`./ai-infrastructure/project-manager/decisions/ADR-005-two-domains-ai-first.md`). Humans read this file; agents read `./CLAUDE.md`.
 
 ## Status
 
-**Phase 1: AI infrastructure.** Orchestration roles, agents, and commands exist; no application code yet. Current progress always lives in `./STATUS.md`.
+**Phase 1: AI infrastructure.** Orchestration roles, agents, and commands exist; no application code yet. Current progress always lives in `./ai-infrastructure/project-manager/STATUS.md`.
 
 ## Architecture at a glance
 
-Four docker compose services: Postgres, a FastAPI backend, a React kanban client, and a FastMCP server that is the only path by which LLM agents touch tracker data. Full picture: `./docs/architecture/OVERVIEW.md`.
+Four docker compose services: Postgres, a FastAPI backend, a React kanban client, and a FastMCP server that is the only path by which LLM agents touch tracker data. Full picture: `./ai-infrastructure/project-manager/docs/architecture/OVERVIEW.md`.
 
 ## Tech stack
 
@@ -23,27 +23,27 @@ Four docker compose services: Postgres, a FastAPI backend, a React kanban client
 - **LLM seam**: Python FastMCP server
 - **Runtime**: Docker containers under docker compose
 
-Rationale: `./decisions/ADR-002-tech-stack.md`.
+Rationale: `./ai-infrastructure/project-manager/decisions/ADR-002-tech-stack.md`.
 
 ## Getting started
 
 > Not yet available: no code exists. This section records the intended flow.
 
 1. Generate an admin password hash locally.
-2. Copy `.env.example` to `.env`; set `ADMIN_EMAIL` and `ADMIN_PASSWORD_HASH` (`.env` is gitignored; see `./decisions/ADR-006-admin-bootstrap-env-hash.md`).
+2. Copy `.env.example` to `.env`; set `ADMIN_EMAIL` and `ADMIN_PASSWORD_HASH` (`.env` is gitignored; see `./ai-infrastructure/project-manager/decisions/ADR-006-admin-bootstrap-env-hash.md`).
 3. `docker compose up`. The server seeds the admin user on first boot.
-4. Log in as admin; invite users by email from the admin page. Invites are single-use links you share manually (`./decisions/ADR-007-invite-only-tokens-no-smtp.md`).
+4. Log in as admin; invite users by email from the admin page. Invites are single-use links you share manually (`./ai-infrastructure/project-manager/decisions/ADR-007-invite-only-tokens-no-smtp.md`).
 
 ## Repository layout
 
 | Path | Contents |
 |---|---|
-| `./CLAUDE.md` | Operating rules for AI agents |
-| `./STATUS.md` | Current phase (single source of truth) |
-| `./OBSERVATIONS.md` | Append-only pattern log |
-| `./decisions/` | ADRs: accepted decisions and queued open questions |
-| `./docs/` | Architecture and (later) AI-orchestration docs |
-| `./tasks/` | Project tasks, markdown convention (`./tasks/README.md`) |
+| `./CLAUDE.md` | Global operating rules for AI agents (Agent Discipline, writing style, two domains) |
+| `./ai-infrastructure/project-manager/STATUS.md` | Current phase (single source of truth) |
+| `./ai-infrastructure/project-manager/OBSERVATIONS.md` | Append-only pattern log |
+| `./ai-infrastructure/project-manager/decisions/` | ADRs: accepted decisions and queued open questions |
+| `./docs/` | Architecture overview and AI-orchestration role docs |
+| `./ai-infrastructure/project-manager/tasks/` | Project tasks, markdown convention (`./ai-infrastructure/project-manager/tasks/README.md`) |
 | `app/` (future) | Web-app services |
 
 ## Roadmap
@@ -55,8 +55,8 @@ Rationale: `./decisions/ADR-002-tech-stack.md`.
 | **2. API + DB core** | Postgres schema, FastAPI endpoints with house rules, auth/sessions, invite tokens, migrations (ADR-014), admin seeding (ADR-006). First moment the app can store an issue |
 | **3. MCP server** | FastMCP server as an authenticated API client (ADR-004, ADR-010). The agent seam goes live |
 | **4. Kanban UI** | React multi-view board with per-view label filters (ADR-015, 017, 018), admin page |
-| **5. Dogfood milestone** | Import `./tasks/` markdown into the app via the MCP server; the project tracks itself; markdown tasks frozen (`./decisions/ADR-008-bootstrap-tasks-dogfood-milestone.md`). Multi-user/agent concurrency (ADR-020) becomes live here |
+| **5. Dogfood milestone** | Import `./ai-infrastructure/project-manager/tasks/` markdown into the app via the MCP server; the project tracks itself; markdown tasks frozen (`./ai-infrastructure/project-manager/decisions/ADR-008-bootstrap-tasks-dogfood-milestone.md`). Multi-user/agent concurrency (ADR-020) becomes live here |
 
 ## How decisions are recorded
 
-Every binding choice is an ADR in `./decisions/`; open questions are queued there as `pending` ADRs so nothing important is decided implicitly. Conventions: `./decisions/README.md`.
+Every binding choice is an ADR in `./ai-infrastructure/project-manager/decisions/`; open questions are queued there as `pending` ADRs so nothing important is decided implicitly. Conventions: `./ai-infrastructure/project-manager/decisions/README.md`.

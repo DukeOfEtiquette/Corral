@@ -72,4 +72,4 @@ Worker (Sonnet)
 - **FAIL** (blocking): any W1 violation (a deferral with no acceptance test and no user-confirm flag).
 - **PASS**: zero findings, including PASS by vacuity when the kickoff has no deferral surface.
 
-No WARNING severity in v1; W1 is binary and borderline cases default to FAIL. False-positive pattern: the user's exit choice is logged and a `COR-NN` entry in `./OBSERVATIONS.md` feeds spec tuning.
+No WARNING severity in v1; W1 is binary and borderline cases default to FAIL. False-positive pattern: the user's exit choice is logged and a `COR-NN` entry in `./ai-infrastructure/project-manager/OBSERVATIONS.md` feeds spec tuning.

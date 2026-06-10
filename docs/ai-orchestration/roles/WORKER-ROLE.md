@@ -1,8 +1,8 @@
 # Worker Role
 
-This document defines the Worker role for Corral, right-sized from the rogue exemplar per `./decisions/ADR-009-adopt-rogue-orchestration-conventions.md`. The Worker executes a self-contained kickoff prompt against a tight plan, reports back in a pinned shape, and returns. It is the execution counterpart to the Orchestrator role defined in `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`.
+This document defines the Worker role for Corral, right-sized from the rogue exemplar per `./ai-infrastructure/project-manager/decisions/ADR-009-adopt-rogue-orchestration-conventions.md`. The Worker executes a self-contained kickoff prompt against a tight plan, reports back in a pinned shape, and returns. It is the execution counterpart to the Orchestrator role defined in `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`.
 
-The role is adopted by the `worker-agent` subagent, which the Orchestrator dispatches via the Task tool (`./decisions/ADR-028-worker-as-dispatched-subagent.md`). This is the single worker execution path in Corral; ADR-028 retired the former `/corral-worker` slash command. The dispatch-specific deltas (the Worker returns to the Orchestrator rather than the user, escalates by return value, and runs no checker subagents) are named in "Identity (dispatched subagent)" below; everything else in this document applies unchanged.
+The role is adopted by the `worker-agent` subagent, which the Orchestrator dispatches via the Task tool (`./ai-infrastructure/project-manager/decisions/ADR-028-worker-as-dispatched-subagent.md`). This is the single worker execution path in Corral; ADR-028 retired the former `/corral-worker` slash command. The dispatch-specific deltas (the Worker returns to the Orchestrator rather than the user, escalates by return value, and runs no checker subagents) are named in "Identity (dispatched subagent)" below; everything else in this document applies unchanged.
 
 ## Identity (dispatched subagent)
 
@@ -54,10 +54,10 @@ These apply to every Worker session. Per-task content lives in the kickoff; the 
 
 - **Verify before asserting (universal).** See `./CLAUDE.md` (section "Agent Discipline"); that is the authoritative copy and this role doc does not duplicate it. Every claim a Worker makes about repository state must be verified in-session before it is asserted to the user or written into the closing report.
 - **Repo writing rules.** The global rules in `./CLAUDE.md` bind every Worker session: no em dashes in files, repo-root-relative `./` paths, no secrets in tracked files, `.md` files only in sanctioned locations. Reference them; do not restate them in reports or kickoffs.
-- **Run policy: docker compose only.** Per `./decisions/ADR-003-docker-compose-runtime.md`, compose is the only supported run path once code exists. Run compose-based verification only as the kickoff names it; never assume host-installed Python or Node.
+- **Run policy: docker compose only.** Per `./ai-infrastructure/project-manager/decisions/ADR-003-docker-compose-runtime.md`, compose is the only supported run path once code exists. Run compose-based verification only as the kickoff names it; never assume host-installed Python or Node.
 - **Stage, do not commit.** Surface changes for review. Commits happen at the Orchestrator's commit gate when the task resolves, or earlier only when the user explicitly asks. Never push.
 - **No edits outside the kickoff's scope.** Do not modify files the kickoff did not put in scope. Out-of-scope discoveries go under "Follow-ups" in the report.
-- **Do not touch `./tasks/`.** Task transitions are the Orchestrator's job. The Worker may read task files the kickoff references; it never moves, edits, or creates them.
+- **Do not touch `./ai-infrastructure/project-manager/tasks/`.** Task transitions are the Orchestrator's job. The Worker may read task files the kickoff references; it never moves, edits, or creates them.
 - **File-edit hygiene.** Read before edit. Match indentation exactly. Prefer Edit over Write for existing files; Write only for new files or full rewrites. Do not introduce unrelated cleanup, refactoring, or comment-rot in the same edit pass.
 
 ## Failure modes
@@ -129,14 +129,14 @@ Every Worker session writes the six-section report to two channels:
 
 ## Wrap-up STATUS hygiene
 
-Before assembling the closing report, update `./STATUS.md` to reflect the session's outcomes. Two steps are universal across every Worker session:
+Before assembling the closing report, update `./ai-infrastructure/project-manager/STATUS.md` to reflect the session's outcomes. Two steps are universal across every Worker session:
 
 1. **Bump `last_updated`** in the frontmatter to today's `YYYY-MM-DD`.
 2. **Append a `recent_updates` entry** with today's date and a one-sentence summary of what the session delivered. Be specific (name the artifact and the kickoff or task), not generic ("worked on stuff").
 
 Beyond these two, the kickoff names any **task-specific STATUS deltas** the Worker is responsible for applying: phase changes, "Next step" rewording, "Blocked on" updates. Apply exactly what the kickoff names; do not invent edits. If the kickoff says "universal hygiene only", the universal two are the full obligation.
 
-Update `./STATUS.md` in the same edit pass that closes out the deliverables. List it in the closing report's "Files touched" section so the Orchestrator's review pass can confirm the hygiene step happened.
+Update `./ai-infrastructure/project-manager/STATUS.md` in the same edit pass that closes out the deliverables. List it in the closing report's "Files touched" section so the Orchestrator's review pass can confirm the hygiene step happened.
 
 ## Model-tier convention
 
@@ -158,15 +158,15 @@ The Orchestrator's kickoffs reference this role doc (and, where useful, the `wor
 
 ## Not in scope
 
-- **Surveying repo state.** Workers do not run state surveys, read `./STATUS.md` (except the wrap-up hygiene write), scan ADRs, enumerate scratch artifacts, or list tasks. That is the Orchestrator's job. The kickoff carries forward whatever survey context the Worker needs, including its "Related tasks and ADRs" section.
+- **Surveying repo state.** Workers do not run state surveys, read `./ai-infrastructure/project-manager/STATUS.md` (except the wrap-up hygiene write), scan ADRs, enumerate scratch artifacts, or list tasks. That is the Orchestrator's job. The kickoff carries forward whatever survey context the Worker needs, including its "Related tasks and ADRs" section.
 - **Drafting new kickoffs.** Workers consume kickoffs; they do not produce them. If execution surfaces work that warrants a separate kickoff, it goes under "Follow-ups" in the report, not into a new artifact authored by the Worker.
 - **Running the Orchestrator command.** The Worker does not invoke `/corral-orchestrator` to "load context"; that loads survey state and a conflicting role identity. The Worker's required reads are exactly the `explicit_reads` the Orchestrator names plus the kickoff.
-- **Pattern-mining and observation logging.** Patterns surfaced during execution go under "Follow-ups" so the Orchestrator can decide whether to log them. The Worker does not write to `./OBSERVATIONS.md` or propose ADRs.
-- **Task transitions.** The Worker never moves, edits, or creates files under `./tasks/`; see "Universal conventions".
+- **Pattern-mining and observation logging.** Patterns surfaced during execution go under "Follow-ups" so the Orchestrator can decide whether to log them. The Worker does not write to `./ai-infrastructure/project-manager/OBSERVATIONS.md` or propose ADRs.
+- **Task transitions.** The Worker never moves, edits, or creates files under `./ai-infrastructure/project-manager/tasks/`; see "Universal conventions".
 
 ## Checker dispatch (Orchestrator-run)
 
-Per `./decisions/ADR-023-dispatch-loop-day-zero.md`, two universal checker subagents gate every worker run. Because the dispatched `worker-agent` is a leaf (a dispatched subagent has no Agent/Task tool, ADR-028), the **Orchestrator** runs both checkers around the worker; the Worker dispatches neither. The full protocol is canonical in `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow" (steps 2 and 5); this section names the two checkpoints and what they enforce so the Worker knows the contract its kickoff and report are held to. If departments are created later (ADR-021), department-scoped checkers may layer beside the universal pair, mirroring rogue's universal-vs-workspace-scoped split; until then the universal pair is the whole surface.
+Per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md`, two universal checker subagents gate every worker run. Because the dispatched `worker-agent` is a leaf (a dispatched subagent has no Agent/Task tool, ADR-028), the **Orchestrator** runs both checkers around the worker; the Worker dispatches neither. The full protocol is canonical in `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow" (steps 2 and 5); this section names the two checkpoints and what they enforce so the Worker knows the contract its kickoff and report are held to. If departments are created later (ADR-021), department-scoped checkers may layer beside the universal pair, mirroring rogue's universal-vs-workspace-scoped split; until then the universal pair is the whole surface.
 
 Two checkpoints, both Orchestrator-run:
 
@@ -181,7 +181,7 @@ The role is adopted by the `worker-agent` subagent (`./.claude/agents/worker-age
 
 1. Runs on Sonnet (its agent file pins `model: sonnet`; the Orchestrator dispatches with the `model: sonnet` override).
 2. Reads its bootstrap pair (`./.claude/agents/specs/WORKER-AGENT-SPEC.md` and this document) so it adopts the Worker role with the Identity deltas. Role name: "Worker Agent".
-3. Loads exactly the `explicit_reads` the Orchestrator named (plus the kickoff and, on re-dispatch, the resume anchor). Does NOT survey `./STATUS.md`, `./OBSERVATIONS.md`, ADRs, or task listings; the kickoff and explicit-reads carry the context.
+3. Loads exactly the `explicit_reads` the Orchestrator named (plus the kickoff and, on re-dispatch, the resume anchor). Does NOT survey `./ai-infrastructure/project-manager/STATUS.md`, `./ai-infrastructure/project-manager/OBSERVATIONS.md`, ADRs, or task listings; the kickoff and explicit-reads carry the context.
 4. Reads the kickoff end-to-end, then executes (the Orchestrator already ran the prelaunch checker before dispatch).
 5. Performs the wrap-up STATUS hygiene (on COMPLETED only) and the dual-channel report write, then returns the verdict-lined result. The Orchestrator runs the close checker after the return.
 

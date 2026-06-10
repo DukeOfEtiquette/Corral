@@ -2,7 +2,7 @@
 
 **Status**: Implemented
 **Created**: 2026-06-05
-**Purpose**: Author a kickoff file for a Corral Worker session, given a kickoff path and a structured decisions-resolved package from the Orchestrator. Enforces the universal kickoff conventions (rules R1-R8 per `./decisions/ADR-023-dispatch-loop-day-zero.md`).
+**Purpose**: Author a kickoff file for a Corral Worker session, given a kickoff path and a structured decisions-resolved package from the Orchestrator. Enforces the universal kickoff conventions (rules R1-R8 per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md`).
 **Lineage**: Ported and right-sized from rogue's `KICKOFF-DRAFTER-SPEC.md` v1.1 per ADR-023; the rule renumbering map is in that ADR.
 
 > **Usage**: This is the detailed execution specification for the `kickoff-drafter` agent.
@@ -59,7 +59,7 @@ The orchestrator passes these via the Task tool prompt. The drafter parses them 
 | `files_out_of_scope` | paths | Files the worker must NOT modify |
 | `references` | markdown list | Files or sections the worker reads while executing, each with a one-line purpose |
 | `related_tasks_and_adrs` | markdown list OR "none" | Curated `COR-T-NNN` / `ADR-NNN` entries with one-line relevance notes, from the orchestrator's survey |
-| `status_deltas` | markdown list OR "universal hygiene only" | Task-specific `./STATUS.md` edits beyond universal hygiene |
+| `status_deltas` | markdown list OR "universal hygiene only" | Task-specific `./ai-infrastructure/project-manager/STATUS.md` edits beyond universal hygiene |
 | `iteration_number` | int | 1 on first dispatch; N+1 on re-dispatch after FAIL |
 | `prior_iteration_findings` | markdown | Findings from kickoff-checker iteration N-1; empty on iteration 1 |
 
@@ -203,7 +203,7 @@ A kickoff body has this universal scaffold:
 
 ## STATUS deltas
 
-{Either a bulleted list of task-specific ./STATUS.md edits the worker is expected to apply, OR the literal text "No task-specific STATUS deltas; universal hygiene only." Universal hygiene (bump `last_updated`, append `recent_updates`) is handled by the worker per WORKER-ROLE.md and not enumerated in the kickoff.}
+{Either a bulleted list of task-specific `./ai-infrastructure/project-manager/STATUS.md` edits the worker is expected to apply, OR the literal text "No task-specific STATUS deltas; universal hygiene only." Universal hygiene (bump `last_updated`, append `recent_updates`) is handled by the worker per WORKER-ROLE.md and not enumerated in the kickoff.}
 
 ## Hard rules
 
@@ -269,16 +269,16 @@ Inputs:
 - domain: ai-infrastructure
 - decisions_resolved:
   - **Decision scope:** Fill in ADR-012's pending sections only; no code. Rationale: schema decisions precede migrations (ADR-014).
-  - **Column baseline:** The task-frontmatter migration mapping in ./tasks/README.md is the floor; every mapped field gets a column.
+  - **Column baseline:** The task-frontmatter migration mapping in ./ai-infrastructure/project-manager/tasks/README.md is the floor; every mapped field gets a column.
 - deliverables:
-  - ./decisions/ADR-012-issue-label-view-schema.md completed (status accepted), all pending sections filled.
+  - ./ai-infrastructure/project-manager/decisions/ADR-012-issue-label-view-schema.md completed (status accepted), all pending sections filled.
 - files_in_scope:
-  - ./decisions/ADR-012-issue-label-view-schema.md
+  - ./ai-infrastructure/project-manager/decisions/ADR-012-issue-label-view-schema.md
 - files_out_of_scope:
-  - ./tasks/README.md (read-only)
+  - ./ai-infrastructure/project-manager/tasks/README.md (read-only)
 - references:
-  - ./tasks/README.md (migration mapping table; the import contract)
-  - ./decisions/ADR-008-bootstrap-tasks-dogfood-milestone.md (dogfood milestone constraints)
+  - ./ai-infrastructure/project-manager/tasks/README.md (migration mapping table; the import contract)
+  - ./ai-infrastructure/project-manager/decisions/ADR-008-bootstrap-tasks-dogfood-milestone.md (dogfood milestone constraints)
 - related_tasks_and_adrs:
   - COR-T-002 (this task)
   - ADR-008 (defines the import this schema must absorb)

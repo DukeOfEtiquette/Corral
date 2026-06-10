@@ -81,7 +81,7 @@ Orchestrator (Opus)
 | `files_out_of_scope` | Paths the worker must NOT modify |
 | `references` | Flat list of files/sections with one-line purposes |
 | `related_tasks_and_adrs` | Curated COR-T-NNN / ADR-NNN list OR "none" |
-| `status_deltas` | Task-specific ./STATUS.md edits OR "universal hygiene only" |
+| `status_deltas` | Task-specific `./ai-infrastructure/project-manager/STATUS.md` edits OR "universal hygiene only" |
 | `iteration_number` | 1, 2, or 3 |
 | `prior_iteration_findings` | Empty on iteration 1; kickoff-checker FAIL findings on iteration 2+ |
 

@@ -3,7 +3,7 @@
 **Status**: Implemented
 **Created**: 2026-06-05
 **Purpose**: Independently lint a drafted kickoff file at Worker prelaunch time against the universal Worker-acceptance rule W1 (deferral acceptance-test required) and emit a structured PASS / FAIL report. Read-only. Fresh context per dispatch.
-**Lineage**: Ported and right-sized from rogue's `WORKER-PRELAUNCH-CHECKER-SPEC.md` v1.1 per `./decisions/ADR-023-dispatch-loop-day-zero.md` (corral W1 = rogue W2).
+**Lineage**: Ported and right-sized from rogue's `WORKER-PRELAUNCH-CHECKER-SPEC.md` v1.1 per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md` (corral W1 = rogue W2).
 
 > **Usage**: This is the detailed execution specification for the `worker-prelaunch-checker` agent.
 > The agent file at `./.claude/agents/worker-prelaunch-checker.md` references this spec.
@@ -123,7 +123,7 @@ If the `Observed cleanly` list is empty (W1 produced findings), omit the section
 - **FAIL** (blocking): any W1 violation as defined in Phase 2.
 - **PASS**: zero findings.
 
-When in doubt on W1 LLM-judgement, classify as FAIL. The Worker's 3-exit menu (re-run orchestrator / proceed-with-rationale / abort) is the calibration channel for false positives; chronic false positives surface in the user's exit choice and are logged for spec tuning. False-positive observation pattern: append a `COR-NN` entry to `./OBSERVATIONS.md` with the evidence.
+When in doubt on W1 LLM-judgement, classify as FAIL. The Worker's 3-exit menu (re-run orchestrator / proceed-with-rationale / abort) is the calibration channel for false positives; chronic false positives surface in the user's exit choice and are logged for spec tuning. False-positive observation pattern: append a `COR-NN` entry to `./ai-infrastructure/project-manager/OBSERVATIONS.md` with the evidence.
 
 ---
 

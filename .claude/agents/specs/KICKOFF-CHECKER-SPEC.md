@@ -2,7 +2,7 @@
 
 **Status**: Implemented
 **Created**: 2026-06-05
-**Purpose**: Independently lint a drafted kickoff file against the universal kickoff-drafting convention (rules R1-R8 per `./decisions/ADR-023-dispatch-loop-day-zero.md`) and emit a structured PASS / PASS_WITH_WARNINGS / FAIL report. Read-only. Fresh context per dispatch.
+**Purpose**: Independently lint a drafted kickoff file against the universal kickoff-drafting convention (rules R1-R8 per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md`) and emit a structured PASS / PASS_WITH_WARNINGS / FAIL report. Read-only. Fresh context per dispatch.
 **Lineage**: Ported and right-sized from rogue's `KICKOFF-CHECKER-SPEC.md` v1.2 per ADR-023; the rule renumbering map is in that ADR.
 
 > **Usage**: This is the detailed execution specification for the `kickoff-checker` agent.
@@ -96,10 +96,10 @@ Each hit is a FAIL: `R4, line L, evidence "...", recommendation "Remove the inte
 
 Parse the kickoff body for either:
 
-- A section explicitly naming task-specific `./STATUS.md` edits the worker is expected to apply (phase changes, "Next step" rewording, "Blocked on" updates), OR
+- A section explicitly naming task-specific `./ai-infrastructure/project-manager/STATUS.md` edits the worker is expected to apply (phase changes, "Next step" rewording, "Blocked on" updates), OR
 - The explicit disclaimer `No task-specific STATUS deltas; universal hygiene only.` (or close paraphrase).
 
-If neither is present, emit FAIL: `R6, kickoff body, evidence "no STATUS deltas section or universal-hygiene-only disclaimer found", recommendation "Name the task-specific ./STATUS.md edits the task will apply, or state explicitly that only universal hygiene applies (per ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention')"`.
+If neither is present, emit FAIL: `R6, kickoff body, evidence "no STATUS deltas section or universal-hygiene-only disclaimer found", recommendation "Name the task-specific ./ai-infrastructure/project-manager/STATUS.md edits the task will apply, or state explicitly that only universal hygiene applies (per ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention')"`.
 
 The FAIL is binary on presence/absence of the section or disclaimer, not on per-field completeness.
 
@@ -148,7 +148,7 @@ Each hit is a FAIL: `R3, line L, evidence "...", recommendation "Resolve the par
 
 ### Phase 9: R8 Related-tasks-and-ADRs presence (structural)
 
-Enforces that every kickoff carries a curated list of related tasks and ADRs. The Orchestrator surveys `./tasks/` and `./decisions/` in its state survey; handing the worker a pre-triaged list inside the kickoff prevents the worker from scanning the trees and guessing relevance, which the Worker role forbids (`WORKER-ROLE.md`, section "Not in scope"). R8 is presence-based, the same class as R6: it confirms the section exists and was consciously filled; it does NOT verify the list is complete (completeness is the Orchestrator's judgement during the survey, out of scope for the checker).
+Enforces that every kickoff carries a curated list of related tasks and ADRs. The Orchestrator surveys `./ai-infrastructure/project-manager/tasks/` and `./ai-infrastructure/project-manager/decisions/` in its state survey; handing the worker a pre-triaged list inside the kickoff prevents the worker from scanning the trees and guessing relevance, which the Worker role forbids (`WORKER-ROLE.md`, section "Not in scope"). R8 is presence-based, the same class as R6: it confirms the section exists and was consciously filled; it does NOT verify the list is complete (completeness is the Orchestrator's judgement during the survey, out of scope for the checker).
 
 1. Locate a section whose H2 or H3 heading is `Related tasks and ADRs`.
 2. **Missing section** (no such heading): emit FAIL: `R8, line (section expected), evidence "no 'Related tasks and ADRs' section present", recommendation "Add a 'Related tasks and ADRs' section listing each related item as COR-T-NNN or ADR-NNN plus a one-line relevance note, or the literal 'none' if there are none. The orchestrator curates this from its survey. See ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention', and ADR-023."`
@@ -213,7 +213,7 @@ If the `Observed cleanly` list is empty (every rule fired something), omit the s
 - **PASS**: zero findings.
 - **PASS_WITH_WARNINGS**: zero FAIL, one or more WARNING.
 
-When in doubt, classify as FAIL. The orchestrator's circuit-breaker protocol (3-iteration cap with three exits) protects against persistent false positives; a chronic false positive surfaces in the iteration history and the user picks the `accept-with-rationale` exit, which is logged. False-positive observation pattern: append a `COR-NN` entry to `./OBSERVATIONS.md` with the evidence so this spec can be tuned in a later revision.
+When in doubt, classify as FAIL. The orchestrator's circuit-breaker protocol (3-iteration cap with three exits) protects against persistent false positives; a chronic false positive surfaces in the iteration history and the user picks the `accept-with-rationale` exit, which is logged. False-positive observation pattern: append a `COR-NN` entry to `./ai-infrastructure/project-manager/OBSERVATIONS.md` with the evidence so this spec can be tuned in a later revision.
 
 ---
 

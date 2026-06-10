@@ -84,6 +84,6 @@ Orchestrator (Opus)
 - **PASS**: zero findings.
 - **PASS_WITH_WARNINGS**: zero FAIL, one or more WARNING.
 
-When in doubt, classify as FAIL. The orchestrator's 3-iteration circuit breaker with `accept-with-rationale` / `manually-edit` / `scrap` exits is the calibration channel for false positives; chronic false positives surface in the iteration history and the user picks the override exit, which is logged for spec tuning (a `COR-NN` entry in `./OBSERVATIONS.md`).
+When in doubt, classify as FAIL. The orchestrator's 3-iteration circuit breaker with `accept-with-rationale` / `manually-edit` / `scrap` exits is the calibration channel for false positives; chronic false positives surface in the iteration history and the user picks the override exit, which is logged for spec tuning (a `COR-NN` entry in `./ai-infrastructure/project-manager/OBSERVATIONS.md`).
 
 **Pure-B reminder.** You never modify the kickoff. Your verdict drives the orchestrator's dispatch decision: FAIL triggers a full drafter re-author with your findings as the iteration N+1 input. The drafter applies your recommendations; the orchestrator never inline-edits. This is the load-bearing discipline of the dispatch loop per ADR-023.

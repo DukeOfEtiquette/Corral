@@ -3,7 +3,7 @@
 **Status**: Implemented
 **Created**: 2026-06-09
 **Purpose**: Execute one drafted kickoff against the Corral workspace as an Orchestrator-dispatched subagent, and return one of two verdict-lined results (COMPLETED report or ESCALATION). Adopts the Worker role; reads exactly the files the Orchestrator names (explicit context pass-down). This is the single worker execution path in Corral.
-**Lineage**: Ported and right-sized from rogue's `worker-agent` / `WORKER-AGENT-SPEC.md` (rogue ADR-025) per `./decisions/ADR-028-worker-as-dispatched-subagent.md`. The spike that grounds the mechanics (no Agent tool in a dispatched subagent; no in-place resume; the `model` override works; foreground-only for interactive approvals) is rogue's #146; Corral inherits the validated design rather than re-spiking.
+**Lineage**: Ported and right-sized from rogue's `worker-agent` / `WORKER-AGENT-SPEC.md` (rogue ADR-025) per `./ai-infrastructure/project-manager/decisions/ADR-028-worker-as-dispatched-subagent.md`. The spike that grounds the mechanics (no Agent tool in a dispatched subagent; no in-place resume; the `model` override works; foreground-only for interactive approvals) is rogue's #146; Corral inherits the validated design rather than re-spiking.
 
 > **Usage**: This is the detailed execution specification for the `worker-agent` agent.
 > The agent file at `./.claude/agents/worker-agent.md` references this spec and `./docs/ai-orchestration/roles/WORKER-ROLE.md`.
@@ -84,15 +84,15 @@ The Orchestrator passes these via the Task-tool dispatch prompt. The worker pars
 
 ```markdown
 - ./docs/ai-orchestration/roles/WORKER-ROLE.md (the role the worker adopts; the universal minimum)
-- ./decisions/ADR-012-issue-label-view-schema.md (the schema the deliverable follows)
-- ./docs/architecture/OVERVIEW.md (the target shape the kickoff draws from)
+- ./ai-infrastructure/project-manager/decisions/ADR-012-issue-label-view-schema.md (the schema the deliverable follows)
+- ./ai-infrastructure/project-manager/docs/architecture/OVERVIEW.md (the target shape the kickoff draws from)
 ```
 
 **Re-dispatch fields** (populated on `attempt_number > 1`):
 
 ```markdown
 - escalation_answer:
-  - **Output path:** Write the file to `./docs/architecture/NOTES.md`. Pinned by the Orchestrator; treat as an authoritative kickoff decision.
+  - **Output path:** Write the file to `./ai-infrastructure/project-manager/docs/architecture/NOTES.md`. Pinned by the Orchestrator; treat as an authoritative kickoff decision.
 - resume_anchor: ./.claude/artifacts/handoffs/COR-T-015-KICKOFF-REPORT.md
 - prior_progress_summary:
   - Drafted sections 1-2 of the file body (uncommitted; in the partial report).
@@ -140,8 +140,8 @@ Escalation is a faithful surfacing of a real gap, not an Option-A/B deferral. If
 
 When the deliverables are done:
 
-1. Apply STATUS hygiene ONCE per `WORKER-ROLE.md` section "Wrap-up STATUS hygiene": bump `last_updated`, append one `recent_updates` entry, apply the kickoff's named `status_deltas`. This is the ONLY phase that mutates `./STATUS.md`.
-2. Write the full six-section report to `report_path` (dual-channel). List `report_path` and `./STATUS.md` under "Files touched".
+1. Apply STATUS hygiene ONCE per `WORKER-ROLE.md` section "Wrap-up STATUS hygiene": bump `last_updated`, append one `recent_updates` entry, apply the kickoff's named `status_deltas`. This is the ONLY phase that mutates `./ai-infrastructure/project-manager/STATUS.md`.
+2. Write the full six-section report to `report_path` (dual-channel). List `report_path` and `./ai-infrastructure/project-manager/STATUS.md` under "Files touched".
 3. Return `RETURN: COMPLETED` + the six-section report (identical to the file).
 
 ---
@@ -163,7 +163,7 @@ RETURN: COMPLETED
 ## Build / verification status
 ```
 
-Side effects before returning: the identical six sections are written to `report_path`; STATUS hygiene is applied once. "Files touched" lists `report_path` and `./STATUS.md`.
+Side effects before returning: the identical six sections are written to `report_path`; STATUS hygiene is applied once. "Files touched" lists `report_path` and `./ai-infrastructure/project-manager/STATUS.md`.
 
 ### Mode B: ESCALATION
 
@@ -193,7 +193,7 @@ Side effect before returning: a partial report is written to `report_path`. STAT
 2. **No em dashes** in any file written (U+2014, U+2013). Repo writing rule (`./CLAUDE.md`).
 3. **Explicit reads only.** Read `kickoff_path`, `explicit_reads`, `resume_anchor` (re-dispatch); nothing else.
 4. **Leaf node.** Dispatch no subagents.
-5. **STATUS-once.** Mutate `./STATUS.md` only on COMPLETED, exactly one `recent_updates` entry and one `last_updated` bump.
+5. **STATUS-once.** Mutate `./ai-infrastructure/project-manager/STATUS.md` only on COMPLETED, exactly one `recent_updates` entry and one `last_updated` bump.
 6. **Repo-relative `./` paths.** Per `./CLAUDE.md`, cite paths repo-root-relative, not absolute.
 7. **Cite, do not invent.** Per `./CLAUDE.md` Agent Discipline, every claim about repo state in the report is verified in-session.
 
@@ -239,7 +239,7 @@ Inputs:
 Return RETURN: COMPLETED + the six-section report, or RETURN: ESCALATION + the four-part block.
 ```
 
-**Return:** `RETURN: COMPLETED` + the six-section report; `COR-T-015-KICKOFF-REPORT.md` and `./STATUS.md` written.
+**Return:** `RETURN: COMPLETED` + the six-section report; `COR-T-015-KICKOFF-REPORT.md` and `./ai-infrastructure/project-manager/STATUS.md` written.
 
 ### Example 2: Escalation then re-dispatch
 
@@ -250,7 +250,7 @@ Inputs (attempt 2):
 - ... (workspace, kickoff_path, explicit_reads, report_path unchanged) ...
 - attempt_number: 2
 - escalation_answer:
-  - **Output path:** Write to ./docs/architecture/NOTES.md. Pinned; treat as authoritative.
+  - **Output path:** Write to ./ai-infrastructure/project-manager/docs/architecture/NOTES.md. Pinned; treat as authoritative.
 - resume_anchor: ./.claude/artifacts/handoffs/COR-T-015-KICKOFF-REPORT.md
 - prior_progress_summary:
   - Drafted the notes body in the partial report; stopped at the output-path ambiguity.
@@ -268,7 +268,7 @@ Inputs (attempt 2):
 
 **Why return-and-re-dispatch instead of in-place resume.** In-place resume is unavailable on the dispatched-subagent path (rogue spike #146, recorded in ADR-028). The fresh-worker re-dispatch reconstructs state from the kickoff + the dual-channel report (the resume anchor) + the pinned answer, the same three-source pattern `WORKER-ROLE.md` section "Crash recovery" already uses, with the escalation answer added.
 
-**Why STATUS-once on COMPLETED.** A multi-attempt task must not double-stamp STATUS (multiple `recent_updates` entries, premature phase flips). Making hygiene a COMPLETED-only side effect keeps one task to one STATUS update, and makes the close-checker-visible signal (`./STATUS.md` in "Files touched") appear only on the truly-final attempt.
+**Why STATUS-once on COMPLETED.** A multi-attempt task must not double-stamp STATUS (multiple `recent_updates` entries, premature phase flips). Making hygiene a COMPLETED-only side effect keeps one task to one STATUS update, and makes the close-checker-visible signal (`./ai-infrastructure/project-manager/STATUS.md` in "Files touched") appear only on the truly-final attempt.
 
 **Why the worker is a leaf (checkers Orchestrator-run).** A dispatched subagent has no Agent tool. So the prelaunch and close checkers move up to the Orchestrator (which already dispatches `kickoff-drafter` / `kickoff-checker` per ADR-023). This is the key structural difference from the old `/corral-worker` session, which dispatched its own checkers; the dispatched worker cannot. The full orchestrator-run protocol is in `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` section "Dispatched-worker flow".
 
