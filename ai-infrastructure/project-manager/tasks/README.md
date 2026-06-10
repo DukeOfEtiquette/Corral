@@ -27,7 +27,7 @@ schema_version: 1
 id: COR-T-001
 title: "Short imperative title"
 status: backlog            # backlog | in-progress | blocked | done
-labels: []                 # e.g. [dept:ai-infra]
+labels: []                 # e.g. [dept:agent-development]; dept:* is at-most-one (ADR-018)
 priority: P2               # P0 (urgent) .. P3 (someday)
 created: 2026-06-05
 updated: 2026-06-05

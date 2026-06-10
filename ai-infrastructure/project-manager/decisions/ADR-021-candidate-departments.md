@@ -101,4 +101,6 @@ Web-app domain departments (lazily created):
 
 - **Departments map to filtered boards at the dogfood milestone.** Each `dept:<slug>` gets its own filtered kanban board at the dogfood milestone (ADR-008), when task management migrates off the markdown `tasks/` tree and into the Corral web app. The label taxonomy and enforcement (including exactly one `dept:*` per task) are owned by ADR-018. ADR-001 established the board-per-department-label headline use case; ADR-008 fixed the dogfood milestone as when it lands.
 
+  > Forward pointer (ADR-018, accepted 2026-06-10): the "exactly one `dept:*` per task" leaning above is amended to **at-most-one** (0 or 1). An issue may sit unlabeled; unlabeled issues appear on no department board. ADR-018 owns the resolved taxonomy; this ADR remains the authority for the valid `dept:*` slug roster.
+
 - **ADR-027 is the authoritative structure ADR.** This ADR is the department menu; ADR-027 owns the coordinator/department model, the shared `dept:`-labeled task pool, the create-department recipe, and the coordinator write-authority grant. Readers who want the full workspace structure should read ADR-027. The two ADRs are complementary, not overlapping.

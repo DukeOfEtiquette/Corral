@@ -3,7 +3,7 @@ schema_version: 1
 id: COR-T-015
 title: "Port the dispatched worker-agent flow (ADR-028); retire /corral-worker"
 status: done
-labels: [dept:ai-infra]
+labels: [dept:agent-development]
 priority: P2
 created: 2026-06-09
 updated: 2026-06-09
@@ -72,3 +72,4 @@ Reference sources (rogue, the exemplar per ADR-009):
 - 2026-06-09: Created in backlog. Queued from ADR-028 (accepted same day) as its implementation task.
 - 2026-06-09: Picked up; moved to in-progress. Executed directly (not via /corral-worker, which this task retires).
 - 2026-06-09: Done. Decision committed as ce414d5 (ADR-028 acceptance); implementation committed in this same task's implementation commit (the COR-T-015 deliverables, the /corral-worker deletion, and this done-move are folded into it at the user's two-commit request, rather than a separate move-to-done commit). All six deliverables complete. Created `worker-agent.md` + `WORKER-AGENT-SPEC.md`; added ORCHESTRATOR-ROLE.md "Dispatched-worker flow"; reframed WORKER-ROLE.md (Identity deltas + checkers orchestrator-run, replacing the "Worker-side checker dispatch" section); repointed the prelaunch/close checker agents+specs and the kickoff-drafter/checker Worker-pointer convention; wired /corral-orchestrator; deleted /corral-worker. Acceptance: `grep -rn 'corral-worker'` shows no live references (only ADR-028/009/023, STATUS, task, and frozen handoff history); em-dash clean (one pre-existing intentional detection regex in KICKOFF-CHECKER-SPEC.md). Awaiting commit gate before done-move.
+- 2026-06-10: Relabeled dept:ai-infra -> dept:agent-development per ADR-018 (COR-T-008): ai-infra is a domain not a department (ADR-021), so dept:ai-infra was invalid taxonomy. Label-only edit; task otherwise unchanged.
