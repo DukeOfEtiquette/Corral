@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-022
 title: "Mark planned departments in the dashboard org chart"
-status: in-progress
+status: done
 labels: [dept:agent-development]
 priority: P3
 created: 2026-06-10
@@ -20,3 +20,4 @@ This is a dashboard code deliverable: it routes through the dispatched-worker fl
 ## Activity log
 
 - 2026-06-10: Created and picked up in the same session. Surfaced from a user observation: the dashboard org chart listed agent-development/test-design/docs-curation as if they existed, while only project-manager is instantiated (lazy creation, ADR-021/027). Verified build_org_chart renders DEPARTMENTS_ROSTER with no marker while the Departments panel badges exists/planned, so the two panels contradict each other. Decision pinned with the user (#1): mark planned departments in the org chart with a "(planned)" suffix driven by the actual exists flag. Queued for the dispatched-worker flow.
+- 2026-06-10: Done. Dispatched-worker flow ran clean: kickoff PASS (R1-R8), prelaunch PASS (W1), worker COMPLETED, close-check PASS (W2). Verified against disk: build_org_chart gained a label() helper appending " (planned)" when exists is falsey, call site passes the computed departments list (with exists), ASCII connectors/grouping/coordinator-root unchanged, docstring updated, no em dashes, data.json org_chart string contract unchanged. Code-review-deterministic output, committed on confidence (rendered effect needs docker compose up --build since etl.py is image-baked; the COR-T-020 watch does not pick up etl.py code changes). Deliverable committed as ab728ef (with the kickoff/report pair per ADR-024). Moved to done.
