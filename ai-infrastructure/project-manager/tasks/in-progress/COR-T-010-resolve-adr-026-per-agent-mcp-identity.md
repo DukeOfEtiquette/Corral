@@ -2,11 +2,11 @@
 schema_version: 1
 id: COR-T-010
 title: "Resolve ADR-026: per-agent MCP identity"
-status: backlog
+status: in-progress
 labels: [dept:backend-api]
 priority: P3
 created: 2026-06-08
-updated: 2026-06-08
+updated: 2026-06-10
 ---
 
 ## Description
@@ -16,3 +16,4 @@ Take `./decisions/ADR-026-per-agent-mcp-identity.md` from pending to accepted. D
 ## Activity log
 
 - 2026-06-08: Created in backlog. Surfaced as a COR-T-005 (ADR-011) Worker follow-up (single shared MCP service identity defers per-agent attribution); ADR-026 framed pending in the same change; triaged to backlog by the Orchestrator.
+- 2026-06-10: Picked up; moved to in-progress. First task executed under the new "Pending-ADR resolution playbook" (ORCHESTRATOR-ROLE.md, via COR-T-019). Orchestrator-direct (decisions/ carve-out). Decisions pinned with the user: Option A (per-agent API keys; agents are first-class machine users in the `users` table with display_name + hashed key, no human-auth fields), keys provisioned in deploy config (`.env` per ADR-006, extending ADR-011's machine service-key handling); claim-as-lease prerequisite supplied to ADR-020 (not deciding ADR-020); per-agent actor_id attribution in issue_events; exact DDL deferred to implementation-phase (ADR-014).

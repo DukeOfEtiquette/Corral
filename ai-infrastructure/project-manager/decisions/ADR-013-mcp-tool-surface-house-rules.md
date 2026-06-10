@@ -4,7 +4,7 @@ adr: 13
 title: "MCP tool surface and server-enforced house rules"
 status: "accepted"
 date: "2026-06-07"
-related_adrs: [4, 8, 10, 12, 17, 18, 19, 20, 25]
+related_adrs: [4, 8, 10, 12, 17, 18, 19, 20, 25, 26]
 supersedes: []
 superseded_by: null
 ---
@@ -78,7 +78,7 @@ All house rules are enforced in the HTTP API layer per ADR-010. The MCP server i
 
 2. **Label-governance boundary.** ADR-013 pins the enforcement mechanism (API-layer, family-aware); it does not pin the concrete `dept:*` family members, their at-most-one cardinality, or who may create labels. Those specifics are owned by ADR-018 (department label taxonomy, pending) and ADR-021 (candidate departments, pending). Until those ADRs resolve, `issue_label` and `issue_create` enforce whatever families the API implements; the tool interface is stable regardless.
 
-3. **ADR-020 claim non-preclusion.** Including `issue_claim` (sets `issues.assignee_id`; mirrors ghtask `task_claim` with its `force` option) does not decide the multi-user concurrency model. Whether claim acts as a lease, and last-write-wins vs optimistic versioning, are owned by ADR-020 (pending). The tool exists; its concurrency semantics are deferred.
+3. **ADR-020 claim non-preclusion.** Including `issue_claim` (sets `issues.assignee_id`; mirrors ghtask `task_claim` with its `force` option) does not decide the multi-user concurrency model. Whether claim acts as a lease, and last-write-wins vs optimistic versioning, are owned by ADR-020 (pending). The tool exists; its concurrency semantics are deferred. **Forward pointer:** the identity `issue_claim` resolves `assignee_id` to is now per-agent, not the single shared service user, per ADR-026 (accepted); the tool signature is unchanged. See `./ADR-026-per-agent-mcp-identity.md`.
 
 4. **ADR-019 surface-evolution ownership.** How the tool surface is versioned as it grows (for example, adding epic tools additively per ADR-025) is owned by ADR-019 (MCP contract versioning, pending). ADR-013 names it and stops.
 

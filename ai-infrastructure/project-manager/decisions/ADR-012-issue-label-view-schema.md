@@ -4,7 +4,7 @@ adr: 12
 title: "Database schema for issues, labels, and kanban views"
 status: "accepted"
 date: "2026-06-05"
-related_adrs: [1, 8, 10, 13, 17, 18, 20, 25]
+related_adrs: [1, 8, 10, 13, 17, 18, 20, 25, 26]
 supersedes: []
 superseded_by: null
 ---
@@ -160,3 +160,5 @@ issue_events (
 5. **ADR-020 non-preclusion.** The schema does not include a version column. ADR-020 (pending) owns the concurrency model. Adding a `version` column to `issues` (or other tables) in a future migration is not precluded by this schema.
 
 6. **ADR-025 epic relation (forward pointer).** The `issues` table is amended by ADR-025 (accepted), which adds a `type` column (`task | epic`, CHECK-constrained) and a nullable self-referential `parent_id` FK for native epics. Per the ADR-024 precedent the amendment lives in that later ADR; the DDL block above stays as authored. See `./ADR-025-native-epics.md`.
+
+7. **ADR-026 machine users (forward pointer).** The `users` table holds machine identities (fleet agents) alongside human users, per ADR-026 (accepted): an agent is a `users` row carrying `display_name` and a hashed API key but not the human-auth fields ADR-011 adds (`email`, `password_hash`), distinguished by a discriminator. `issues.assignee_id` and `issue_events.actor_id` resolve to either kind, so per-agent claim-as-lease and audit attribution work. Per the ADR-024 precedent the amendment lives in that later ADR; exact DDL is implementation-phase (ADR-014). See `./ADR-026-per-agent-mcp-identity.md`.

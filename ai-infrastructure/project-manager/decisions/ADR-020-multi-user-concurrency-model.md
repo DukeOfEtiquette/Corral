@@ -4,7 +4,7 @@ adr: 20
 title: "Multi-user concurrency model for issue mutations"
 status: "pending"
 date: "2026-06-05"
-related_adrs: [12]
+related_adrs: [12, 26]
 supersedes: []
 superseded_by: null
 ---
@@ -30,6 +30,8 @@ Mutations carry the version they read; stale writes are rejected with a refetch.
 ### Option C: Claim/lease semantics for agents
 
 Mirror ghtask's `task_claim` (assignee-as-lease) so agents avoid contention by convention; can combine with A or B for humans.
+
+Per-agent identity, the prerequisite this option needs to distinguish one agent from another, is now resolved: ADR-026 (accepted) gives each agent a first-class machine-user identity, so `issues.assignee_id` set via `issue_claim` keys on the acting agent. This ADR still owns the lease and concurrency decision; ADR-026 only removed the identity blocker.
 
 ### Live updates (orthogonal)
 

@@ -4,7 +4,7 @@ adr: 11
 title: "Auth and session mechanism"
 status: "accepted"
 date: "2026-06-08"
-related_adrs: [6, 7, 10, 12, 13, 20]
+related_adrs: [6, 7, 10, 12, 13, 20, 26]
 supersedes: []
 superseded_by: null
 ---
@@ -88,8 +88,8 @@ Exact session lifetime, cookie-attribute specifics (for example, toggling the Se
 
 4. **ADR-012 Consequence #3: auth schema boundary defined.** ADR-012 scoped `users` to `id` plus `display_name` and handed the auth schema to ADR-011. ADR-011 now owns: `users` gains `email` (unique) and `password_hash`; plus an invites concept and a sessions concept (or equivalent). The `assignee_id` FK on `issues` (ADR-012) is the seam between the core schema and the auth identity. Exact DDL is implementation-phase and ADR-014 migration work.
 
-5. **Single-identity to claim-lease coupling (ADR-013 and ADR-020).** Because all agents share one MCP service identity, `issues.assignee_id` set via ADR-013's `issue_claim` resolves to that single service user; claim-as-lease cannot distinguish one agent from another. ADR-020 (pending) leans toward assignee-as-lease (its Option C) so agents avoid contention by convention; per-agent identity is the prerequisite for agent-vs-agent claim contention. This non-preclusion note records the coupling; the per-agent-identity ADR will carry this rationale when it is drafted.
+5. **Single-identity to claim-lease coupling (ADR-013 and ADR-020).** Because all agents share one MCP service identity, `issues.assignee_id` set via ADR-013's `issue_claim` resolves to that single service user; claim-as-lease cannot distinguish one agent from another. ADR-020 (pending) leans toward assignee-as-lease (its Option C) so agents avoid contention by convention; per-agent identity is the prerequisite for agent-vs-agent claim contention. This non-preclusion note records the coupling; the per-agent-identity ADR will carry this rationale when it is drafted. **Resolved (forward pointer):** ADR-026 (accepted) removes this coupling with per-agent API keys mapped to first-class machine-user rows, so `assignee_id` and the `issue_events` audit trail now name the acting agent. See `./ADR-026-per-agent-mcp-identity.md`.
 
-6. **Per-agent MCP identity deferred.** Per-agent service credentials are premature before the MCP surface is built. A future pending ADR owns this decision. No per-agent-identity ADR is created by this task.
+6. **Per-agent MCP identity deferred.** Per-agent service credentials are premature before the MCP surface is built. A future pending ADR owns this decision. No per-agent-identity ADR is created by this task. **Resolved (forward pointer):** that future ADR is ADR-026 (accepted), which extends this ADR's single-shared-service-identity model to per-agent keys per the ADR-024 amend-by-later-ADR precedent. See `./ADR-026-per-agent-mcp-identity.md`.
 
 7. **Implementation-phase items named.** Exact session lifetime, cookie-attribute specifics (for example, toggling the Secure flag for local HTTP dev), token byte-length and expiry windows, and the concrete DDL and migration are deferred to the implementation phase and ADR-014 migration work. MCP contract versioning (ADR-019) and the multi-user concurrency model (ADR-020) remain pending and are not resolved here.
