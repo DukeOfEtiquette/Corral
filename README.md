@@ -48,14 +48,16 @@ Rationale: `./ai-infrastructure/project-manager/decisions/ADR-002-tech-stack.md`
 
 ## Roadmap
 
-| Phase | Deliverable |
+Live phase and milestone status: `./ai-infrastructure/project-manager/STATUS.md`. Rendered live roadmap: `./ai-infrastructure/project-manager/dashboard/`.
+
+| Phase | Intent |
 |---|---|
-| **0. Bootstrap** (this iteration) | Docs, decision records, task convention |
-| **1. AI infrastructure** | Orchestrator/worker role docs (COR-T-001); resolve blocking ADRs: schema (ADR-012), API shape (ADR-010), MCP surface (ADR-013), auth (ADR-011); department structure (ADR-021) |
-| **2. API + DB core** | Postgres schema, FastAPI endpoints with house rules, auth/sessions, invite tokens, migrations (ADR-014), admin seeding (ADR-006). First moment the app can store an issue |
-| **3. MCP server** | FastMCP server as an authenticated API client (ADR-004, ADR-010). The agent seam goes live |
-| **4. Kanban UI** | React multi-view board with per-view label filters (ADR-015, 017, 018), admin page |
-| **5. Dogfood milestone** | Import `./ai-infrastructure/project-manager/tasks/` markdown into the app via the MCP server; the project tracks itself; markdown tasks frozen (`./ai-infrastructure/project-manager/decisions/ADR-008-bootstrap-tasks-dogfood-milestone.md`). Multi-user/agent concurrency (ADR-020) becomes live here |
+| **0. Bootstrap** | Docs, decision records, and the task convention. |
+| **1. AI infrastructure** | Orchestrator and worker role docs, the dispatch loop, the blocking ADRs, and the department structure. |
+| **2. API + DB core** | Postgres schema, FastAPI endpoints, auth and sessions, migrations, and admin seeding; the first point the app can store an issue. |
+| **3. MCP server** | The FastMCP server goes live as the authenticated agent seam. |
+| **4. Kanban UI** | The React multi-view board with per-view label filters, plus the admin page. |
+| **5. Dogfood milestone** | Import the markdown tasks into the app via the MCP server; the project tracks itself and the markdown tasks freeze. |
 
 ## How decisions are recorded
 
