@@ -213,6 +213,46 @@ a:hover { text-decoration: underline; }
 .roadmap-title { font-weight: 600; flex: 1; }
 .roadmap-deliverables { font-size: 0.82rem; color: var(--color-muted); line-height: 1.5; }
 
+.roadmap-milestones {
+  list-style: none;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-left: 2px solid var(--color-border);
+  padding-left: 0.75rem;
+}
+.roadmap-milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+.roadmap-milestone-id {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  min-width: 2.8rem;
+}
+.roadmap-milestone-title {
+  flex: 1;
+  color: var(--color-text);
+}
+.roadmap-milestone-task {
+  font-size: 0.70rem;
+  background: #2a2d3e;
+  color: var(--color-muted);
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.badge-milestone-done       { background: #1a3328; color: #5ec98a; }
+.badge-milestone-in-progress { background: #1a2050; color: #8aacff; }
+.badge-milestone-planned    { background: #2a2d3e; color: var(--color-muted); }
+
 /* Org chart */
 .org-chart {
   font-family: 'Courier New', Courier, monospace;

@@ -26,7 +26,12 @@ Sources:
 JSON contract shape (data.json):
   meta:            generated_at, source, project, current_phase,
                    current_phase_title, last_updated, next_step
-  roadmap:         [ {phase, title, deliverables, status} ]
+  roadmap:         [ {phase, title, deliverables, status,
+                      milestones: [{id, title, status, task}]} ]
+                    milestones is a list of authored sub-milestones (may be []).
+                    Each milestone: id (e.g. "P1-1"), title, status (done /
+                    in-progress / planned, authored verbatim), task (optional
+                    plain-text task ref, e.g. "COR-T-014", or empty string).
   org_chart:       ASCII string
   departments:     [ {slug, domain, exists, orchestrator_command, label,
                        status, task_counts} ]
@@ -284,11 +289,25 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         deliverables = item.get("deliverables", "")
         if isinstance(deliverables, list):
             deliverables = "; ".join(str(d) for d in deliverables)
+        raw_milestones = item.get("milestones", [])
+        if not isinstance(raw_milestones, list):
+            raw_milestones = []
+        milestones = []
+        for ms in raw_milestones:
+            if not isinstance(ms, dict):
+                continue
+            milestones.append({
+                "id": str(ms.get("id", "")),
+                "title": str(ms.get("title", "")),
+                "status": str(ms.get("status", "")),
+                "task": str(ms.get("task", "")) if ms.get("task") else "",
+            })
         roadmap.append({
             "phase": phase_num,
             "title": str(item.get("title", "")),
             "deliverables": str(deliverables),
             "status": derive_roadmap_status(phase_num, current_phase),
+            "milestones": milestones,
         })
 
     # -- (d) Shared task pool ------------------------------------------------

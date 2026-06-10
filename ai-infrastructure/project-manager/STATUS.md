@@ -6,23 +6,93 @@ roadmap:
   - phase: 0
     title: "Bootstrap"
     deliverables: "Docs, decision records, task convention"
+    milestones:
+      - id: P0-1
+        title: "Docs scaffold (README, CLAUDE.md)"
+        status: done
+      - id: P0-2
+        title: "Decision records ADR-001..009 accepted"
+        status: done
+      - id: P0-3
+        title: "Task convention seeded (COR-T-001..006)"
+        status: done
   - phase: 1
     title: "AI infrastructure"
     deliverables: "Orchestrator/worker role docs, the dispatch loop, the blocking ADRs, and the department structure"
+    milestones:
+      - id: P1-1
+        title: "Orchestrator/worker role docs + drafter+checker dispatch loop"
+        status: done
+        task: COR-T-001
+      - id: P1-2
+        title: "Blocking ADRs: schema, API shape, MCP surface, auth"
+        status: done
+      - id: P1-3
+        title: "Department structure + workspace restructure"
+        status: done
+      - id: P1-4
+        title: "project-manager insight dashboard"
+        status: done
+        task: COR-T-014
+      - id: P1-5
+        title: "Resolve pending ADRs: label taxonomy, native epics, per-agent MCP identity"
+        status: in-progress
+      - id: P1-6
+        title: "Roadmap sub-milestone granularity in the dashboard"
+        status: in-progress
+        task: COR-T-017
   - phase: 2
     title: "API + DB core"
     deliverables: "Postgres schema, FastAPI endpoints, auth/sessions, invite tokens, migrations, admin seeding"
+    milestones:
+      - id: P2-1
+        title: "Postgres schema (ADR-012)"
+        status: planned
+      - id: P2-2
+        title: "FastAPI endpoints with house rules"
+        status: planned
+      - id: P2-3
+        title: "Auth/sessions + invite tokens (ADR-011)"
+        status: planned
+      - id: P2-4
+        title: "Migrations + admin seeding (ADR-014, ADR-006)"
+        status: planned
   - phase: 3
     title: "MCP server"
     deliverables: "FastMCP server as an authenticated API client; the agent seam goes live"
+    milestones:
+      - id: P3-1
+        title: "FastMCP server as authenticated API client (ADR-004)"
+        status: planned
+      - id: P3-2
+        title: "Nine-tool agent seam goes live (ADR-013)"
+        status: planned
   - phase: 4
     title: "Kanban UI"
     deliverables: "React multi-view board with per-view label filters, admin page"
+    milestones:
+      - id: P4-1
+        title: "React multi-view board with per-view label filters (ADR-015, ADR-017, ADR-018)"
+        status: planned
+      - id: P4-2
+        title: "Admin page"
+        status: planned
   - phase: 5
     title: "Dogfood milestone"
     deliverables: "Import the markdown tasks into the app via the MCP server; the project tracks itself; markdown tasks frozen"
+    milestones:
+      - id: P5-1
+        title: "Import markdown tasks into the app via the MCP server (ADR-008)"
+        status: planned
+      - id: P5-2
+        title: "Freeze markdown tasks; the project tracks itself"
+        status: planned
+      - id: P5-3
+        title: "Multi-user/agent concurrency live (ADR-020)"
+        status: planned
 last_updated: "2026-06-10"
 recent_updates:
+  - "2026-06-10: COR-T-017 executed: extended the project-manager dashboard pipeline end-to-end with roadmap sub-milestones (P1-1/P1-2 granularity). ETL (etl.py) now carries a milestones array on each roadmap entry (id, title, authored status, optional task ref; empty list when absent); JSON-contract docstring updated. RoadmapPanel.jsx renders milestones as an always-visible nested sub-list with MILESTONE_STATUS_LABELS (done/in-progress/planned), badge-milestone-* pills, and a non-linking task tag. styles.css gains .roadmap-milestones layout, .roadmap-milestone-* element classes, and three .badge-milestone-* color classes mirroring the .badge-roadmap-* idiom."
   - "2026-06-10: COR-T-014 executed: built the project-manager insight dashboard (ADR-027 Fork E). Greenfield ai-infrastructure/project-manager/dashboard/: Python ETL (etl.py) reading roadmap/STATUS frontmatter, shared task pool, ADR-021 department roster, coordinator ADRs, and observations count, emitting a pinned data.json contract; React/Vite two-view SPA (landing overview + per-workspace detail, hash-routed); multi-stage Dockerfile (node:20-slim build stage, python:3.12-slim serve stage, ETL-then-http.server entrypoint on port 8420); standalone docker-compose.yml with read-only repo-root bind-mount at /repo. Dashboard reads markdown sources now and repoints to the app at the dogfood milestone (ADR-008). All three ADR-027 follow-ons (COR-T-012 restructure, COR-T-013 create-department, COR-T-014 dashboard) are now complete."
   - "2026-06-10: COR-T-016 executed: renamed the coordinator orchestrator command from /corral-orchestrator to /project-manager-orchestrator to match the /<slug>-orchestrator convention (ADR-021, ADR-030). git mv .claude/commands/corral-orchestrator.md -> project-manager-orchestrator.md; updated three display-name lines in the command file; updated ORCHESTRATOR-ROLE.md (three command refs + Instantiation role name); updated WORKER-ROLE.md (one Not-in-scope command ref); generalised worker-agent.md two Corral Orchestrator mentions to the Orchestrator; updated STATUS.md Current-phase narrative."
   - "2026-06-10: COR-T-013 executed: built the create-department recipe. Authored six placeholder-tokenized template files under ai-infrastructure/project-manager/templates/department/ (CLAUDE.md, README.md, STATUS.md, OBSERVATIONS.md, decisions/README.md, orchestrator-command.md) and the .claude/commands/create-department.md command. The scaffold contract is ADR-030; the orchestrator-command template mirrors the corral-orchestrator structure scoped to the department and uses five {{UPPER_SNAKE}} tokens. The /create-department command drives the orchestrator through the dispatched-worker flow to stamp the workspace."

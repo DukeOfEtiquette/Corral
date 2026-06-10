@@ -6,6 +6,12 @@ const STATUS_LABELS = {
   upcoming: 'Upcoming',
 };
 
+const MILESTONE_STATUS_LABELS = {
+  done: 'Done',
+  'in-progress': 'In Progress',
+  planned: 'Planned',
+};
+
 export default function RoadmapPanel({ roadmap }) {
   return (
     <div className="card">
@@ -21,6 +27,22 @@ export default function RoadmapPanel({ roadmap }) {
               </span>
             </div>
             <p className="roadmap-deliverables">{item.deliverables}</p>
+            {item.milestones && item.milestones.length > 0 && (
+              <ul className="roadmap-milestones">
+                {item.milestones.map((ms) => (
+                  <li key={ms.id} className="roadmap-milestone-item">
+                    <span className="roadmap-milestone-id">{ms.id}</span>
+                    <span className="roadmap-milestone-title">{ms.title}</span>
+                    <span className={`badge badge-milestone-${ms.status}`}>
+                      {MILESTONE_STATUS_LABELS[ms.status] || ms.status}
+                    </span>
+                    {ms.task && (
+                      <span className="roadmap-milestone-task">{ms.task}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
       </ol>
