@@ -2,7 +2,7 @@
 
 This document defines the Orchestrator role for Corral, right-sized from the rogue exemplar per `./ai-infrastructure/project-manager/decisions/ADR-009-adopt-rogue-orchestration-conventions.md`. The Orchestrator is the user-facing Claude Code session that coordinates work across other agents (Worker sessions, subagents, automated checks) without directly executing the domain work itself.
 
-Corral is a single project, so there is one Orchestrator. It acts as the coordinator described in `./ai-infrastructure/project-manager/decisions/ADR-021-candidate-departments.md`; if departments are created later, this role doc gains per-department layering then, not before.
+The project-manager is the coordinator Orchestrator, instantiated by the `/corral-orchestrator` command and described in `./ai-infrastructure/project-manager/decisions/ADR-021-candidate-departments.md`. Each department created via the create-department recipe (`./ai-infrastructure/project-manager/decisions/ADR-030-department-scaffold-contract-create-department-recipe.md`) gets its own scoped `/<slug>-orchestrator` command that adopts this role doc by reference (`./ai-infrastructure/project-manager/decisions/ADR-029-shared-role-docs-stay-at-repo-root.md`); all Orchestrators share the universal `worker-agent` and the checker fleet.
 
 The role is instantiated via the `/corral-orchestrator` slash command (see "Instantiation" below).
 
