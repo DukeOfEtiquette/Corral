@@ -168,23 +168,32 @@ def build_org_chart(departments: list) -> str:
     """
     Generate a simple ASCII org chart with project-manager at the root and
     departments as branches, grouped by domain.
+
+    Each entry in departments must carry at least 'slug', 'domain', and
+    optionally 'exists'. Departments where 'exists' is False (or absent) are
+    labelled with a ' (planned)' suffix; created departments are unlabelled.
+    The coordinator root line is never suffixed.
     """
-    ai_depts = [d["slug"] for d in departments if d["domain"] == "ai-infrastructure"]
-    web_depts = [d["slug"] for d in departments if d["domain"] == "web-app"]
+    ai_depts = [d for d in departments if d["domain"] == "ai-infrastructure"]
+    web_depts = [d for d in departments if d["domain"] == "web-app"]
+
+    def label(d: dict) -> str:
+        suffix = "" if d.get("exists") else " (planned)"
+        return d["slug"] + suffix
 
     lines = [
         "project-manager (coordinator)",
         "|",
         "+-- AI-infrastructure domain",
     ]
-    for i, slug in enumerate(ai_depts):
+    for i, dept in enumerate(ai_depts):
         prefix = "|   +-- " if i < len(ai_depts) - 1 else "|   `-- "
-        lines.append(prefix + slug)
+        lines.append(prefix + label(dept))
     lines.append("|")
     lines.append("`-- Web-app domain")
-    for i, slug in enumerate(web_depts):
+    for i, dept in enumerate(web_depts):
         prefix = "    +-- " if i < len(web_depts) - 1 else "    `-- "
-        lines.append(prefix + slug)
+        lines.append(prefix + label(dept))
 
     return "\n".join(lines)
 
@@ -365,7 +374,7 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     }
 
     # -- Org chart -----------------------------------------------------------
-    org_chart = build_org_chart(DEPARTMENTS_ROSTER)
+    org_chart = build_org_chart(departments)
 
     # -- workspace_details ---------------------------------------------------
     workspace_details = {}
