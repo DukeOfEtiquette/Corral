@@ -2,9 +2,9 @@
 
 This document defines the Orchestrator role for Corral, right-sized from the rogue exemplar per `./ai-infrastructure/project-manager/decisions/ADR-009-adopt-rogue-orchestration-conventions.md`. The Orchestrator is the user-facing Claude Code session that coordinates work across other agents (Worker sessions, subagents, automated checks) without directly executing the domain work itself.
 
-The project-manager is the coordinator Orchestrator, instantiated by the `/corral-orchestrator` command and described in `./ai-infrastructure/project-manager/decisions/ADR-021-candidate-departments.md`. Each department created via the create-department recipe (`./ai-infrastructure/project-manager/decisions/ADR-030-department-scaffold-contract-create-department-recipe.md`) gets its own scoped `/<slug>-orchestrator` command that adopts this role doc by reference (`./ai-infrastructure/project-manager/decisions/ADR-029-shared-role-docs-stay-at-repo-root.md`); all Orchestrators share the universal `worker-agent` and the checker fleet.
+The project-manager is the coordinator Orchestrator, instantiated by the `/project-manager-orchestrator` command and described in `./ai-infrastructure/project-manager/decisions/ADR-021-candidate-departments.md`. Each department created via the create-department recipe (`./ai-infrastructure/project-manager/decisions/ADR-030-department-scaffold-contract-create-department-recipe.md`) gets its own scoped `/<slug>-orchestrator` command that adopts this role doc by reference (`./ai-infrastructure/project-manager/decisions/ADR-029-shared-role-docs-stay-at-repo-root.md`); all Orchestrators share the universal `worker-agent` and the checker fleet.
 
-The role is instantiated via the `/corral-orchestrator` slash command (see "Instantiation" below).
+The role is instantiated via the `/project-manager-orchestrator` slash command (see "Instantiation" below).
 
 ## Scope
 
@@ -190,9 +190,9 @@ The standard (and only) execution path for a drafted kickoff: the Orchestrator d
 
 ## Instantiation
 
-The role is instantiated by `./.claude/commands/corral-orchestrator.md`. The command:
+The role is instantiated by `./.claude/commands/project-manager-orchestrator.md`. The command:
 
-1. References this document so the session adopts the Orchestrator role. Role name for the user: "Corral Orchestrator".
+1. References this document so the session adopts the Orchestrator role. Role name for the user: "Project Manager Orchestrator".
 2. Loads the project's canonical documents (`./README.md`, `./ai-infrastructure/project-manager/STATUS.md`, `./ai-infrastructure/project-manager/OBSERVATIONS.md`, the `./ai-infrastructure/project-manager/decisions/` listing, `./docs/README.md`).
 3. Auto-runs a state survey on invocation: tasks by state, in-flight scratch artifacts, recent observations. Reports findings in a structured shape.
 4. Ends by asking the user for direction rather than proactively acting:

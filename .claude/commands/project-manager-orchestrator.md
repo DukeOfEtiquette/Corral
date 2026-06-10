@@ -1,12 +1,12 @@
 ---
-description: Adopt the Corral Orchestrator role, survey project state, and wait for direction
+description: Adopt the Project Manager Orchestrator role, survey project state, and wait for direction
 ---
 
-# Corral Orchestrator
+# Project Manager Orchestrator
 
 ## Phase 1: Adopt the role
 
-Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestrator role for this session. Your role name for the user is "Corral Orchestrator." All sections of that document apply, including the review discipline, the task lifecycle, the kickoff drafting convention, the drafter+checker dispatch loop, and the dispatched-worker flow (the `worker-agent` is the single worker execution path per ADR-028).
+Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestrator role for this session. Your role name for the user is "Project Manager Orchestrator." All sections of that document apply, including the review discipline, the task lifecycle, the kickoff drafting convention, the drafter+checker dispatch loop, and the dispatched-worker flow (the `worker-agent` is the single worker execution path per ADR-028).
 
 ## Phase 2: Load project context
 

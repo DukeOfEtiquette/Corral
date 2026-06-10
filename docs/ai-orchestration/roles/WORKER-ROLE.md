@@ -160,7 +160,7 @@ The Orchestrator's kickoffs reference this role doc (and, where useful, the `wor
 
 - **Surveying repo state.** Workers do not run state surveys, read `./ai-infrastructure/project-manager/STATUS.md` (except the wrap-up hygiene write), scan ADRs, enumerate scratch artifacts, or list tasks. That is the Orchestrator's job. The kickoff carries forward whatever survey context the Worker needs, including its "Related tasks and ADRs" section.
 - **Drafting new kickoffs.** Workers consume kickoffs; they do not produce them. If execution surfaces work that warrants a separate kickoff, it goes under "Follow-ups" in the report, not into a new artifact authored by the Worker.
-- **Running the Orchestrator command.** The Worker does not invoke `/corral-orchestrator` to "load context"; that loads survey state and a conflicting role identity. The Worker's required reads are exactly the `explicit_reads` the Orchestrator names plus the kickoff.
+- **Running the Orchestrator command.** The Worker does not invoke the Orchestrator command (any `/<slug>-orchestrator`) to "load context"; that loads survey state and a conflicting role identity. The Worker's required reads are exactly the `explicit_reads` the Orchestrator names plus the kickoff.
 - **Pattern-mining and observation logging.** Patterns surfaced during execution go under "Follow-ups" so the Orchestrator can decide whether to log them. The Worker does not write to `./ai-infrastructure/project-manager/OBSERVATIONS.md` or propose ADRs.
 - **Task transitions.** The Worker never moves, edits, or creates files under `./ai-infrastructure/project-manager/tasks/`; see "Universal conventions".
 
