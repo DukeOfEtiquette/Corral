@@ -2,11 +2,11 @@
 schema_version: 1
 id: COR-T-009
 title: "Resolve ADR-025: native epics"
-status: backlog
+status: in-progress
 labels: [dept:backend-api]
 priority: P2
 created: 2026-06-07
-updated: 2026-06-07
+updated: 2026-06-10
 ---
 
 ## Description
@@ -16,3 +16,4 @@ Take `./decisions/ADR-025-native-epics.md` from pending to accepted. Decide how 
 ## Activity log
 
 - 2026-06-07: Created in backlog. Surfaced as a COR-T-004 Worker follow-up (ADR-025 queued pending with no tracker); triaged to backlog by the Orchestrator.
+- 2026-06-10: Picked up; moved to in-progress. Orchestrator-direct ADR resolution (decisions/ carve-out, mirroring COR-T-008). Decisions pinned with the user: Option C model (issues.type column + nullable parent_id self-FK); at-most-one parent; epics not nested in v1; three additive MCP tools (epic_create, epic_attach, epic_detach); board treatment deferred to the Kanban phase (ADR-015/017).

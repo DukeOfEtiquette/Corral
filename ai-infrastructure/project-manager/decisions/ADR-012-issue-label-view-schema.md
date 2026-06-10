@@ -4,7 +4,7 @@ adr: 12
 title: "Database schema for issues, labels, and kanban views"
 status: "accepted"
 date: "2026-06-05"
-related_adrs: [1, 8, 10, 13, 17, 18, 20]
+related_adrs: [1, 8, 10, 13, 17, 18, 20, 25]
 supersedes: []
 superseded_by: null
 ---
@@ -158,3 +158,5 @@ issue_events (
 4. **ADR-017 view-shape alignment.** The `views` row carries no per-view column configuration, consistent with ADR-017's fixed-global-columns leaning. ADR-017 (pending) owns the final decision on whether columns are fixed globally or configurable per view; ADR-012 does not preempt that choice.
 
 5. **ADR-020 non-preclusion.** The schema does not include a version column. ADR-020 (pending) owns the concurrency model. Adding a `version` column to `issues` (or other tables) in a future migration is not precluded by this schema.
+
+6. **ADR-025 epic relation (forward pointer).** The `issues` table is amended by ADR-025 (accepted), which adds a `type` column (`task | epic`, CHECK-constrained) and a nullable self-referential `parent_id` FK for native epics. Per the ADR-024 precedent the amendment lives in that later ADR; the DDL block above stays as authored. See `./ADR-025-native-epics.md`.
