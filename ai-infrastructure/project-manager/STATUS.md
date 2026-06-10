@@ -45,6 +45,10 @@ roadmap:
     title: "API + DB core"
     deliverables: "Postgres schema, FastAPI endpoints, auth/sessions, invite tokens, migrations, admin seeding"
     milestones:
+      - id: P2-0
+        title: "Create web-app departments (database, backend-api) via create-department"
+        status: planned
+        task: COR-T-023
       - id: P2-1
         title: "Postgres schema (ADR-012)"
         status: planned
@@ -92,6 +96,7 @@ roadmap:
         status: planned
 last_updated: "2026-06-10"
 recent_updates:
+  - "2026-06-10: Filed COR-T-023 (stand up the database and backend-api departments before Phase 2 code) and added roadmap milestone P2-0 'Create web-app departments (database, backend-api) via create-department' before P2-1. Encodes the lazy-creation sequencing (ADR-021/027: create a department at the moment its domain's work begins) structurally; COR-T-023 will be the first real end-to-end run of the create-department recipe (built in COR-T-013, never yet exercised). mcp-server (Phase 3) and frontend-ui (Phase 4) are stood up just-in-time when their phases begin."
   - "2026-06-10: COR-T-022 executed: etl.py build_org_chart now appends ' (planned)' to each department whose exists flag is false (treating missing/falsey as planned), driven by the already-computed departments list passed from run_etl instead of DEPARTMENTS_ROSTER; docstring updated to describe the planned-suffix behavior. Coordinator root line and created departments are unlabelled; ASCII tree connectors and domain grouping preserved."
   - "2026-06-10: COR-T-021 executed: thinned the README roadmap section to stable human orientation. The six-row phase table is kept, each cell reduced to one sentence of phase intent, all granular deliverable enumerations, inline ADR citations, and the stale '(this iteration)' marker removed. A lead-in pointer line directing readers to STATUS.md and the project-manager dashboard for live status was added under the heading."
   - "2026-06-10: STATUS hygiene: corrected roadmap milestone P1-6 (roadmap sub-milestone granularity) from in-progress to done. COR-T-017 delivered it and is in tasks/done; the milestone status had not been advanced. Flagged during the COR-T-020 session wrap-up."
