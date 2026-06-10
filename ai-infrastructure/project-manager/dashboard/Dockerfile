@@ -16,8 +16,8 @@ RUN npm run build
 # Stage 2: Python slim image for ETL and static file serving
 FROM python:3.12-slim AS serve
 
-# Install PyYAML for frontmatter parsing
-RUN pip install --no-cache-dir PyYAML==6.0.2
+# Install Python dependencies for ETL and file watching
+RUN pip install --no-cache-dir PyYAML==6.0.2 watchdog==4.0.2
 
 # Served directory holds the static bundle and the generated data.json
 ENV SERVED_DIR=/served
@@ -28,9 +28,11 @@ RUN mkdir -p /served
 # Copy the built static bundle from stage 1
 COPY --from=build /app/dist/ /served/
 
-# Copy the ETL script
+# Copy the ETL script and entrypoint
 COPY etl.py /app/etl.py
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# Entrypoint: run ETL first (writes data.json into SERVED_DIR), then serve
+# Entrypoint: initial ETL build, background watcher, foreground HTTP server
 EXPOSE 8420
-CMD python /app/etl.py && python -m http.server 8420 --directory /served --bind 0.0.0.0
+CMD ["/app/entrypoint.sh"]

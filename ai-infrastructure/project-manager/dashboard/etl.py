@@ -41,10 +41,13 @@ JSON contract shape (data.json):
   recent_activity: [ {workspace, date, text} ] newest-first, capped 30
 """
 
+import argparse
 import json
 import os
 import re
 import sys
+import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -478,10 +481,102 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     print(f"ETL: wrote {out_path} ({out_path.stat().st_size} bytes)", flush=True)
 
 
+# ---------------------------------------------------------------------------
+# Watch patterns: the ETL source set (mirrors module docstring)
+# ---------------------------------------------------------------------------
+
+# Allowlist of regex patterns that match files the ETL actually reads.
+# Only events matching one of these patterns trigger a rebuild, preventing
+# spurious triggers from unrelated files in the watched trees.
+WATCH_PATTERNS = [
+    re.compile(r".*/ai-infrastructure/.*\.md$"),
+    re.compile(r".*\.claude/commands/.*\.md$"),
+]
+
+
+def is_watched(path_str: str) -> bool:
+    return any(p.search(path_str) for p in WATCH_PATTERNS)
+
+
+def run_watch(repo_root: Path, served_dir: Path) -> None:
+    """
+    Watch the ETL source trees for content changes and re-run run_etl on
+    each relevant change. Uses PollingObserver (bind-mount safe on all
+    hosts, including Docker Desktop and Linux). Debounces at 350ms via a
+    cancel/restart threading.Timer. A rebuild exception is logged but does
+    not kill the watch loop.
+    """
+    from watchdog.observers.polling import PollingObserver
+    from watchdog.events import FileSystemEventHandler
+
+    _timer = [None]
+    _lock = threading.Lock()
+
+    def schedule_rebuild():
+        with _lock:
+            if _timer[0] is not None:
+                _timer[0].cancel()
+            t = threading.Timer(0.35, do_rebuild)
+            _timer[0] = t
+            t.start()
+
+    def do_rebuild():
+        try:
+            run_etl(repo_root, served_dir)
+        except Exception as e:
+            print(f"ERROR: ETL rebuild failed: {e}", file=sys.stderr)
+
+    # Only react to actual content changes. watchdog 4.0+ reports opened /
+    # closed / closed_no_write events for every file open, including the
+    # reads the build itself does, which causes a feedback loop. Restrict
+    # to events that signify the file's content actually changed.
+    CONTENT_CHANGE_EVENTS = {"modified", "created", "deleted", "moved"}
+
+    class Handler(FileSystemEventHandler):
+        def on_any_event(self, event):
+            if event.is_directory:
+                return
+            if event.event_type not in CONTENT_CHANGE_EVENTS:
+                return
+            src = getattr(event, "src_path", "")
+            dest = getattr(event, "dest_path", "")
+            if is_watched(src) or is_watched(dest):
+                schedule_rebuild()
+
+    watch_dirs = [
+        repo_root / "ai-infrastructure",
+        repo_root / ".claude" / "commands",
+    ]
+
+    observer = PollingObserver()
+    for d in watch_dirs:
+        if d.exists():
+            observer.schedule(Handler(), str(d), recursive=True)
+
+    observer.start()
+    print("ETL watch: watching for changes (Ctrl+C to stop)...", flush=True)
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Corral project-manager dashboard ETL")
+    parser.add_argument(
+        "--watch",
+        action="store_true",
+        help="After the initial build, watch source files and rebuild on changes.",
+    )
+    args = parser.parse_args()
+
     repo_root = Path(os.environ.get("REPO_ROOT", "/repo"))
     served_dir = Path(os.environ.get("SERVED_DIR", "/served"))
     if not repo_root.exists():
         print(f"ETL error: REPO_ROOT {repo_root} does not exist", file=sys.stderr)
         sys.exit(1)
     run_etl(repo_root, served_dir)
+    if args.watch:
+        run_watch(repo_root, served_dir)

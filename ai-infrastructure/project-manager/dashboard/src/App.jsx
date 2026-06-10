@@ -19,6 +19,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [route, setRoute] = useState(() => parseRoute(window.location.hash));
 
+  // Initial one-shot fetch on mount. Only this fetch shows the error screen.
   useEffect(() => {
     fetch('./data.json')
       .then((r) => {
@@ -27,6 +28,30 @@ export default function App() {
       })
       .then(setData)
       .catch((e) => setError(e.message));
+  }, []);
+
+  // Poll for changes every 5000ms. Keys on data.meta.generated_at; calls
+  // setData for a soft re-render when the value changes. Poll errors are
+  // swallowed: the last good data is preserved and no error screen is shown.
+  useEffect(() => {
+    const id = setInterval(async () => {
+      try {
+        const resp = await fetch('./data.json', { cache: 'no-store' });
+        if (!resp.ok) return;
+        const fresh = await resp.json();
+        setData((current) => {
+          if (!current) return current;
+          if (fresh.meta && current.meta &&
+              fresh.meta.generated_at !== current.meta.generated_at) {
+            return fresh;
+          }
+          return current;
+        });
+      } catch (_e) {
+        // Silently retry on next tick; preserve last good data.
+      }
+    }, 5000);
+    return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
