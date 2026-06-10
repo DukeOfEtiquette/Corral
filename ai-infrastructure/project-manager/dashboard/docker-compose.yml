@@ -1,0 +1,16 @@
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8420:8420"
+    volumes:
+      # Read-only bind-mount of the repository root.
+      # ../../../ relative to this file resolves to the repo root.
+      # The ETL reads from /repo; it never writes back to this mount.
+      - type: bind
+        source: ../../../
+        target: /repo
+        read_only: true
+    restart: unless-stopped

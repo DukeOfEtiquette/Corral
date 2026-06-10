@@ -2,8 +2,28 @@
 schema_version: 1
 phase: 1
 phase_title: "AI infrastructure: role docs, agents, blocking ADRs"
+roadmap:
+  - phase: 0
+    title: "Bootstrap"
+    deliverables: "Docs, decision records, task convention"
+  - phase: 1
+    title: "AI infrastructure"
+    deliverables: "Orchestrator/worker role docs, the dispatch loop, the blocking ADRs, and the department structure"
+  - phase: 2
+    title: "API + DB core"
+    deliverables: "Postgres schema, FastAPI endpoints, auth/sessions, invite tokens, migrations, admin seeding"
+  - phase: 3
+    title: "MCP server"
+    deliverables: "FastMCP server as an authenticated API client; the agent seam goes live"
+  - phase: 4
+    title: "Kanban UI"
+    deliverables: "React multi-view board with per-view label filters, admin page"
+  - phase: 5
+    title: "Dogfood milestone"
+    deliverables: "Import the markdown tasks into the app via the MCP server; the project tracks itself; markdown tasks frozen"
 last_updated: "2026-06-10"
 recent_updates:
+  - "2026-06-10: COR-T-014 executed: built the project-manager insight dashboard (ADR-027 Fork E). Greenfield ai-infrastructure/project-manager/dashboard/: Python ETL (etl.py) reading roadmap/STATUS frontmatter, shared task pool, ADR-021 department roster, coordinator ADRs, and observations count, emitting a pinned data.json contract; React/Vite two-view SPA (landing overview + per-workspace detail, hash-routed); multi-stage Dockerfile (node:20-slim build stage, python:3.12-slim serve stage, ETL-then-http.server entrypoint on port 8420); standalone docker-compose.yml with read-only repo-root bind-mount at /repo. Dashboard reads markdown sources now and repoints to the app at the dogfood milestone (ADR-008). All three ADR-027 follow-ons (COR-T-012 restructure, COR-T-013 create-department, COR-T-014 dashboard) are now complete."
   - "2026-06-10: COR-T-016 executed: renamed the coordinator orchestrator command from /corral-orchestrator to /project-manager-orchestrator to match the /<slug>-orchestrator convention (ADR-021, ADR-030). git mv .claude/commands/corral-orchestrator.md -> project-manager-orchestrator.md; updated three display-name lines in the command file; updated ORCHESTRATOR-ROLE.md (three command refs + Instantiation role name); updated WORKER-ROLE.md (one Not-in-scope command ref); generalised worker-agent.md two Corral Orchestrator mentions to the Orchestrator; updated STATUS.md Current-phase narrative."
   - "2026-06-10: COR-T-013 executed: built the create-department recipe. Authored six placeholder-tokenized template files under ai-infrastructure/project-manager/templates/department/ (CLAUDE.md, README.md, STATUS.md, OBSERVATIONS.md, decisions/README.md, orchestrator-command.md) and the .claude/commands/create-department.md command. The scaffold contract is ADR-030; the orchestrator-command template mirrors the corral-orchestrator structure scoped to the department and uses five {{UPPER_SNAKE}} tokens. The /create-department command drives the orchestrator through the dispatched-worker flow to stamp the workspace."
   - "2026-06-09: COR-T-012 executed: moved root orchestration content into ai-infrastructure/project-manager/ via git mv (STATUS.md, OBSERVATIONS.md, decisions/, tasks/, docs/architecture/OVERVIEW.md); split CLAUDE.md into a thin repo-root global file and a workspace-operating file; authored ai-infrastructure/project-manager/README.md workspace charter; applied bidirectional two-domain path-reference sweep across all moved and root-staying files; new workspace layout per ADR-027 and ADR-029 is now in place."
@@ -36,7 +56,7 @@ Single source of truth for current progress. Update at the end of any session th
 
 ## Next step
 
-The create-department recipe now exists: the `ai-infrastructure/project-manager/templates/department/` baseline (six placeholder-tokenized template files including the `orchestrator-command.md` template) and the `.claude/commands/create-department.md` command, with the scaffold contract recorded in ADR-030. The sole remaining ADR-027 follow-on is COR-T-014 (the project-manager dashboard: Python ETL over the shared task pool, compose-integrated). COR-T-008 (label taxonomy, ADR-018), COR-T-009 (native epics, ADR-025), and COR-T-010 (per-agent MCP identity, ADR-026) remain queued for resolution.
+All three ADR-027 follow-on backbone tasks are now complete: COR-T-012 (ai-infrastructure restructure), COR-T-013 (create-department recipe), and COR-T-014 (project-manager dashboard). The dashboard reads the markdown sources (source: "markdown") and will repoint to the Corral app at the dogfood milestone (ADR-008). Remaining Phase 1 work is the three pending-ADR resolution tasks: COR-T-008 (resolve ADR-018: label taxonomy), COR-T-009 (resolve ADR-025: native epics), and COR-T-010 (resolve ADR-026: per-agent MCP identity).
 
 ## Blocked on
 
