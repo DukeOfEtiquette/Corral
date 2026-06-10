@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-018
 title: "Add a standalone ETL run target to the project-manager dashboard compose setup"
-status: backlog
+status: done
 labels: [dept:agent-development]
 priority: P3
 created: 2026-06-10
@@ -20,3 +20,4 @@ This is a dashboard/devops deliverable: it routes through the dispatched-worker 
 ## Activity log
 
 - 2026-06-10: Created in backlog. Triaged from the COR-T-017 worker report (Follow-ups): no standalone ETL-only compose service target exists, so isolated ETL runs fall back to a direct `docker run` off the compose seam.
+- 2026-06-10: Done (closed as mostly-superseded; no commits). COR-T-020 added a background `etl.py --watch` to the serve container, so data.json now auto-regenerates on every source-of-truth edit while the dashboard is up. That absorbs this task's everyday motivation (manual standalone regen). The residual distinct value, a serve-decoupled one-shot ETL via compose for CI/scripted validation, is too marginal to track for a local single-operator dashboard. Closed by Orchestrator decision with the user; reopen if a real CI/validation need surfaces.
