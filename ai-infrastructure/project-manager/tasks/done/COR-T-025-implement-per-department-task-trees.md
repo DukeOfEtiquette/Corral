@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-025
 title: "Implement per-department task trees (ADR-031 cascade)"
-status: backlog
+status: done
 labels: [dept:agent-development]
 priority: P2
 created: 2026-06-11
@@ -28,3 +28,5 @@ When picked up, this routes through the dispatched-worker flow from `/project-ma
 ## Activity log
 
 - 2026-06-11: Created in backlog. Filed as the ADR-031 implementation cascade (reversing ADR-027 Fork B to per-department task trees). Surfaced by the COR-T-023 department smoke tests, which exposed that departments had no task home of their own under the shared-pool model. Routed as a coordinator/agent-development deliverable through the dispatched-worker flow; not yet dispatched per user direction.
+- 2026-06-11: Picked up; moved to in-progress. Routing through the /project-manager-orchestrator dispatched-worker flow.
+- 2026-06-11: Executed via the dispatched-worker flow (kickoff/prelaunch/close checkers all PASS; report verified against disk). All five cascade groups landed; deliverable committed as 0ed0331. Moved to done.
