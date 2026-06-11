@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-027
 title: "Dashboard: remove the Org Chart panel; expand Roadmap to full channel width"
-status: backlog
+status: in-progress
 labels: []
 priority: P2
 created: 2026-06-11
@@ -32,3 +32,4 @@ Verification: `docker compose up` in `ai-infrastructure/project-manager/dashboar
 ## Activity log
 
 - 2026-06-11: Created in backlog. Filed during the COR-T-026 close review after the user, viewing the live render, decided the Org Chart is redundant with the now-above Department Roster for a flat org. Coordinator/agent-development presentational deliverable; routes through the dispatched-worker flow. Unlabelled per the ADR-031 convention (the coordinator tree is the partition; dept:* labels are applied at the dogfood import, not hand-applied in the markdown era).
+- 2026-06-11: Picked up; moved to in-progress. Routing through the /project-manager-orchestrator dispatched-worker flow. One residual scoping decision to resolve with the user before drafting the kickoff: whether "remove completely" also strips the orphaned etl.py build_org_chart and the org_chart data.json field (touching the data.json contract), or removes only the UI panel.

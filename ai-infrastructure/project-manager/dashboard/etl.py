@@ -33,7 +33,6 @@ JSON contract shape (data.json):
                     Each milestone: id (e.g. "P1-1"), title, status (done /
                     in-progress / planned, authored verbatim), task (optional
                     plain-text task ref, e.g. "COR-T-014", or empty string).
-  org_chart:       ASCII string
   departments:     [ {slug, domain, exists, orchestrator_command, label,
                        status, task_counts} ]
   coordinator:     {slug, phase, phase_title, last_updated}
@@ -163,40 +162,6 @@ def extract_next_step(status_path: Path) -> str:
     if m:
         return m.group(1).strip()
     return ""
-
-
-def build_org_chart(departments: list) -> str:
-    """
-    Generate a simple ASCII org chart with project-manager at the root and
-    departments as branches, grouped by domain.
-
-    Each entry in departments must carry at least 'slug', 'domain', and
-    optionally 'exists'. Departments where 'exists' is False (or absent) are
-    labelled with a ' (planned)' suffix; created departments are unlabelled.
-    The coordinator root line is never suffixed.
-    """
-    ai_depts = [d for d in departments if d["domain"] == "ai-infrastructure"]
-    web_depts = [d for d in departments if d["domain"] == "web-app"]
-
-    def label(d: dict) -> str:
-        suffix = "" if d.get("exists") else " (planned)"
-        return d["slug"] + suffix
-
-    lines = [
-        "project-manager (coordinator)",
-        "|",
-        "+-- AI-infrastructure domain",
-    ]
-    for i, dept in enumerate(ai_depts):
-        prefix = "|   +-- " if i < len(ai_depts) - 1 else "|   `-- "
-        lines.append(prefix + label(dept))
-    lines.append("|")
-    lines.append("`-- Web-app domain")
-    for i, dept in enumerate(web_depts):
-        prefix = "    +-- " if i < len(web_depts) - 1 else "    `-- "
-        lines.append(prefix + label(dept))
-
-    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -406,9 +371,6 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         "last_updated": last_updated,
     }
 
-    # -- Org chart -----------------------------------------------------------
-    org_chart = build_org_chart(departments)
-
     # -- workspace_details ---------------------------------------------------
     workspace_details = {}
 
@@ -513,7 +475,6 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     data = {
         "meta": meta,
         "roadmap": roadmap,
-        "org_chart": org_chart,
         "departments": departments,
         "coordinator": coordinator,
         "workspace_details": workspace_details,

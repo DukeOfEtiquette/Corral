@@ -90,16 +90,6 @@ a:hover { text-decoration: underline; }
   gap: 1.25rem;
 }
 
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-@media (max-width: 768px) {
-  .two-col { grid-template-columns: 1fr; }
-}
-
 /* Cards */
 .card {
   background: var(--color-surface);
@@ -252,18 +242,6 @@ a:hover { text-decoration: underline; }
 .badge-milestone-done       { background: #1a3328; color: #5ec98a; }
 .badge-milestone-in-progress { background: #1a2050; color: #8aacff; }
 .badge-milestone-planned    { background: #2a2d3e; color: var(--color-muted); }
-
-/* Org chart */
-.org-chart-card { align-self: start; }
-
-.org-chart {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.82rem;
-  line-height: 1.6;
-  color: var(--color-text);
-  white-space: pre;
-  overflow-x: auto;
-}
 
 /* Departments table */
 .dept-table {
