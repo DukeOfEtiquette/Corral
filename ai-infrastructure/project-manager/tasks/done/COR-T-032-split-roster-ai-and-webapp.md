@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-032
 title: "Dashboard: split the department roster into side-by-side AI Roster and Web App Roster tables"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-11
@@ -37,4 +37,5 @@ Verification: `docker compose up --build` in `ai-infrastructure/project-manager/
 
 ## Activity log
 
-- 2026-06-11: Created and picked up (directed work; user instruction). Moved straight to in-progress; routing through the dispatched-worker flow. Decisions pinned by the orchestrator from a fully specified request (two domain-filtered tables, AI Roster / Web App Roster titles, drop DOMAIN column, two-col grid with align-items:start and narrow collapse, etl.py untouched, dead-CSS cleanup folded in). Unlabelled per ADR-031.
+- 2026-06-11: Created and picked up (directed work; user instruction). Moved straight to in-progress; routing through the dispatched-worker flow. Decisions pinned by the orchestrator from a fully specified request (two domain-filtered tables, AI Roster / Web App Roster titles, drop DOMAIN column, two-col grid with align-items:start and narrow collapse, etl.py untouched, dead-CSS cleanup folded in). Mid-draft the user added a requirement: center-justify the five count columns (header and cells), Department stays left. Unlabelled per ADR-031.
+- 2026-06-11: Executed via dispatched worker-agent and closed. Kickoff drafter+checker PASSed on iteration 1 (0 findings; redrafted once to fold in the count-column alignment requirement before dispatch); prelaunch W1 PASS, close W2 PASS. LandingView.jsx partitions data.departments by domain into a .roster-row grid with two DepartmentsPanel instances (AI Roster / Web App Roster); DepartmentsPanel gains a title prop and drops the DOMAIN column (6 columns); count columns center-justified (.count -> center, .dept-table th.count added, className="count" on the five count headers); five dead CSS rules removed (.domain-tag/.domain-aiinfrastructure/.domain-webapp/.badge-exists/.badge-missing), .badge-planned kept. etl.py and data.json untouched. Independently verified on disk (partition, grid+responsive collapse, 6 columns, count centering, dead-CSS removal). Visually confirmed by the user. Committed in f7fc1c1. Follow-up: user directed adding the project-manager coordinator to the AI Roster as an orchestrator-direct patch (no worker), handled next.
