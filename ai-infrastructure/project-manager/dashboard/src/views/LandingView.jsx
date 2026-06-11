@@ -5,7 +5,21 @@ import DepartmentsPanel from '../panels/DepartmentsPanel.jsx';
 import ActivityPanel from '../panels/ActivityPanel.jsx';
 
 export default function LandingView({ data }) {
-  const aiDepts = data.departments.filter(d => d.domain === 'ai-infrastructure');
+  // The project-manager coordinator is not in data.departments (which is the
+  // ADR-021 department roster); assemble a roster row for it from the
+  // coordinator workspace data so it heads the AI Roster.
+  const pmDetails = data.workspace_details && data.workspace_details['project-manager'];
+  const pmRow = pmDetails && {
+    slug: data.coordinator.slug,
+    domain: 'ai-infrastructure',
+    exists: true,
+    orchestrator_command: true,
+    task_counts: pmDetails.task_counts,
+  };
+  const aiDepts = [
+    ...(pmRow ? [pmRow] : []),
+    ...data.departments.filter(d => d.domain === 'ai-infrastructure'),
+  ];
   const webDepts = data.departments.filter(d => d.domain === 'web-app');
   return (
     <div className="layout">
