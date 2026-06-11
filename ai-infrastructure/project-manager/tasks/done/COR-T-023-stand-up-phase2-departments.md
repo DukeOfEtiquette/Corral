@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-023
 title: "Stand up the database and backend-api departments before Phase 2 code"
-status: backlog
+status: done
 labels: [dept:agent-development]
 priority: P2
 created: 2026-06-10
@@ -25,3 +25,5 @@ This gates roadmap milestone P2-0; it should complete before P2-1 (schema) code 
 ## Activity log
 
 - 2026-06-10: Created in backlog. Surfaced from a user question during the COR-T-022 session: the department-creation sequencing (create the department before its code, per ADR-021/027 lazy creation) had no task tracking it, and the backlog was empty. Decision with the user: file this task plus a P2-0 "Create web-app departments" roadmap milestone so the before-code sequencing is structurally encoded and visible on the dashboard. Scoped to database + backend-api (the Phase 2 departments); first real create-department run.
+- 2026-06-10: Picked up; moved to in-progress. Runs as two sequential `/create-department` recipe executions (database, then backend-api), each its own dispatched-worker flow, closed under this one task.
+- 2026-06-10: Done. Both departments stamped via the create-department recipe (its first real end-to-end run, built in COR-T-013): `database` (DB prefix, `/database-orchestrator`) and `backend-api` (API prefix, `/backend-api-orchestrator`), each a fully-wired unit per ADR-030 (scoped orchestrator command adopting the shared role doc by reference, dispatching the universal worker-agent; no per-dept worker command, role-doc copies, or `tasks/` dir). Two dispatched-worker flows, both clean (kickoff-check / prelaunch / close-check all PASS, zero escalations, zero residual tokens verified on disk). Closed roadmap milestone P2-0. Deliverables + STATUS + both kickoff/report pairs committed as baf45d8.
