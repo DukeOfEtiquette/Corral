@@ -1,7 +1,5 @@
 ---
 schema_version: 1
-phase: 1
-phase_title: "AI infrastructure: role docs, agents, blocking ADRs"
 roadmap:
   - phase: 0
     title: "Bootstrap"
@@ -97,6 +95,8 @@ roadmap:
         status: planned
 last_updated: "2026-06-11"
 recent_updates:
+  - "2026-06-11: COR-T-029 executed: dashboard now derives current_phase, current_phase_title, and next_step from roadmap milestone statuses (etl.py) instead of hand-maintained frontmatter fields. Removed the manual phase and phase_title frontmatter fields and the ## Next step body section from STATUS.md."
+  - "2026-06-11: STATUS hygiene: advanced the coordinator `phase` pointer 1 -> 2 (and `phase_title` to the API + DB core title), and rewrote the 'Current phase' narrative for Phase 2. The frontmatter `phase` field had never been bumped when Phase 2 began (COR-T-023 departments, DB-T-001 P2-1), so the dashboard derived Phase 1 as CURRENT and Phase 2 as UPCOMING (etl.py derives phase badges purely from `phase == current_phase`) despite all P1 milestones being done and P2-0/P2-1 complete. Surfaced by the user viewing the live dashboard. Per-milestone DONE badges were already correct; only the phase-level pointer was stale."
   - "2026-06-11: Filed COR-T-028 (app/ skeleton devops follow-ups: Python dependency-management policy, .dockerignore, explicit compose project/service naming) in the coordinator backlog; allocated ID 28 (.next-task-id -> 29). Triaged from the DB-T-001 worker report's Follow-ups (items 2-4; item 1, the orphan container, was already resolved at close). Held in the coordinator tree as the interim catch-all because the devops department does not exist yet (lazy creation, ADR-021/ADR-027); relocate to the devops tasks tree on creation per the COR-T-024 -> DB-T-001 precedent (ADR-031). P3 (low-severity, non-blocking); items 1 and 3 flagged as pending-ADR candidates since they set precedent for the shared app/ topology every web-app department extends."
   - "2026-06-11: DB-T-001 delivered and closed (roadmap P2-1 done): authored app/db/ Alembic baseline migration 0001 building the full eleven-table v1 schema (ADR-012 core + ADR-025 epics + ADR-011 auth + ADR-026 machine users via a separate agent_credentials table) and app/docker-compose.yml (postgres + one-shot migrate). Verified against a Postgres compose service (11 tables, 13 FKs incl self-ref parent_id, 4 CHECKs, 7 indexes, jsonb payload; downgrade/upgrade round-trip clean). First domain-1 web-app code; the app/ root is established. Also fixed docs/ai-orchestration/roles/WORKER-ROLE.md (wrap-up STATUS hygiene now targets the kickoff-named workspace STATUS, not the hardcoded coordinator STATUS), logged as DB-01."
   - "2026-06-11: ADR-014 accepted (DB migrations tooling): Alembic with hand-written migrations; no ORM adopted in v1, so the data-access-layer choice (SQLAlchemy Core/ORM vs raw driver) stays a backend-api/P2-2 decision and is unforced by this choice. The v1 schema lands as a single baseline migration (0001) building the full schema; authoring it is DB-T-001. Option B (raw SQL + custom runner) and Option C (create_all) rejected. Forward-pointer note added to ADR-002. Recorded from the /database-orchestrator session at the user's direction (coordinator-owned ADR; the migration-tooling decision binds backend-api too). Roadmap P2-1 advanced planned -> in-progress, tagged task DB-T-001."
@@ -149,11 +149,7 @@ Single source of truth for current progress. Update at the end of any session th
 
 ## Current phase
 
-**Phase 1: AI infrastructure.** The orchestration layer now exists: orchestrator and worker role docs (`docs/ai-orchestration/roles/`), the drafter+checker dispatch loop with four universal subagents (ADR-023), the `/project-manager-orchestrator` command, and the dispatched `worker-agent` (ADR-028) as the single worker execution path (the former `/corral-worker` command was retired). Remaining Phase 1 work: resolve the blocking pending ADRs and the department structure. See `README.md` for the full roadmap.
-
-## Next step
-
-Phase 2 (API + DB core) is now under way. COR-T-023 stood up the first two web-app department workspaces via the create-department recipe (its first real end-to-end exercise): `database` (`ai-infrastructure/database/`, `/database-orchestrator`) and `backend-api` (`ai-infrastructure/backend-api/`, `/backend-api-orchestrator`), closing roadmap milestone P2-0. With those homes in place, the next substantive step is P2-1, the Postgres schema (ADR-012, as amended by ADR-025 epics and ADR-026 machine users), authored inside the `database` department; then P2-2/P2-3, FastAPI endpoints with the ADR-013 house rules and auth/sessions (ADR-011), inside `backend-api`. `mcp-server` (Phase 3) and `frontend-ui` (Phase 4) are stood up just-in-time when their phases begin. P2-1 (Postgres schema) is delivered: DB-T-001 authored the `app/db/` Alembic baseline migration and `app/docker-compose.yml` (the first domain-1 code; the `app/` root is now established) and is in `ai-infrastructure/database/tasks/done/`. The next substantive step is P2-2/P2-3 in `backend-api` (FastAPI endpoints and auth/sessions), built against the schema.
+**Phase 2: API + DB core.** Phase 1 (AI infrastructure) is complete: the orchestrator/worker role docs, the drafter+checker dispatch loop with four universal subagents (ADR-023), the `/project-manager-orchestrator` command, the dispatched `worker-agent` (ADR-028), the department structure, and all blocking ADRs are in place (every P1 milestone done). Phase 2 is now under way: P2-0 (the `database` and `backend-api` department workspaces) and P2-1 (the Postgres baseline schema, DB-T-001, which established the `app/` root) are done; remaining Phase 2 work is P2-2/P2-3/P2-4 (FastAPI endpoints, auth/sessions, migrations + admin seeding) inside `backend-api`. See `README.md` for the full roadmap.
 
 ## Blocked on
 

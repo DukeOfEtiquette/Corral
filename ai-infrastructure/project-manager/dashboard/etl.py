@@ -7,7 +7,8 @@ default: /served).
 
 Sources:
   (a) Roadmap: roadmap block in /repo/ai-infrastructure/project-manager/STATUS.md
-      frontmatter. Phase status is DERIVED from the top-level `phase` field:
+      frontmatter. Phase status is DERIVED from the per-milestone statuses:
+      current_phase = lowest phase that is not fully done (all milestones done);
       phase < current -> "done", phase == current -> "current",
       phase > current -> "upcoming". Never add to or edit this block.
   (b) Coordinator and workspace STATUS: /repo/ai-infrastructure/*/STATUS.md
@@ -25,8 +26,10 @@ Sources:
       /repo/ai-infrastructure/project-manager/OBSERVATIONS.md.
 
 JSON contract shape (data.json):
-  meta:            generated_at, source, project, current_phase,
-                   current_phase_title, last_updated, next_step
+  meta:            generated_at, source, project, current_phase (DERIVED from
+                   roadmap milestone statuses), current_phase_title (DERIVED),
+                   last_updated, next_step (DERIVED from first non-done milestone
+                   of current phase)
   roadmap:         [ {phase, title, deliverables, status,
                       milestones: [{id, title, status, task}]} ]
                     milestones is a list of authored sub-milestones (may be []).
@@ -147,20 +150,81 @@ def derive_roadmap_status(phase: int, current_phase: int) -> str:
     return "upcoming"
 
 
-def extract_next_step(status_path: Path) -> str:
+def derive_current_phase(roadmap_raw: list) -> int:
     """
-    Extract the narrative text from the '## Next step' section of STATUS.md.
-    Returns the stripped text or an empty string if not found.
+    Derive the current phase number from per-milestone statuses.
+
+    A phase is fully done only if it has at least one milestone and every
+    milestone has status 'done'. A phase with an empty milestones list is NOT
+    fully done. Returns the lowest phase that is not fully done. If every phase
+    is fully done, returns the maximum phase number. Returns 0 for an empty
+    roadmap.
     """
-    try:
-        text = status_path.read_text(encoding="utf-8")
-    except OSError:
-        return ""
-    m = re.search(
-        r"^## Next step\s*\n(.*?)(?=\n## |\Z)", text, re.MULTILINE | re.DOTALL
-    )
-    if m:
-        return m.group(1).strip()
+    if not roadmap_raw:
+        return 0
+    phase_nums = []
+    for item in roadmap_raw:
+        if not isinstance(item, dict):
+            continue
+        phase_nums.append(int(item.get("phase", 0)))
+    if not phase_nums:
+        return 0
+    for item in roadmap_raw:
+        if not isinstance(item, dict):
+            continue
+        phase_num = int(item.get("phase", 0))
+        milestones = item.get("milestones", [])
+        if not isinstance(milestones, list):
+            milestones = []
+        if not milestones:
+            return phase_num
+        if not all(
+            isinstance(ms, dict) and ms.get("status") == "done"
+            for ms in milestones
+        ):
+            return phase_num
+    return max(phase_nums)
+
+
+def derive_current_phase_title(roadmap_raw: list, current_phase: int) -> str:
+    """
+    Return the title of the roadmap entry whose phase equals current_phase.
+    Returns an empty string if no entry matches.
+    """
+    for item in roadmap_raw:
+        if not isinstance(item, dict):
+            continue
+        if int(item.get("phase", -1)) == current_phase:
+            return str(item.get("title", ""))
+    return ""
+
+
+def derive_next_step(roadmap_raw: list, current_phase: int) -> str:
+    """
+    Return the first non-done milestone of the current phase, formatted as
+    '<id>: <title>' with ' (<task>)' appended when task is non-empty.
+    Returns an empty string if the current phase has no non-done milestone.
+    """
+    for item in roadmap_raw:
+        if not isinstance(item, dict):
+            continue
+        if int(item.get("phase", -1)) != current_phase:
+            continue
+        milestones = item.get("milestones", [])
+        if not isinstance(milestones, list):
+            return ""
+        for ms in milestones:
+            if not isinstance(ms, dict):
+                continue
+            if ms.get("status") == "done":
+                continue
+            ms_id = str(ms.get("id", ""))
+            ms_title = str(ms.get("title", ""))
+            result = f"{ms_id}: {ms_title}"
+            task = str(ms.get("task", "")) if ms.get("task") else ""
+            if task:
+                result = f"{result} ({task})"
+            return result
     return ""
 
 
@@ -277,15 +341,19 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
 
     # -- (a) Coordinator STATUS frontmatter ---------------------------------
     coordinator_fm = parse_frontmatter(status_path)
-    current_phase = int(coordinator_fm.get("phase", 0))
-    current_phase_title = str(coordinator_fm.get("phase_title", ""))
     last_updated = str(coordinator_fm.get("last_updated", ""))
-    next_step = extract_next_step(status_path)
 
     # -- (a) Roadmap ---------------------------------------------------------
     roadmap_raw = coordinator_fm.get("roadmap", [])
     if not isinstance(roadmap_raw, list):
         roadmap_raw = []
+
+    # Derive current_phase, current_phase_title, and next_step from milestone
+    # statuses rather than from hand-maintained frontmatter fields.
+    current_phase = derive_current_phase(roadmap_raw)
+    current_phase_title = derive_current_phase_title(roadmap_raw, current_phase)
+    next_step = derive_next_step(roadmap_raw, current_phase)
+
     roadmap = []
     for item in roadmap_raw:
         if not isinstance(item, dict):
