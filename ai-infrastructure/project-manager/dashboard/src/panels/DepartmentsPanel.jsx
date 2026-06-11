@@ -1,19 +1,18 @@
 import React from 'react';
 
-export default function DepartmentsPanel({ departments }) {
+export default function DepartmentsPanel({ departments, title }) {
   return (
     <div className="card">
-      <h3>Department roster</h3>
+      <h3>{title}</h3>
       <table className="dept-table">
         <thead>
           <tr>
             <th>Department</th>
-            <th>Domain</th>
-            <th>Backlog</th>
-            <th>In progress</th>
-            <th>Blocked</th>
-            <th>Done</th>
-            <th>Total</th>
+            <th className="count">Backlog</th>
+            <th className="count">In progress</th>
+            <th className="count">Blocked</th>
+            <th className="count">Done</th>
+            <th className="count">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -37,11 +36,6 @@ export default function DepartmentsPanel({ departments }) {
                   >
                     {dept.slug}
                   </a>
-                </td>
-                <td>
-                  <span className={`domain-tag domain-${dept.domain.replace('-', '')}`}>
-                    {dept.domain}
-                  </span>
                 </td>
                 <td className="count">{dept.task_counts.backlog}</td>
                 <td className="count">{dept.task_counts['in-progress']}</td>

@@ -5,6 +5,8 @@ import DepartmentsPanel from '../panels/DepartmentsPanel.jsx';
 import ActivityPanel from '../panels/ActivityPanel.jsx';
 
 export default function LandingView({ data }) {
+  const aiDepts = data.departments.filter(d => d.domain === 'ai-infrastructure');
+  const webDepts = data.departments.filter(d => d.domain === 'web-app');
   return (
     <div className="layout">
       <header className="site-header">
@@ -18,7 +20,10 @@ export default function LandingView({ data }) {
       </header>
       <main className="main-content">
         <PulsePanel meta={data.meta} coordinator={data.coordinator} />
-        <DepartmentsPanel departments={data.departments} />
+        <div className="roster-row">
+          <DepartmentsPanel departments={aiDepts} title="AI Roster" />
+          <DepartmentsPanel departments={webDepts} title="Web App Roster" />
+        </div>
         <RoadmapPanel roadmap={data.roadmap} />
         <ActivityPanel activity={data.recent_activity} />
       </main>

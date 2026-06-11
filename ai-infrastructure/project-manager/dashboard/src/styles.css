@@ -137,8 +137,6 @@ a:hover { text-decoration: underline; }
 }
 
 .badge-planned   { background: #2a2d3e; color: var(--color-muted); }
-.badge-exists    { background: #1a3328; color: #5ec98a; }
-.badge-missing   { background: #3a1a1e; color: #f08090; }
 .badge-role      { background: #1a2d3a; color: #7ec8e8; }
 .badge-domain    { background: #251e38; color: #b09ee8; }
 .badge-phase     { background: #2e2010; color: #d4944a; }
@@ -243,6 +241,20 @@ a:hover { text-decoration: underline; }
 .badge-milestone-in-progress { background: #1a2050; color: #8aacff; }
 .badge-milestone-planned    { background: #2a2d3e; color: var(--color-muted); }
 
+/* Roster row: two side-by-side department tables */
+.roster-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .roster-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Departments table */
 .dept-table {
   width: 100%;
@@ -273,16 +285,8 @@ a:hover { text-decoration: underline; }
 
 .dept-link { font-weight: 500; }
 
-.domain-tag {
-  font-size: 0.72rem;
-  padding: 0.15em 0.5em;
-  border-radius: 3px;
-  font-weight: 600;
-}
-.domain-aiinfrastructure { background: #251e38; color: #b09ee8; }
-.domain-webapp { background: #1a2d3a; color: #7ec8e8; }
-
-.count { text-align: right; font-variant-numeric: tabular-nums; }
+.count { text-align: center; font-variant-numeric: tabular-nums; }
+.dept-table th.count { text-align: center; }
 .count-total { font-weight: 600; }
 
 /* ADRs table */
