@@ -19,11 +19,11 @@ export default function LandingView({ data }) {
       </header>
       <main className="main-content">
         <PulsePanel meta={data.meta} coordinator={data.coordinator} />
+        <DepartmentsPanel departments={data.departments} />
         <div className="two-col">
           <RoadmapPanel roadmap={data.roadmap} />
           <OrgChartPanel orgChart={data.org_chart} />
         </div>
-        <DepartmentsPanel departments={data.departments} />
         <ActivityPanel activity={data.recent_activity} />
       </main>
     </div>

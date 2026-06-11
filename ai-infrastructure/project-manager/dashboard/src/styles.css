@@ -254,6 +254,8 @@ a:hover { text-decoration: underline; }
 .badge-milestone-planned    { background: #2a2d3e; color: var(--color-muted); }
 
 /* Org chart */
+.org-chart-card { align-self: start; }
+
 .org-chart {
   font-family: 'Courier New', Courier, monospace;
   font-size: 0.82rem;
