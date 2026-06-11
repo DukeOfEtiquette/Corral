@@ -47,7 +47,7 @@ roadmap:
     milestones:
       - id: P2-0
         title: "Create web-app departments (database, backend-api) via create-department"
-        status: planned
+        status: done
         task: COR-T-023
       - id: P2-1
         title: "Postgres schema (ADR-012)"
@@ -96,6 +96,8 @@ roadmap:
         status: planned
 last_updated: "2026-06-10"
 recent_updates:
+  - "2026-06-10: BACKEND-API-DEPT-CREATE-KICKOFF executed: stamped the `backend-api` department workspace at `ai-infrastructure/backend-api/` (CLAUDE.md, README.md, STATUS.md, OBSERVATIONS.md, decisions/README.md) and wired its `/backend-api-orchestrator` command at `.claude/commands/backend-api-orchestrator.md`. All six output files have zero unreplaced tokens."
+  - "2026-06-10: DATABASE-DEPT-CREATE-KICKOFF executed: stamped the `database` department workspace at `ai-infrastructure/database/` (CLAUDE.md, README.md, STATUS.md, OBSERVATIONS.md, decisions/README.md) and wired its `/database-orchestrator` command at `.claude/commands/database-orchestrator.md`. All six output files have zero unreplaced tokens."
   - "2026-06-10: Filed COR-T-023 (stand up the database and backend-api departments before Phase 2 code) and added roadmap milestone P2-0 'Create web-app departments (database, backend-api) via create-department' before P2-1. Encodes the lazy-creation sequencing (ADR-021/027: create a department at the moment its domain's work begins) structurally; COR-T-023 will be the first real end-to-end run of the create-department recipe (built in COR-T-013, never yet exercised). mcp-server (Phase 3) and frontend-ui (Phase 4) are stood up just-in-time when their phases begin."
   - "2026-06-10: COR-T-022 executed: etl.py build_org_chart now appends ' (planned)' to each department whose exists flag is false (treating missing/falsey as planned), driven by the already-computed departments list passed from run_etl instead of DEPARTMENTS_ROSTER; docstring updated to describe the planned-suffix behavior. Coordinator root line and created departments are unlabelled; ASCII tree connectors and domain grouping preserved."
   - "2026-06-10: COR-T-021 executed: thinned the README roadmap section to stable human orientation. The six-row phase table is kept, each cell reduced to one sentence of phase intent, all granular deliverable enumerations, inline ADR citations, and the stale '(this iteration)' marker removed. A lead-in pointer line directing readers to STATUS.md and the project-manager dashboard for live status was added under the heading."
@@ -139,7 +141,7 @@ Single source of truth for current progress. Update at the end of any session th
 
 ## Next step
 
-All three ADR-027 follow-on backbone tasks are now complete: COR-T-012 (ai-infrastructure restructure), COR-T-013 (create-department recipe), and COR-T-014 (project-manager dashboard). The dashboard reads the markdown sources (source: "markdown") and will repoint to the Corral app at the dogfood milestone (ADR-008). All Phase 1 blocking ADRs are now resolved: COR-T-008 (ADR-018: label taxonomy), COR-T-009 (ADR-025: native epics), and COR-T-010 (ADR-026: per-agent MCP identity) are done, closing roadmap milestone P1-5. The only open backlog item is COR-T-018 (standalone dashboard ETL compose target, a P1-6 follow-on). With the ADR layer settled, the next substantive step is Phase 2 (API + DB core): the Postgres schema (ADR-012, as amended by ADR-025 epics and ADR-026 machine users), FastAPI endpoints with the ADR-013 house rules, and auth/sessions (ADR-011).
+Phase 2 (API + DB core) is now under way. COR-T-023 stood up the first two web-app department workspaces via the create-department recipe (its first real end-to-end exercise): `database` (`ai-infrastructure/database/`, `/database-orchestrator`) and `backend-api` (`ai-infrastructure/backend-api/`, `/backend-api-orchestrator`), closing roadmap milestone P2-0. With those homes in place, the next substantive step is P2-1, the Postgres schema (ADR-012, as amended by ADR-025 epics and ADR-026 machine users), authored inside the `database` department; then P2-2/P2-3, FastAPI endpoints with the ADR-013 house rules and auth/sessions (ADR-011), inside `backend-api`. `mcp-server` (Phase 3) and `frontend-ui` (Phase 4) are stood up just-in-time when their phases begin. The only open backlog item is COR-T-018 (standalone dashboard ETL compose target, a P1-6 follow-on).
 
 ## Blocked on
 
