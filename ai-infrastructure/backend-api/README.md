@@ -10,7 +10,7 @@ FastAPI service, auth, invites
 
 This workspace owns the artifacts and decisions that fall within the scope above. Cross-cutting concerns and project-wide decisions belong in the coordinator workspace at `ai-infrastructure/project-manager/`.
 
-Tasks for this department live in the shared coordinator task pool at `ai-infrastructure/project-manager/tasks/`, tagged with the `dept:backend-api` label.
+Tasks for this department live in the department's own task tree at `ai-infrastructure/backend-api/tasks/`, using `API-T-NNN` IDs (ADR-031). The `dept:backend-api` label is applied at the dogfood import (ADR-008), not hand-applied in the markdown era.
 
 ## Coordinator
 

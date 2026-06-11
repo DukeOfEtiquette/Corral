@@ -10,7 +10,7 @@ Department workspace under `ai-infrastructure/{{DEPT_SLUG}}/`, created {{DATE}}.
 
 This workspace owns the artifacts and decisions that fall within the scope above. Cross-cutting concerns and project-wide decisions belong in the coordinator workspace at `ai-infrastructure/project-manager/`.
 
-Tasks for this department live in the shared coordinator task pool at `ai-infrastructure/project-manager/tasks/`, tagged with the `dept:{{DEPT_SLUG}}` label.
+Tasks for this department live in the department's own task tree at `ai-infrastructure/{{DEPT_SLUG}}/tasks/`, using `{{DEPT_TASK_PREFIX}}-T-NNN` IDs (ADR-031). The `dept:{{DEPT_SLUG}}` label is applied at the dogfood import (ADR-008), not hand-applied in the markdown era.
 
 ## Coordinator
 

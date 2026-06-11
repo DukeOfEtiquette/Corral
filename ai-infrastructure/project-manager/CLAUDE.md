@@ -19,7 +19,7 @@ Per `./decisions/ADR-004-mcp-server-as-llm-contract.md`: once the MCP server exi
 
 ## Tasks
 
-All project work items live in `./tasks/` per `./tasks/README.md`. Do not invent parallel TODO systems (scratch lists, inline TODO sections, separate trackers). If it is work, it is a task file.
+The coordinator's own work items live in `./tasks/` (COR-T-NNN IDs) per `./tasks/README.md`. Per ADR-031, every department also owns its own `tasks/` tree at `ai-infrastructure/<dept>/tasks/` with its own ID prefix; the coordinator write authority (above) covers coordination writes into those trees. Do not invent parallel TODO systems (scratch lists, inline TODO sections, separate trackers). If it is work, it is a task file in the appropriate workspace's tree.
 
 ## Decisions
 
@@ -38,4 +38,4 @@ docker compose is the only supported run path once code exists (`./decisions/ADR
 | `./OBSERVATIONS.md` | Append-only pattern log, `COR-NN` IDs |
 | `./decisions/` | All ADRs, accepted and pending |
 | `docs/README.md` | Docs navigation (repo root) |
-| `./tasks/README.md` | Task convention (canonical, markdown era) |
+| `./tasks/README.md` | Task convention (canonical, markdown era; per-workspace since ADR-031) |

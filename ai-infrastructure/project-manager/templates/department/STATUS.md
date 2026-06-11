@@ -16,7 +16,7 @@ Single source of truth for current progress in the `{{DEPT_NAME}}` department. U
 
 ## Next step
 
-Pick up the first `dept:{{DEPT_SLUG}}`-tagged task from the shared task pool at `ai-infrastructure/project-manager/tasks/` and route it through the `/{{DEPT_SLUG}}-orchestrator` dispatched-worker flow.
+File the first task in `ai-infrastructure/{{DEPT_SLUG}}/tasks/backlog/` with a `{{DEPT_TASK_PREFIX}}-T-001` ID and route it through the `/{{DEPT_SLUG}}-orchestrator` dispatched-worker flow.
 
 ## Blocked on
 

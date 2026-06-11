@@ -43,7 +43,7 @@ Rationale: `./ai-infrastructure/project-manager/decisions/ADR-002-tech-stack.md`
 | `./ai-infrastructure/project-manager/OBSERVATIONS.md` | Append-only pattern log |
 | `./ai-infrastructure/project-manager/decisions/` | ADRs: accepted decisions and queued open questions |
 | `./docs/` | Architecture overview and AI-orchestration role docs |
-| `./ai-infrastructure/project-manager/tasks/` | Project tasks, markdown convention (`./ai-infrastructure/project-manager/tasks/README.md`) |
+| `./ai-infrastructure/project-manager/tasks/` | Coordinator tasks (COR-T-NNN); each department also owns its own `tasks/` tree (ADR-031) |
 | `app/` (future) | Web-app services |
 
 ## Roadmap

@@ -6,13 +6,14 @@ description: Stamp out a new department workspace from the template baseline and
 
 ## Inputs
 
-This command takes three arguments:
+This command takes four arguments:
 
 - `<slug>`: the department slug in kebab-case (e.g. `test-design`). Must be a blessed entry in the ADR-021 menu.
 - `<Display Name>`: the human-readable department name (e.g. `Test Design`).
 - `<OBS-PREFIX>`: the uppercase observation ID prefix for the department (e.g. `TST`). Operator-supplied; not auto-derived from the slug.
+- `<TASK-PREFIX>`: the uppercase task ID prefix for the department (e.g. `TST`). Operator-supplied; not auto-derived from the slug. Independent of `<OBS-PREFIX>`; they may be the same value (e.g. both `DB` for the `database` department) or different.
 
-Example invocation: `/create-department test-design "Test Design" TST`
+Example invocation: `/create-department test-design "Test Design" TST TST`
 
 ## Precondition: blessed ADR-021 menu entry
 
@@ -30,6 +31,11 @@ When invoked with a valid blessed-menu slug, this command drives the orchestrato
    - `ai-infrastructure/<slug>/STATUS.md`
    - `ai-infrastructure/<slug>/OBSERVATIONS.md`
    - `ai-infrastructure/<slug>/decisions/README.md`
+   - `ai-infrastructure/<slug>/tasks/.next-task-id` (seeded to `1`)
+   - `ai-infrastructure/<slug>/tasks/backlog/.gitkeep`
+   - `ai-infrastructure/<slug>/tasks/in-progress/.gitkeep`
+   - `ai-infrastructure/<slug>/tasks/blocked/.gitkeep`
+   - `ai-infrastructure/<slug>/tasks/done/.gitkeep`
 2. A stamped orchestrator command at `.claude/commands/<slug>-orchestrator.md`.
 
 The template source is `ai-infrastructure/project-manager/templates/department/`. The scaffold contract is `ai-infrastructure/project-manager/decisions/ADR-030-department-scaffold-contract-create-department-recipe.md`.
@@ -43,6 +49,7 @@ Substitute these tokens throughout all template files:
 | `{{DEPT_SLUG}}` | The `<slug>` argument |
 | `{{DEPT_NAME}}` | The `<Display Name>` argument |
 | `{{DEPT_OBS_PREFIX}}` | The `<OBS-PREFIX>` argument |
+| `{{DEPT_TASK_PREFIX}}` | The `<TASK-PREFIX>` argument |
 | `{{DEPT_SCOPE}}` | The "Would own" line for this slug from the ADR-021 menu |
 | `{{DATE}}` | Today's date in `YYYY-MM-DD` format |
 
@@ -94,13 +101,12 @@ Per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle", Resolve step): draft the c
 
 ## dept:<slug> label reservation
 
-Creating a department using a blessed ADR-021 menu slug is the label reservation in the markdown era. The `dept:<slug>` label name is now in use; it tags tasks in the shared coordinator pool that belong to this department. There is no label registry to mutate at this time; the label becomes a real record at the dogfood milestone (ADR-008). Label governance (enforcement, color/metadata) is owned by ADR-018 (pending, COR-T-008).
+Creating a department using a blessed ADR-021 menu slug is the label reservation in the markdown era. The `dept:<slug>` label name is established; it will be applied to the department's tasks at the dogfood import (ADR-008), derived from the department's own `tasks/` tree, at which point ADR-001's single-pool/per-label-board model takes over inside the app. Tasks in the department tree do NOT carry a hand-applied `dept:<slug>` label in the markdown era. There is no label registry to mutate at this time; the label becomes a real record at the dogfood milestone. Label governance (enforcement, color/metadata) is owned by ADR-018 (pending, COR-T-008).
 
 ## What this command does NOT create
 
 - No `/<slug>-worker` command. Department deliverable work runs through the universal `worker-agent` (ADR-028). The single universal worker execution path is shared across all departments.
 - No per-department role-doc copies. The department's orchestrator command adopts `docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` by reference (ADR-029). The worker uses `docs/ai-orchestration/roles/WORKER-ROLE.md` by reference. No copies.
-- No `tasks/` directory inside the department workspace. All tasks live in the shared coordinator pool at `ai-infrastructure/project-manager/tasks/`, tagged `dept:<slug>` (ADR-027 Fork B).
 - No department-scoped checker. The optional department-scoped checker slot is reserved (see the department `CLAUDE.md`); none is created by the recipe.
 
 ## References

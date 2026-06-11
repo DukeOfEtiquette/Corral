@@ -14,10 +14,11 @@ Sources:
       frontmatter, parsed tolerantly (missing fields omitted, not errored).
   (c) Department roster: the ADR-021 blessed list, encoded as DEPARTMENTS_ROSTER
       below. ADR-021 is the authority for this list.
-  (d) Shared task pool: /repo/ai-infrastructure/project-manager/tasks/{backlog,
-      in-progress,blocked,done}/*.md. Status is taken from the CONTAINING
-      DIRECTORY (authoritative per tasks/README.md), not from frontmatter.
-      Labels are parsed from frontmatter with PyYAML.
+  (d) Per-workspace task trees (ADR-031): /repo/ai-infrastructure/project-manager/tasks/
+      plus /repo/ai-infrastructure/<dept>/tasks/ for each existing department.
+      Status is taken from the CONTAINING DIRECTORY (authoritative per
+      tasks/README.md), not from frontmatter. Per-department counts come from
+      that department's own tree; overall counts are the union across all trees.
   (e) Coordinator ADRs: /repo/ai-infrastructure/project-manager/decisions/ADR-*.md
       frontmatter (id, adr, title, status, date).
   (f) Observations count: count COR-NN entries in
@@ -274,10 +275,37 @@ def collect_adrs(decisions_dir: Path) -> list:
 # Main ETL
 # ---------------------------------------------------------------------------
 
+def collect_all_tasks(repo_root: Path) -> tuple[list, dict]:
+    """
+    Collect tasks from every workspace tree (coordinator + each existing
+    department). Returns (all_tasks_combined, per_workspace_tasks) where
+    per_workspace_tasks maps slug -> list of task dicts for that tree only.
+
+    Per ADR-031: the tree is the department partition. Per-department counts
+    come from that department's own tree; overall counts are the union.
+    """
+    pm_tasks_root = repo_root / "ai-infrastructure" / "project-manager" / "tasks"
+    coordinator_tasks = collect_tasks(pm_tasks_root)
+    per_workspace: dict = {COORDINATOR_SLUG: coordinator_tasks}
+
+    for entry in DEPARTMENTS_ROSTER:
+        slug = entry["slug"]
+        dept_tasks_root = repo_root / "ai-infrastructure" / slug / "tasks"
+        if dept_tasks_root.is_dir():
+            per_workspace[slug] = collect_tasks(dept_tasks_root)
+        else:
+            per_workspace[slug] = []
+
+    combined = []
+    for tasks in per_workspace.values():
+        combined.extend(tasks)
+
+    return combined, per_workspace
+
+
 def run_etl(repo_root: Path, served_dir: Path) -> None:
     pm_dir = repo_root / "ai-infrastructure" / "project-manager"
     status_path = pm_dir / "STATUS.md"
-    tasks_root = pm_dir / "tasks"
     decisions_dir = pm_dir / "decisions"
     observations_path = pm_dir / "OBSERVATIONS.md"
     commands_dir = repo_root / ".claude" / "commands"
@@ -322,8 +350,10 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
             "milestones": milestones,
         })
 
-    # -- (d) Shared task pool ------------------------------------------------
-    all_tasks = collect_tasks(tasks_root)
+    # -- (d) Per-workspace task trees (ADR-031) ------------------------------
+    # all_tasks is the union across all trees; per_workspace_tasks maps
+    # slug -> tasks for that tree only (used for per-department counts).
+    all_tasks, per_workspace_tasks = collect_all_tasks(repo_root)
     overall_task_counts = compute_task_counts(all_tasks)
 
     # -- (e) ADRs ------------------------------------------------------------
@@ -354,7 +384,10 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         slug = entry["slug"]
         label = f"dept:{slug}"
         exists = dept_exists(slug)
-        task_counts = compute_task_counts(all_tasks, label_prefix=label)
+        # Per ADR-031: per-department counts come from the department's own
+        # tasks/ tree, not from label-filtering the shared pool.
+        dept_tree_tasks = per_workspace_tasks.get(slug, [])
+        task_counts = compute_task_counts(dept_tree_tasks)
         departments.append({
             "slug": slug,
             "domain": entry["domain"],
@@ -395,8 +428,9 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         "recent_updates": coord_recent,
         "adrs": adrs,
         "observations_count": observations_count,
+        # Per ADR-031: coordinator counts come from its own tasks/ tree.
         "task_counts": compute_task_counts(
-            all_tasks, label_prefix=f"dept:{COORDINATOR_SLUG}"
+            per_workspace_tasks.get(COORDINATOR_SLUG, [])
         ),
     }
 
@@ -404,8 +438,10 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     for entry in DEPARTMENTS_ROSTER:
         slug = entry["slug"]
         exists = dept_exists(slug)
-        label = f"dept:{slug}"
-        task_counts = compute_task_counts(all_tasks, label_prefix=label)
+        # Per ADR-031: per-department counts come from the department's own
+        # tasks/ tree, not from label-filtering the combined pool.
+        dept_tree_tasks = per_workspace_tasks.get(slug, [])
+        task_counts = compute_task_counts(dept_tree_tasks)
 
         if not exists:
             workspace_details[slug] = {

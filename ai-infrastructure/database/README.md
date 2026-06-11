@@ -10,7 +10,7 @@ Schema, migrations, seed logic
 
 This workspace owns the artifacts and decisions that fall within the scope above. Cross-cutting concerns and project-wide decisions belong in the coordinator workspace at `ai-infrastructure/project-manager/`.
 
-Tasks for this department live in the shared coordinator task pool at `ai-infrastructure/project-manager/tasks/`, tagged with the `dept:database` label.
+Tasks for this department live in the department's own task tree at `ai-infrastructure/database/tasks/`, using `DB-T-NNN` IDs (ADR-031). The `dept:database` label is applied at the dogfood import (ADR-008), not hand-applied in the markdown era.
 
 ## Coordinator
 
