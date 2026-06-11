@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-027
 title: "Dashboard: remove the Org Chart panel; expand Roadmap to full channel width"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-11
@@ -33,3 +33,4 @@ Verification: `docker compose up` in `ai-infrastructure/project-manager/dashboar
 
 - 2026-06-11: Created in backlog. Filed during the COR-T-026 close review after the user, viewing the live render, decided the Org Chart is redundant with the now-above Department Roster for a flat org. Coordinator/agent-development presentational deliverable; routes through the dispatched-worker flow. Unlabelled per the ADR-031 convention (the coordinator tree is the partition; dept:* labels are applied at the dogfood import, not hand-applied in the markdown era).
 - 2026-06-11: Picked up; moved to in-progress. Routing through the /project-manager-orchestrator dispatched-worker flow. One residual scoping decision to resolve with the user before drafting the kickoff: whether "remove completely" also strips the orphaned etl.py build_org_chart and the org_chart data.json field (touching the data.json contract), or removes only the UI panel.
+- 2026-06-11: Executed via dispatched worker-agent and closed. Scoping decision resolved with the user: FULL removal (UI panel + dead ETL path + the org_chart data.json contract field). Kickoff drafter+checker loop PASSed on iteration 1 (0 findings); prelaunch W1 PASS, close W2 PASS. Deliverable verified against disk: OrgChartPanel.jsx deleted, LandingView.jsx reordered to PulsePanel -> DepartmentsPanel -> RoadmapPanel (full width) -> ActivityPanel with the .two-col wrapper unwrapped, styles.css .two-col/.org-chart/.org-chart-card rules removed, etl.py build_org_chart path stripped and data.json no longer emitting org_chart (grep-confirmed zero residual references). Visually confirmed by the user under docker compose up. Committed in af1f48c (deliverable + kickoff/report pair + STATUS hygiene). No follow-ups beyond the user-run verification already performed.
