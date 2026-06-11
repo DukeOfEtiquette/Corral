@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-031
 title: "Dashboard: trim WORKSPACE/ORCHESTRATOR roster columns; add orphan-department row warning"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-11
@@ -34,3 +34,4 @@ Verification: `docker compose up --build` in `ai-infrastructure/project-manager/
 ## Activity log
 
 - 2026-06-11: Created and picked up (directed work; user instruction during the COR-T-030 close review). Moved straight to in-progress; routing through the dispatched-worker flow. Decisions resolved with the user (remove WORKSPACE + ORCHESTRATOR columns; add a yellow row highlight + native-title tooltip `⚠ Department exists, orchestrator missing ⚠` when exists && !orchestrator_command; etl.py untouched). Unlabelled per ADR-031.
+- 2026-06-11: Executed via dispatched worker-agent and closed. Kickoff drafter+checker PASSed on iteration 1 (0 findings); prelaunch W1 PASS, close W2 PASS. DepartmentsPanel.jsx down to 7 columns (WORKSPACE + ORCHESTRATOR removed), orphan-warning class + native-title tooltip added; styles.css gains .dept-orphaned (yellow) with the hover selector updated to exclude it, .dept-planned unchanged; etl.py and data.json untouched. Independently verified on disk including that the worker's spot-test (a temporary rename of .claude/commands/database-orchestrator.md to force the orphan condition) was fully reverted - the command file is restored, no backup leftover, git status clean of command-file changes. Visually confirmed by the user. Committed in b715601. Follow-up: .badge-exists and .badge-missing CSS rules are now dead (badge-planned still used by WorkspaceView); folded into the COR-T-032 split-roster task scope rather than a separate cleanup.
