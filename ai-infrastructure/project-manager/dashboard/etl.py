@@ -46,6 +46,10 @@ JSON contract shape (data.json):
                     department headers carry {slug, display_name, domain, role,
                     exists, planned, last_updated} - no phase key.
                     coordinator header carries phase (the derived current_phase).
+                    adrs list entries carry {id, adr, title, status, date, body}
+                    where body is the post-frontmatter markdown text (the YAML
+                    block stripped). body is an empty string when the file body
+                    cannot be read.
   recent_activity: [ {workspace, date, text} ] newest-first, capped 30
 """
 
@@ -284,10 +288,33 @@ def compute_task_counts(tasks: list, label_prefix: str | None = None) -> dict:
 # ADR parsing
 # ---------------------------------------------------------------------------
 
+def extract_body(path: Path) -> str:
+    """
+    Return the post-frontmatter markdown body from a file, stripping the
+    leading ---\\n...\\n---\\n block. Returns the full text if no frontmatter
+    is found, and an empty string on read error.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    if not text.startswith("---"):
+        return text
+    end = text.find("\n---", 3)
+    if end == -1:
+        return text
+    # Skip past the closing --- and the trailing newline.
+    body_start = end + 4  # len("\n---") == 4
+    if body_start < len(text) and text[body_start] == "\n":
+        body_start += 1
+    return text[body_start:]
+
+
 def collect_adrs(decisions_dir: Path) -> list:
     """
     Parse frontmatter from ADR-*.md files. Returns list of dicts with
-    id, adr, title, status, date.
+    id, adr, title, status, date, body.
+    body is the post-frontmatter markdown text (YAML block stripped).
     """
     adrs = []
     for md_file in sorted(decisions_dir.glob("ADR-*.md")):
@@ -300,6 +327,7 @@ def collect_adrs(decisions_dir: Path) -> list:
             "title": str(fm.get("title", "")),
             "status": str(fm.get("status", "")),
             "date": str(fm.get("date", "")),
+            "body": extract_body(md_file),
         })
     adrs.sort(key=lambda x: x["adr"])
     return adrs

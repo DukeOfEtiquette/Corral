@@ -1,0 +1,78 @@
+# Dashboard - click an ADR title to open a markdown modal on the workspace detail view
+
+## Target
+
+This is AI-infrastructure work (domain 2 per ADR-005): the project-manager insight dashboard is domain-2 tooling that reports on the project, not a web-app deliverable. The task is COR-T-034. You extend the dashboard's workspace detail view so a reader can click an ADR's title in the decision-records table and read that ADR's rendered markdown in a modal, without leaving the page. The change spans the ETL (`etl.py`), one React view (`WorkspaceView.jsx`), the stylesheet (`styles.css`), and the dashboard's npm manifest (`package.json` / `package-lock.json`). The dashboard container serves only the pre-built output; there is no runtime fetch of repo files, so the ADR markdown is embedded into `data.json` at ETL time.
+
+## Decisions resolved by the Orchestrator
+
+Each of these is pinned. Execute it; do not re-decide it.
+
+- **Markdown source is embedded at ETL time, not fetched at runtime.** Embed each ADR's markdown body into `data.json` inside `collect_adrs` (etl.py:287-305). Rationale: the dashboard container serves only the built output (`entrypoint.sh` runs `http.server --directory /served`); the repo is bind-mounted read-only at `/repo` but is NOT HTTP-reachable from the serve root. Do not port rogue's runtime `fetch()` approach: rogue's own `build.py:69-71` documents that its repo-root-relative `.md` URLs "point at files intentionally not reachable over HTTP" from the dashboard serve root, so that path is latently broken even in rogue. Embedding at ETL time is the corral-native fix.
+- **The embedded `body` is the markdown after the YAML frontmatter.** Strip the leading `---\n...\n---\n` block; do not render the raw frontmatter. `collect_adrs` today calls `parse_frontmatter` (etl.py:91), which returns only the parsed dict. You must additionally read the raw file text and split off the post-frontmatter body. The modal's header chrome (ADR-NNN, title, status badge, date) reuses the fields `collect_adrs` already emits (`id`, `adr`, `title`, `status`, `date`); do not duplicate those into the `body`.
+- **Renderer is react-markdown + remark-gfm, bundled (not CDN).** Add `react-markdown` and `remark-gfm` as npm dependencies in `package.json`; Vite bundles them into the build. The container may be offline at runtime, so no CDN script tag. `remark-gfm` is required because ADR bodies contain GFM tables. Render through react-markdown components; do not use `dangerouslySetInnerHTML`.
+- **Trigger is a click on the ADR Title cell.** In the existing decision-records table (WorkspaceView.jsx:114-124, the `<td>{adr.title}</td>` at :117), render the title as an accessible control (a button styled as a link, or a link), not plain static text. Clicking opens the modal for that ADR.
+- **Modal UX is ported from rogue's `setupMarkdownModal`, re-expressed in React idiom.** The modal is a `role="dialog"` `aria-modal` element with a header showing the ADR identifier and title, a body rendering the markdown, and THREE close paths: backdrop click, an explicit close (x) button, and the Escape key. Implement in React idiom: `useState` for open/selected-ADR, and a `useEffect` that registers and cleans up the Escape `keydown` listener.
+- **Scope is generic inside `collect_adrs`.** The coordinator (project-manager) has 32 ADR files today; the database and backend-api departments have zero `ADR-*.md` files, so their `adrs` stay empty or null. Do no per-workspace special-casing; the change benefits any workspace whose `decisions/` holds ADRs.
+- **No serving, Docker, or compose changes.** The new dependencies bundle through the existing Vite build stage, and `data.json` simply grows by the embedded bodies. This is acceptable for a local dashboard.
+
+## Deliverables
+
+- **`etl.py`:** `collect_adrs` adds a `body` field (the post-frontmatter markdown text) to each ADR dict. Update the JSON-contract docstring (etl.py:28-44, the `workspace_details ... adrs` description) to document the new field.
+- **`src/views/WorkspaceView.jsx`:** the ADR title becomes a clickable trigger; add a markdown modal component plus its open/selected-ADR state that renders the selected ADR's `body` via react-markdown + remark-gfm and closes via backdrop click, the close (x) button, and the Escape key.
+- **`src/styles.css`:** modal styling and clickable-title styling, following the existing card/badge/detail-list CSS idiom already in that file (mirror rogue's `.md-modal` / `.md-rendered` class structure where helpful).
+- **`package.json`:** add `react-markdown` and `remark-gfm` to dependencies; the regenerated `package-lock.json` is part of this deliverable.
+
+## Files in scope
+
+- `./ai-infrastructure/project-manager/dashboard/etl.py`
+- `./ai-infrastructure/project-manager/dashboard/src/views/WorkspaceView.jsx`
+- `./ai-infrastructure/project-manager/dashboard/src/styles.css`
+- `./ai-infrastructure/project-manager/dashboard/package.json` (and `package-lock.json`, regenerated by the install)
+
+## Files out of scope
+
+- The rogue dashboard at `~/rogue/...` (reference exemplar only; never modify).
+- `./ai-infrastructure/project-manager/dashboard/src/views/LandingView.jsx` and the other panels (no change).
+- The ADR source files under `./ai-infrastructure/project-manager/decisions/` (read-only inputs).
+- `Dockerfile`, `entrypoint.sh`, `docker-compose.yml` (no serving change; the new deps bundle via the existing build).
+
+## References
+
+Read these in the order listed.
+
+- `./docs/ai-orchestration/roles/WORKER-ROLE.md` - the Worker role and the six-section closing report shape.
+- `./ai-infrastructure/project-manager/dashboard/etl.py` - `collect_adrs` at :287-305; call sites :398 (coordinator) and :501 (departments); JSON-contract docstring :28-44; `parse_frontmatter` :91.
+- `./ai-infrastructure/project-manager/dashboard/src/views/WorkspaceView.jsx` - the decision-records table at :101-129.
+- `./ai-infrastructure/project-manager/dashboard/src/styles.css` - the existing card/badge/detail-list idiom to match.
+- `~/rogue/ai-workspaces/project-manager/dashboard/static/dashboard.js` - reference-only exemplar: `setupMarkdownModal` ~:794, delegated click handler ~:899, `mdLink` :354. Port the UX and structure, NOT the runtime fetch.
+- `~/rogue/ai-workspaces/project-manager/dashboard/static/style.css` - reference-only: the `.md-modal` / `.md-rendered` CSS idiom.
+
+## Related tasks and ADRs
+
+- COR-T-014 - built this dashboard (ADR-027 Fork E); origin of the `etl.py` + React SPA codebase you are extending here.
+- COR-T-017 - extended the dashboard end-to-end (etl.py contract + a React panel + styles.css) for roadmap sub-milestones; the precedent for a coordinated 3-file pipeline change. Mirror its discipline.
+- ADR-008 - dogfood milestone; the dashboard reads markdown sources now and repoints to the app's MCP seam later, so embedding ADR bodies from markdown is a markdown-era-only mechanism that will be revisited then.
+
+## STATUS deltas
+
+No task-specific STATUS deltas; universal hygiene only.
+
+## Hard rules
+
+- Render markdown through react-markdown components only. Do not use `dangerouslySetInnerHTML` anywhere in this change.
+- Do not add a CDN `<script>` tag for the renderer; the dependencies must bundle through the existing Vite build so the container works offline.
+- Do not special-case any workspace inside `collect_adrs`; the `body` field is added uniformly for every ADR the function emits.
+- Do not touch the serving, Docker, or compose layer. If the work appears to require a serving change, that is a surprise to surface, not a change to make.
+
+## Verification (single acceptance gate)
+
+This is the one acceptance gate; the closing report confirms it. Do not add mid-task checkpoints.
+
+- After the `etl.py` change, regenerate `data.json` the way the repo runs the ETL, and confirm each coordinator ADR entry under `workspace_details["project-manager"].adrs` carries a non-empty `body` string with the YAML frontmatter stripped.
+- Confirm the dashboard builds with the new dependencies via the project's build path without error.
+- The modal is a visual surface that requires the user's runtime confirmation at close (the modal opens on a title click, renders an ADR containing a table correctly, and closes via backdrop click, the close (x) button, and Escape). State in the report exactly how to run the dashboard and what to look at, because the Orchestrator gates the task close on that visual confirmation. Record the modal-render verification as "user to verify at runtime" in the report's Build / verification status section.
+
+## Worker pointer
+
+You are the dispatched `worker-agent` (ADR-028). Universal worker conventions live in `./docs/ai-orchestration/roles/WORKER-ROLE.md`. Write your closing report to `./.claude/artifacts/handoffs/COR-T-034-KICKOFF-REPORT.md` per WORKER-ROLE.md, section "Report shape" (dual-channel: print to chat and write the same content to that file).

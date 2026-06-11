@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import TaskCountsPanel from '../panels/TaskCountsPanel.jsx';
 
 export default function WorkspaceView({ data, slug }) {
@@ -52,8 +54,47 @@ function PlannedDeptStub({ detail }) {
   );
 }
 
+function AdrModal({ adr, onClose }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div className="adr-modal" role="dialog" aria-modal="true" aria-label={adr.title}>
+      <div className="adr-modal-backdrop" onClick={onClose} />
+      <div className="adr-modal-content">
+        <div className="adr-modal-header">
+          <div className="adr-modal-header-info">
+            <span className="adr-modal-id">ADR-{String(adr.adr).padStart(3, '0')}</span>
+            <span className="adr-modal-title">{adr.title}</span>
+            <span className={`badge badge-adr-${adr.status}`}>{adr.status}</span>
+            {adr.date && <span className="adr-modal-date muted">{adr.date}</span>}
+          </div>
+          <button
+            type="button"
+            className="adr-modal-close"
+            onClick={onClose}
+            aria-label="Close"
+          >&times;</button>
+        </div>
+        <div className="adr-modal-body">
+          <div className="md-rendered">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {adr.body || ''}
+            </ReactMarkdown>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WorkspaceDetailFull({ detail }) {
   const h = detail.header;
+  const [selectedAdr, setSelectedAdr] = useState(null);
+
   return (
     <>
       <div className="card">
@@ -114,7 +155,15 @@ function WorkspaceDetailFull({ detail }) {
               {detail.adrs.map((adr) => (
                 <tr key={adr.adr}>
                   <td className="adr-num">ADR-{String(adr.adr).padStart(3, '0')}</td>
-                  <td>{adr.title}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="adr-title-btn"
+                      onClick={() => setSelectedAdr(adr)}
+                    >
+                      {adr.title}
+                    </button>
+                  </td>
                   <td>
                     <span className={`badge badge-adr-${adr.status}`}>
                       {adr.status}
@@ -126,6 +175,10 @@ function WorkspaceDetailFull({ detail }) {
             </tbody>
           </table>
         </div>
+      )}
+
+      {selectedAdr && (
+        <AdrModal adr={selectedAdr} onClose={() => setSelectedAdr(null)} />
       )}
     </>
   );
