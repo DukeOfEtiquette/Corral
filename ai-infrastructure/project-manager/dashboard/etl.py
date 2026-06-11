@@ -38,9 +38,14 @@ JSON contract shape (data.json):
                     plain-text task ref, e.g. "COR-T-014", or empty string).
   departments:     [ {slug, domain, exists, orchestrator_command, label,
                        status, task_counts} ]
+                    status is null for planned depts; for existing depts:
+                    {last_updated} only (no phase: departments have no phase field).
   coordinator:     {slug, phase, phase_title, last_updated}
   workspace_details: { <slug>: {header, recent_updates, adrs,
                                 observations_count, task_counts} }
+                    department headers carry {slug, display_name, domain, role,
+                    exists, planned, last_updated} - no phase key.
+                    coordinator header carries phase (the derived current_phase).
   recent_activity: [ {workspace, date, text} ] newest-first, capped 30
 """
 
@@ -408,7 +413,6 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
             return None
         fm = parse_frontmatter(p)
         return {
-            "phase": fm.get("phase"),
             "last_updated": str(fm.get("last_updated", "")),
         }
 
@@ -482,7 +486,6 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
                     "role": "department",
                     "exists": False,
                     "planned": True,
-                    "phase": None,
                     "last_updated": None,
                 },
                 "recent_updates": None,
@@ -506,7 +509,6 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
                     "role": "department",
                     "exists": True,
                     "planned": False,
-                    "phase": fm.get("phase"),
                     "last_updated": str(fm.get("last_updated", "")),
                 },
                 "recent_updates": dept_recent or None,

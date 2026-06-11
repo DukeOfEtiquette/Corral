@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-030
 title: "Dashboard: remove the dead PHASE column from the department roster"
-status: backlog
+status: in-progress
 labels: []
 priority: P2
 created: 2026-06-11
@@ -31,3 +31,4 @@ Verification: `docker compose up --build` in `ai-infrastructure/project-manager/
 ## Activity log
 
 - 2026-06-11: Created in backlog. Surfaced by the user during the COR-T-029 close review (the roster showed "Phase null" for database). Verified the root cause: the column reads a department STATUS frontmatter `phase` field that has never existed in the department STATUS schema, so it is structurally always null. Coordinator/agent-development presentational deliverable; routes through the dispatched-worker flow when picked up. P2 (user-visible incorrectness, though cosmetic). Unlabelled per ADR-031.
+- 2026-06-11: Picked up; moved to in-progress. Routing through the /project-manager-orchestrator dispatched-worker flow. Scoping decision resolved by the orchestrator: option (b), the fuller removal (strip the dead `phase` from etl.py's department `dept_status` and the department workspace_details header plus the JSON-contract docstring, not just the UI column), consistent with COR-T-029's no-dead-fields precedent. The coordinator's derived phase is preserved everywhere.

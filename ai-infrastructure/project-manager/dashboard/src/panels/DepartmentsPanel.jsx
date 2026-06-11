@@ -11,7 +11,6 @@ export default function DepartmentsPanel({ departments }) {
             <th>Domain</th>
             <th>Workspace</th>
             <th>Orchestrator</th>
-            <th>Phase</th>
             <th>Backlog</th>
             <th>In progress</th>
             <th>Blocked</th>
@@ -48,9 +47,6 @@ export default function DepartmentsPanel({ departments }) {
                 ) : (
                   <span className="badge badge-missing">no</span>
                 )}
-              </td>
-              <td className="muted">
-                {dept.status ? `Phase ${dept.status.phase}` : '--'}
               </td>
               <td className="count">{dept.task_counts.backlog}</td>
               <td className="count">{dept.task_counts['in-progress']}</td>
