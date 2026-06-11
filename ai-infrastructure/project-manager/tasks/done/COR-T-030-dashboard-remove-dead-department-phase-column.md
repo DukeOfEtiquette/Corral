@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-030
 title: "Dashboard: remove the dead PHASE column from the department roster"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-11
@@ -32,3 +32,4 @@ Verification: `docker compose up --build` in `ai-infrastructure/project-manager/
 
 - 2026-06-11: Created in backlog. Surfaced by the user during the COR-T-029 close review (the roster showed "Phase null" for database). Verified the root cause: the column reads a department STATUS frontmatter `phase` field that has never existed in the department STATUS schema, so it is structurally always null. Coordinator/agent-development presentational deliverable; routes through the dispatched-worker flow when picked up. P2 (user-visible incorrectness, though cosmetic). Unlabelled per ADR-031.
 - 2026-06-11: Picked up; moved to in-progress. Routing through the /project-manager-orchestrator dispatched-worker flow. Scoping decision resolved by the orchestrator: option (b), the fuller removal (strip the dead `phase` from etl.py's department `dept_status` and the department workspace_details header plus the JSON-contract docstring, not just the UI column), consistent with COR-T-029's no-dead-fields precedent. The coordinator's derived phase is preserved everywhere.
+- 2026-06-11: Executed via dispatched worker-agent and closed. Kickoff drafter+checker PASSed on iteration 1 (0 findings; the drafter also caught a third dead-field surface, the planned-department workspace_details `phase: None` branch, and folded it in); prelaunch W1 PASS, close W2 PASS. DepartmentsPanel.jsx down to 9 columns (no PHASE); etl.py dead department phase removed from dept_status and both department workspace_details branches plus the docstring; coordinator derived phase preserved (verified on disk: data.json department entries carry no phase key, coordinator header still phase=2). WorkspaceView null-guard confirmed to hide the department badge without edit. Visually confirmed by the user. Committed in 79e553d (deliverable + kickoff/report pair + STATUS hygiene). Follow-up: COR-T-031 (trim the WORKSPACE/ORCHESTRATOR columns; add an orphan-department row warning) filed as a separate task.
