@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-026
 title: "Dashboard layout: move roster below overview; trim org-chart whitespace"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-11
@@ -26,3 +26,5 @@ Verification: `docker compose up` in `ai-infrastructure/project-manager/dashboar
 ## Activity log
 
 - 2026-06-11: Created in backlog. Filed after the COR-T-025 dashboard visual review surfaced two layout asks (roster placement, org-chart whitespace). Coordinator/agent-development presentational deliverable; routes through the dispatched-worker flow. Unlabelled per the ADR-031 convention (the coordinator tree is the partition; dept:* labels are applied at the dogfood import, not hand-applied in the markdown era).
+- 2026-06-11: Picked up; moved to in-progress. Routing through the /project-manager-orchestrator dispatched-worker flow (drafter+checker loop, prelaunch check, worker-agent dispatch). No anticipated decisions: task is fully pinned; org-chart whitespace fix pinned to align-the-card-to-grid-row-start with worker discretion on the exact CSS mechanic.
+- 2026-06-11: Executed via dispatched worker-agent and closed. Kickoff drafter+checker loop took 2 iterations (iter 1 FAILed R3: the org-chart CSS mechanic was delegated to the worker; iter 2 pinned `align-self: start` on an `org-chart-card` class hook and PASSed); prelaunch W1 PASS, close W2 PASS. Deliverable verified against disk (LandingView.jsx reorder, OrgChartPanel.jsx class, styles.css rule, .two-col untouched) and visually confirmed by the user under `docker compose up`. Committed in 4aa9ee7 (deliverable + kickoff/report pair + STATUS hygiene). Follow-up COR-T-027 filed (remove the Org Chart entirely; full-width Roadmap).
