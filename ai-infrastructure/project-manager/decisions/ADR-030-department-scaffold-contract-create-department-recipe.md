@@ -11,6 +11,8 @@ superseded_by: null
 
 # ADR-030: Department scaffold contract and the /create-department recipe
 
+> **Forward pointer (2026-06-11):** ADR-031 amends the scaffold's "A department has NO own `tasks/`" clause (item 1, the template file set, and the "does NOT contain a `tasks/` directory" note). Per ADR-031 (reversing ADR-027 Fork B), the department baseline now DOES include a `tasks/` tree (`backlog/`, `in-progress/`, `blocked/`, `done/`, plus `.next-task-id`) and a department task-ID-prefix token, and the stamped `/<slug>-orchestrator` surveys the department's own `tasks/` tree rather than the coordinator pool filtered by `dept:<slug>`. The rest of the contract (the other file set, the orchestrator-command wiring, the no-`/<slug>-worker` and no-role-doc-copy rules) is unaffected. See ADR-031.
+
 ## Context
 
 ADR-027 Fork D named a create-department recipe as a follow-on deliverable and sketched the department baseline: `CLAUDE.md`, `README.md`, `STATUS.md`, `OBSERVATIONS.md` (with a `<DEPT>-NN` observation prefix), a `decisions/` directory, a reserved `dept:<slug>` label (ADR-018), and "a paired `/<dept>-orchestrator` (Opus) and `/<dept>-worker` (Sonnet) slash-command set under root `.claude/commands/`." COR-T-013 builds that recipe. This ADR records the contract the COR-T-013 worker builds to.

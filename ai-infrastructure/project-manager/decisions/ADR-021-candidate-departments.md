@@ -103,4 +103,6 @@ Web-app domain departments (lazily created):
 
   > Forward pointer (ADR-018, accepted 2026-06-10): the "exactly one `dept:*` per task" leaning above is amended to **at-most-one** (0 or 1). An issue may sit unlabeled; unlabeled issues appear on no department board. ADR-018 owns the resolved taxonomy; this ADR remains the authority for the valid `dept:*` slug roster.
 
+  > Forward pointer (ADR-031, accepted 2026-06-11): the board-per-`dept:*`-label mapping above is unchanged in substance, but ADR-031 (per-department task trees, reversing ADR-027 Fork B) clarifies WHEN the `dept:<slug>` label is applied: in the markdown era a task's department is its workspace tree, not a label; the `dept:<slug>` label is applied at the dogfood import (ADR-008), derived from the tree, at which point the per-label boards become live in the app. See ADR-031.
+
 - **ADR-027 is the authoritative structure ADR.** This ADR is the department menu; ADR-027 owns the coordinator/department model, the shared `dept:`-labeled task pool, the create-department recipe, and the coordinator write-authority grant. Readers who want the full workspace structure should read ADR-027. The two ADRs are complementary, not overlapping.
