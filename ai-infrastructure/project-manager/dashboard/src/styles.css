@@ -267,7 +267,9 @@ a:hover { text-decoration: underline; }
 }
 .dept-table tr:last-child td { border-bottom: none; }
 .dept-table tr.dept-planned td { opacity: 0.6; }
-.dept-table tr:not(.dept-planned):hover td { background: var(--color-surface-raised); }
+.dept-table tr.dept-orphaned td { background: rgba(232, 160, 66, 0.12); }
+.dept-table tr.dept-orphaned:hover td { background: rgba(232, 160, 66, 0.22); }
+.dept-table tr:not(.dept-planned):not(.dept-orphaned):hover td { background: var(--color-surface-raised); }
 
 .dept-link { font-weight: 500; }
 
