@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-029
 title: "Dashboard: derive current_phase and next_step from milestone statuses"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-11
@@ -20,3 +20,4 @@ Coordinator/agent-development presentational-pipeline deliverable; routes throug
 ## Activity log
 
 - 2026-06-11: Created and picked up (directed work; user instruction during the COR-T-028 session). Moved straight to in-progress; routing through the dispatched-worker flow. Decisions resolved with the user: derive current_phase as the lowest not-fully-done phase; derive next_step as the first non-done milestone of the current phase; remove the dead `phase`/`phase_title` frontmatter fields and the `## Next step` prose section from STATUS.md. Unlabelled per ADR-031.
+- 2026-06-11: Executed via dispatched worker-agent and closed. Kickoff drafter+checker PASSed on iteration 1 (0 findings); prelaunch W1 PASS, close W2 PASS. etl.py gains derive_current_phase/derive_current_phase_title/derive_next_step; extract_next_step retired; JSON-contract docstring updated; STATUS.md phase/phase_title frontmatter and the ## Next step section removed. Independently verified against disk: coordinator object + meta use the derived values, the only residual fm.get("phase") reads are department entries (which legitimately keep their own field), and the compose-rebuilt data.json shows current_phase=2, badges 0/1 done / 2 current / 3-5 upcoming, next_step "P2-2: FastAPI endpoints with house rules". Derived current_phase_title is the roadmap title "API + DB core" (shorter than the removed phase_title; accepted as the cleaner, consistent form). Visually confirmed by the user. Committed in f59e4eb (deliverable + kickoff/report pair). Follow-up: the PHASE-column dead field and the milestone-status drift surface were surfaced in the close review (filed/logged separately).
