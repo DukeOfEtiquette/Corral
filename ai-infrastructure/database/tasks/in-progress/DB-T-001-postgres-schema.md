@@ -2,7 +2,7 @@
 schema_version: 1
 id: DB-T-001
 title: "Author the Postgres schema (P2-1) in the database department"
-status: backlog
+status: in-progress
 labels: []
 priority: P2
 created: 2026-06-11
@@ -28,3 +28,4 @@ When picked up, this routes through the dispatched-worker flow from the `databas
 
 - 2026-06-11: Created in backlog. Allocated as the P2-1 deliverable after COR-T-023 stood up the `database` and `backend-api` departments; the database department had no filed work, which both department-orchestrator smoke tests flagged. Tagged `dept:database` so it surfaces in that department's scoped survey.
 - 2026-06-11: Relocated from coordinator pool as COR-T-024 to database department tree as DB-T-001 per ADR-031 (per-department task trees). ID updated, dept:database label stripped (tree is now the partition; label applied at dogfood import per ADR-008).
+- 2026-06-11: Picked up via /database-orchestrator; status -> in-progress, moved to tasks/in-progress/. Resolving residual implementation-phase DDL decisions (flagged in ADR-014/ADR-026) with the user before drafting the kickoff for the dispatched-worker flow.

@@ -20,4 +20,8 @@ Append-only log of recurring patterns, friction points, and notable one-offs see
 
 ## Log
 
-(No entries yet. Add the first observation when a pattern is worth logging.)
+### DB-01: WORKER-ROLE wrap-up STATUS hygiene hardcoded the coordinator STATUS
+- date: 2026-06-11
+- state: promoted -> `docs/ai-orchestration/roles/WORKER-ROLE.md` ("Wrap-up STATUS hygiene" generalized to the kickoff-named workspace STATUS)
+- context: During DB-T-001 (the first department deliverable dispatched under ADR-031's per-department task trees), `WORKER-ROLE.md`'s "Wrap-up STATUS hygiene" section named `ai-infrastructure/project-manager/STATUS.md` as the universal hygiene target. For a database-department task the correct target is the department STATUS (`ai-infrastructure/database/STATUS.md`). The orchestrator had to redirect the target via the kickoff's `status_deltas` so the worker neither touched the wrong STATUS nor escalated a kickoff-vs-convention conflict.
+- pattern: the shared role docs predate ADR-031 (per-department task trees) and still assume a single coordinator STATUS; every department task hits this. Fixed at the source by generalizing the hygiene target to the workspace STATUS the kickoff names. The per-kickoff `status_deltas` redirect remains valid as the explicit override. Watch for other coordinator-hardcoded references in the shared role docs (for example survey-avoidance clauses) as more departments run tasks.

@@ -40,6 +40,6 @@ Backend: Python FastAPI with Postgres. Frontend: React. MCP server: Python FastM
 ## Consequences
 
 - The MCP server (ADR-004, ADR-013) and the API can share a Python package for models and house-rules validation.
-- Postgres becomes a compose service (ADR-003) and needs a migrations decision (ADR-014).
+- Postgres becomes a compose service (ADR-003) and needs a migrations decision (ADR-014). **Resolved:** ADR-014 (accepted) selects Alembic with hand-written migrations; no ORM is adopted in v1, so the data-access-layer choice stays a backend-api decision. See `./ADR-014-db-migrations-tooling.md`.
 - The React client needs a build/dev-server-in-Docker decision (ADR-015).
 - Contributors need Python and JS toolchains, both containerized per ADR-003 so host installs stay optional.
