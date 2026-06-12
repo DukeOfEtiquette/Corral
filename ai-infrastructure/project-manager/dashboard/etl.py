@@ -37,11 +37,23 @@ JSON contract shape (data.json):
                    last_updated, next_step (DERIVED from first non-done milestone
                    of current phase)
   roadmap:         [ {phase, title, deliverables, status,
-                      milestones: [{id, title, status, task}]} ]
+                      milestones: [{id, title, effective_status, refs}]} ]
                     milestones is a list of authored sub-milestones (may be []).
-                    Each milestone: id (e.g. "P1-1"), title, status (done /
-                    in-progress / planned, authored verbatim), task (optional
-                    plain-text task ref, e.g. "COR-T-014", or empty string).
+                    Each milestone: id (e.g. "P1-1"), title,
+                    effective_status (derived from refs rollup if refs present,
+                    else falls back to hand-set status field; values: done /
+                    in-progress / planned / unresolved).
+                    refs: list of resolved reference objects, each carrying:
+                      label: display string (e.g. "COR-T-014", "ADR-001-009")
+                      resolved_status: one of done / accepted / in-progress /
+                        blocked / backlog / pending / planned / mixed /
+                        unresolved
+                      type: "task" | "adr"
+                      flavor: "single" | "range" | "unresolved"
+                    Range references additionally carry:
+                      member_count: int (number of expanded members)
+                      rollup_status: the rollup color state (same values as
+                        resolved_status)
   departments:     [ {slug, domain, exists, orchestrator_command, label,
                        status, task_counts} ]
                     status is null for planned depts; for existing depts:
@@ -171,16 +183,26 @@ def derive_roadmap_status(phase: int, current_phase: int) -> str:
     return "upcoming"
 
 
-def derive_current_phase(roadmap_raw: list) -> int:
+def derive_current_phase(
+    roadmap_raw: list,
+    all_tasks: list | None = None,
+    adrs: list | None = None,
+) -> int:
     """
-    Derive the current phase number from per-milestone statuses.
+    Derive the current phase number from per-milestone effective statuses.
 
     A phase is fully done only if it has at least one milestone and every
-    milestone has status 'done'. A phase with an empty milestones list is NOT
-    fully done. Returns the lowest phase that is not fully done. If every phase
-    is fully done, returns the maximum phase number. Returns 0 for an empty
-    roadmap.
+    milestone has effective_status 'done'. Effective status is derived from
+    reference resolution when tasks/adrs lists are provided; otherwise falls
+    back to the hand-set 'status' field. A phase with an empty milestones list
+    is NOT fully done. Returns the lowest phase that is not fully done. If
+    every phase is fully done, returns the maximum phase number. Returns 0 for
+    an empty roadmap.
     """
+    if all_tasks is None:
+        all_tasks = []
+    if adrs is None:
+        adrs = []
     if not roadmap_raw:
         return 0
     phase_nums = []
@@ -200,7 +222,10 @@ def derive_current_phase(roadmap_raw: list) -> int:
         if not milestones:
             return phase_num
         if not all(
-            isinstance(ms, dict) and ms.get("status") == "done"
+            isinstance(ms, dict)
+            and derive_effective_status(
+                ms, resolve_milestone_refs(ms, all_tasks, adrs)
+            ) == "done"
             for ms in milestones
         ):
             return phase_num
@@ -220,12 +245,22 @@ def derive_current_phase_title(roadmap_raw: list, current_phase: int) -> str:
     return ""
 
 
-def derive_next_step(roadmap_raw: list, current_phase: int) -> str:
+def derive_next_step(
+    roadmap_raw: list,
+    current_phase: int,
+    all_tasks: list | None = None,
+    adrs: list | None = None,
+) -> str:
     """
     Return the first non-done milestone of the current phase, formatted as
-    '<id>: <title>' with ' (<task>)' appended when task is non-empty.
-    Returns an empty string if the current phase has no non-done milestone.
+    '<id>: <title>'. Uses effective status (reference-derived when refs are
+    present, hand-set fallback otherwise). Returns an empty string if the
+    current phase has no non-done milestone.
     """
+    if all_tasks is None:
+        all_tasks = []
+    if adrs is None:
+        adrs = []
     for item in roadmap_raw:
         if not isinstance(item, dict):
             continue
@@ -237,16 +272,200 @@ def derive_next_step(roadmap_raw: list, current_phase: int) -> str:
         for ms in milestones:
             if not isinstance(ms, dict):
                 continue
-            if ms.get("status") == "done":
+            refs = resolve_milestone_refs(ms, all_tasks, adrs)
+            eff_status = derive_effective_status(ms, refs)
+            if eff_status == "done":
                 continue
             ms_id = str(ms.get("id", ""))
             ms_title = str(ms.get("title", ""))
-            result = f"{ms_id}: {ms_title}"
-            task = str(ms.get("task", "")) if ms.get("task") else ""
-            if task:
-                result = f"{result} ({task})"
-            return result
+            return f"{ms_id}: {ms_title}"
     return ""
+
+
+# ---------------------------------------------------------------------------
+# Reference resolution helpers
+# ---------------------------------------------------------------------------
+
+def expand_range_token(token: str) -> list[str]:
+    """
+    Expand a '..' range token like 'ADR-001..009' or 'COR-T-001..006' into
+    a list of individual IDs. Returns a single-element list for bare IDs
+    (no '..' in the token). Handles numeric padding: uses the width of the
+    start number.
+
+    Examples:
+      'ADR-001..009' -> ['ADR-001', 'ADR-002', ..., 'ADR-009']
+      'COR-T-001..006' -> ['COR-T-001', 'COR-T-002', ..., 'COR-T-006']
+      'COR-T-014' -> ['COR-T-014']
+    """
+    if ".." not in token:
+        return [token]
+    left, right = token.split("..", 1)
+    # The right side is a numeric suffix; the left side ends with digits too.
+    # Split prefix from the trailing digits of the left side.
+    m = re.match(r"^(.*?)(\d+)$", left)
+    if not m:
+        return [token]  # Cannot parse; treat as bare
+    prefix = m.group(1)
+    start_str = m.group(2)
+    end_str = right.strip()
+    try:
+        start = int(start_str)
+        end = int(end_str)
+    except ValueError:
+        return [token]
+    width = len(start_str)
+    return [f"{prefix}{str(i).zfill(width)}" for i in range(start, end + 1)]
+
+
+def resolve_ref_status(ref_id: str, all_tasks: list, adrs: list) -> tuple[str, str]:
+    """
+    Resolve a single reference ID to (status, type).
+    type is 'task' or 'adr'.
+    status is one of: done / in-progress / blocked / backlog / accepted /
+      pending / unresolved.
+
+    ADR resolution: the collect_adrs 'id' field is typically a bare integer
+    string (e.g. "12") because the ADR frontmatter has 'adr: 12' with no
+    separate 'id' field. References use the 'ADR-012' form. We normalise
+    both sides to a bare integer for comparison.
+    """
+    # Determine type by prefix: 'ADR-NNN' is an adr; everything else is a task.
+    upper = ref_id.upper()
+    adr_match = re.match(r"^ADR-(\d+)$", upper)
+    if adr_match:
+        ref_num = int(adr_match.group(1))
+        for adr in adrs:
+            # adr['adr'] is the integer field; adr['id'] may be "12" or "ADR-012"
+            # Try matching via the integer 'adr' key first.
+            adr_num = adr.get("adr")
+            if adr_num is not None:
+                try:
+                    if int(adr_num) == ref_num:
+                        return str(adr.get("status", "unresolved")), "adr"
+                    continue
+                except (ValueError, TypeError):
+                    pass
+            # Fallback: parse the 'id' field
+            adr_id_str = str(adr.get("id", "")).upper()
+            m2 = re.match(r"^(?:ADR-)?(\d+)$", adr_id_str)
+            if m2 and int(m2.group(1)) == ref_num:
+                return str(adr.get("status", "unresolved")), "adr"
+        return "unresolved", "adr"
+    else:
+        # Task
+        for task in all_tasks:
+            task_id = str(task.get("id", "")).upper()
+            if task_id == upper:
+                return str(task.get("status", "unresolved")), "task"
+        return "unresolved", "task"
+
+
+def _normalise_adr_id(adr_id: str) -> str:
+    """Normalise 'ADR-001' and 'ADR-1' to the same canonical string."""
+    m = re.match(r"^ADR-(\d+)$", adr_id)
+    if m:
+        return f"ADR-{int(m.group(1))}"
+    return adr_id
+
+
+def _rollup_statuses(statuses: list[str]) -> str:
+    """
+    Roll up a list of statuses for a range badge.
+    - All identical -> that status.
+    - Any in-progress or blocked -> 'in-progress'.
+    - Otherwise -> 'mixed'.
+    """
+    if not statuses:
+        return "unresolved"
+    unique = set(statuses)
+    if len(unique) == 1:
+        return unique.pop()
+    # Any active work state -> in-progress
+    if any(s in ("in-progress", "blocked") for s in statuses):
+        return "in-progress"
+    return "mixed"
+
+
+def resolve_milestone_refs(ms: dict, all_tasks: list, adrs: list) -> list:
+    """
+    Given a milestone dict (with optional 'tasks' and 'adrs' lists from
+    STATUS.md frontmatter), expand range tokens and resolve each ID.
+    Returns a list of resolved ref objects. Each object has:
+      label, resolved_status, type, flavor
+    Range objects additionally have member_count and rollup_status.
+    """
+    refs = []
+
+    def process_list(raw_list: list, expected_type_hint: str) -> None:
+        if not isinstance(raw_list, list):
+            return
+        for token in raw_list:
+            token = str(token).strip()
+            if ".." in token:
+                # Range token
+                members = expand_range_token(token)
+                member_statuses = []
+                for mid in members:
+                    status, _t = resolve_ref_status(mid, all_tasks, adrs)
+                    member_statuses.append(status)
+                rollup = _rollup_statuses(member_statuses)
+                # Build a display label: strip the leading type prefix on the
+                # end token to show e.g. "ADR-001-009" or "COR-T-001-006"
+                # Format: <prefix><start>-<end_digits>
+                m = re.match(r"^(.*?)(\d+)\.\.(.*\D)?(\d+)$", token)
+                if m:
+                    label = f"{m.group(1)}{m.group(2)}-{m.group(4)}"
+                else:
+                    label = token.replace("..", "-")
+                refs.append({
+                    "label": label,
+                    "resolved_status": rollup,
+                    "type": expected_type_hint,
+                    "flavor": "range",
+                    "member_count": len(members),
+                    "rollup_status": rollup,
+                })
+            else:
+                # Bare ID
+                status, ref_type = resolve_ref_status(token, all_tasks, adrs)
+                flavor = "unresolved" if status == "unresolved" else "single"
+                refs.append({
+                    "label": token,
+                    "resolved_status": status,
+                    "type": ref_type,
+                    "flavor": flavor,
+                })
+
+    process_list(ms.get("tasks", []), "task")
+    process_list(ms.get("adrs", []), "adr")
+    return refs
+
+
+def derive_effective_status(ms: dict, refs: list) -> str:
+    """
+    Derive the effective status for a milestone.
+    Only TASK refs drive effective status (done-ness); ADR refs are
+    informational and do not affect the rollup.
+    If task refs exist, roll them up:
+      - All done/accepted -> 'done'
+      - Any in-progress or blocked -> 'in-progress'
+      - Otherwise -> 'planned'
+    If there are ZERO task refs (regardless of ADR refs), fall back to
+    the hand-set 'status' frontmatter field.
+    ADR refs are still resolved and emitted in the refs list for badge
+    rendering; they simply do not influence effective_status.
+    """
+    task_refs = [r for r in refs if r.get("type") == "task"]
+    if task_refs:
+        statuses = [r["resolved_status"] for r in task_refs]
+        if all(s in ("done", "accepted") for s in statuses):
+            return "done"
+        if any(s in ("in-progress", "blocked") for s in statuses):
+            return "in-progress"
+        return "planned"
+    # No task refs: use hand-set status
+    return str(ms.get("status", "planned"))
 
 
 # ---------------------------------------------------------------------------
@@ -462,16 +681,29 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     coordinator_fm = parse_frontmatter(status_path)
     last_updated = str(coordinator_fm.get("last_updated", ""))
 
+    # -- (d) Per-workspace task trees (ADR-031) ------------------------------
+    # Collected here (before roadmap assembly) so reference resolution can
+    # use them when deriving effective milestone statuses.
+    # all_tasks is the union across all trees; per_workspace_tasks maps
+    # slug -> tasks for that tree only (used for per-department counts).
+    all_tasks, per_workspace_tasks = collect_all_tasks(repo_root)
+    overall_task_counts = compute_task_counts(all_tasks)
+
+    # -- (e) ADRs ------------------------------------------------------------
+    # Collected here (before roadmap assembly) for the same reason.
+    adrs = collect_adrs(decisions_dir)
+
     # -- (a) Roadmap ---------------------------------------------------------
     roadmap_raw = coordinator_fm.get("roadmap", [])
     if not isinstance(roadmap_raw, list):
         roadmap_raw = []
 
-    # Derive current_phase, current_phase_title, and next_step from milestone
-    # statuses rather than from hand-maintained frontmatter fields.
-    current_phase = derive_current_phase(roadmap_raw)
+    # Derive current_phase, current_phase_title, and next_step using effective
+    # milestone statuses (reference-derived when refs present, hand-set
+    # fallback otherwise).
+    current_phase = derive_current_phase(roadmap_raw, all_tasks, adrs)
     current_phase_title = derive_current_phase_title(roadmap_raw, current_phase)
-    next_step = derive_next_step(roadmap_raw, current_phase)
+    next_step = derive_next_step(roadmap_raw, current_phase, all_tasks, adrs)
 
     roadmap = []
     for item in roadmap_raw:
@@ -488,11 +720,13 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         for ms in raw_milestones:
             if not isinstance(ms, dict):
                 continue
+            refs = resolve_milestone_refs(ms, all_tasks, adrs)
+            eff_status = derive_effective_status(ms, refs)
             milestones.append({
                 "id": str(ms.get("id", "")),
                 "title": str(ms.get("title", "")),
-                "status": str(ms.get("status", "")),
-                "task": str(ms.get("task", "")) if ms.get("task") else "",
+                "effective_status": eff_status,
+                "refs": refs,
             })
         roadmap.append({
             "phase": phase_num,
@@ -501,15 +735,6 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
             "status": derive_roadmap_status(phase_num, current_phase),
             "milestones": milestones,
         })
-
-    # -- (d) Per-workspace task trees (ADR-031) ------------------------------
-    # all_tasks is the union across all trees; per_workspace_tasks maps
-    # slug -> tasks for that tree only (used for per-department counts).
-    all_tasks, per_workspace_tasks = collect_all_tasks(repo_root)
-    overall_task_counts = compute_task_counts(all_tasks)
-
-    # -- (e) ADRs ------------------------------------------------------------
-    adrs = collect_adrs(decisions_dir)
 
     # -- (f) Observations count ----------------------------------------------
     observations_count = count_observations(observations_path)

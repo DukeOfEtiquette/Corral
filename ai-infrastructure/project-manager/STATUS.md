@@ -11,9 +11,11 @@ roadmap:
       - id: P0-2
         title: "Decision records ADR-001..009 accepted"
         status: done
+        adrs: [ADR-001..009]
       - id: P0-3
         title: "Task convention seeded (COR-T-001..006)"
         status: done
+        tasks: [COR-T-001..006]
   - phase: 1
     title: "AI infrastructure"
     deliverables: "Orchestrator/worker role docs, the dispatch loop, the blocking ADRs, and the department structure"
@@ -21,7 +23,7 @@ roadmap:
       - id: P1-1
         title: "Orchestrator/worker role docs + drafter+checker dispatch loop"
         status: done
-        task: COR-T-001
+        tasks: [COR-T-001]
       - id: P1-2
         title: "Blocking ADRs: schema, API shape, MCP surface, auth"
         status: done
@@ -31,14 +33,14 @@ roadmap:
       - id: P1-4
         title: "project-manager insight dashboard"
         status: done
-        task: COR-T-014
+        tasks: [COR-T-014]
       - id: P1-5
         title: "Resolve pending ADRs: label taxonomy, native epics, per-agent MCP identity"
         status: done
       - id: P1-6
         title: "Roadmap sub-milestone granularity in the dashboard"
         status: done
-        task: COR-T-017
+        tasks: [COR-T-017]
   - phase: 2
     title: "API + DB core"
     deliverables: "Postgres schema, FastAPI endpoints, auth/sessions, invite tokens, migrations, admin seeding"
@@ -46,20 +48,23 @@ roadmap:
       - id: P2-0
         title: "Create web-app departments (database, backend-api) via create-department"
         status: done
-        task: COR-T-023
+        tasks: [COR-T-023]
       - id: P2-1
         title: "Postgres schema (ADR-012)"
         status: done
-        task: DB-T-001
+        tasks: [DB-T-001]
+        adrs: [ADR-012]
       - id: P2-2
         title: "FastAPI endpoints with house rules"
         status: planned
       - id: P2-3
         title: "Auth/sessions + invite tokens (ADR-011)"
         status: planned
+        adrs: [ADR-011]
       - id: P2-4
         title: "Migrations + admin seeding (ADR-014, ADR-006)"
         status: planned
+        adrs: [ADR-014, ADR-006]
   - phase: 3
     title: "MCP server"
     deliverables: "FastMCP server as an authenticated API client; the agent seam goes live"
@@ -125,6 +130,7 @@ roadmap:
         status: planned
 last_updated: "2026-06-12"
 recent_updates:
+  - "2026-06-12: COR-T-040 executed: dashboard ROADMAP now renders status-colored task/ADR reference badges resolved deterministically in etl.py (range-token expansion plus resolution against collect_all_tasks/collect_adrs), replacing the hand-set phase and milestone status pills. Milestone effective status now derives from TASK refs only (all done -> done; any in-progress/blocked -> in-progress; else planned), with ADR refs informational (rendered, colored by their own accepted/pending status, but not driving done-ness); ref-less milestones fall back to the hand-set status field (the escape hatch feeding derive_current_phase/derive_next_step). Fork 1: removed the phase-level DONE/CURRENT/UPCOMING and milestone-level DONE/PLANNED badges; kept the phase side color bar and CURRENT background. Fork 3: range tokens (ADR-001..009, COR-T-001..006) render as one rollup-colored badge with member count; unresolved refs get a loud dashed guard badge (the COR-04/05/06 deterministic guard in-dashboard). STATUS.md roadmap milestones seeded with structured tasks:[]/adrs:[] lists (orchestrator-direct schema seed). Two styling fixes folded in during verification: Agent Fleet tables given table-layout:fixed with shared column widths so AGENT/MODEL/PURPOSE align across both groups; roadmap milestone rows gained 1px divider lines. Also fixed a blank-page render regression (React reserved prop `ref` is not forwarded to function components, so badge data was undefined and crashed the tree; renamed the prop to `badge`). Deferred follow-ons: stage-4 per-milestone ref backfill (where non-green badge colors get exercised) and a stage-5 ADR codifying the roadmap-ref schema and etl resolution as convention (promotes COR-03)."
   - "2026-06-12: COR-T-039 executed: implemented ADR-035's prevention-first cited-reference integrity convention into ORCHESTRATOR-ROLE.md and KICKOFF-DRAFTER-SPEC.md. EDIT 1 added the 'Citation-completeness convention (owned-but-advisory)' bullet to ORCHESTRATOR-ROLE.md's 'Kickoff drafting convention' section (pins the convention, marks it NOT an R-rule, names R9 as the recorded re-open path, promotes from COR-04/COR-06). EDIT 2 added Phase 5 self-audit item 9 ('Citation-completeness (advisory)') to KICKOFF-DRAFTER-SPEC.md, cross-referencing ADR-035. EDIT 3 added the 'Deliverable-path resolution (explicit sub-step)' sentence to Dispatched-worker flow step 6 in ORCHESTRATOR-ROLE.md, turning the previously-emergent per-path verification into a written step. All three edits faithfully reflect ADR-035 Decision and Consequences; no R9 or W-rule introduced; TDD two-phase flow step 5 untouched."
   - "2026-06-12: ADR-035 accepted (cited-reference integrity for dispatched work), orchestrator-direct. Promotes the COR-04/05/06 observation family (workers emit unverified repository-state claims: wrong run commands, self-stale follow-ups, fabricated cited paths baked into deliverables). Decision is prevention-first (Option A): a kickoff-drafting citation-completeness convention (when a kickoff directs the executor to cite a repo-relative path or run a command, the exact string is carried in the kickoff's references/explicit_reads so the executor echoes a verified string), plus an explicit Dispatched-worker-flow step-6 sub-step requiring the orchestrator to resolve every repo-relative path cited in the deliverable on disk before close. Rejected: a close-checker W-rule (Option B, redundant with step 6 and a per-close tax) and a kickoff-checker R9 (Option C, deferred as the recorded re-open path if the advisory convention erodes). Verified during homework that verify-against-disk is already codified in-project (ORCHESTRATOR-ROLE.md step 6 + ADR-028), not in global/user memory, so the new convention travels with the ADR-034 plugin extraction. Forward-pointer notes added to ADR-023 and ADR-028; COR-04/05/06 flipped logged -> promoted in OBSERVATIONS.md. Implementation cascade (the role-doc convention bullet, the KICKOFF-DRAFTER-SPEC edit, the explicit step-6 sub-step) filed as COR-T-039 (backlog, P2, routes through the dispatched-worker flow); allocated ID 39 (.next-task-id -> 40)."
   - "2026-06-12: COR-T-038 executed: authored ./END-GOAL.md (the portable project-manager plugin destination narrative, citing ADR-008, ADR-021, ADR-032, ADR-033, ADR-034, and the roadmap). Extended ./README.md with three Phase 6-8 roadmap table rows (verbatim per kickoff), a ./END-GOAL.md row in the Repository layout table, and a lead-in line in the Roadmap section pointing at ./END-GOAL.md. Amended ./CLAUDE.md: added END-GOAL.md to the sanctioned repo-root files enumeration in the Documentation placement rule, and added a north-star pointer line in the opening orientation area."

@@ -217,6 +217,12 @@ a:hover { text-decoration: underline; }
   gap: 0.4rem;
   flex-wrap: wrap;
   font-size: 0.82rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.3rem;
+}
+.roadmap-milestone-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 .roadmap-milestone-id {
   font-size: 0.72rem;
@@ -240,6 +246,31 @@ a:hover { text-decoration: underline; }
 .badge-milestone-done       { background: #1a3328; color: #5ec98a; }
 .badge-milestone-in-progress { background: #1a2050; color: #8aacff; }
 .badge-milestone-planned    { background: #2a2d3e; color: var(--color-muted); }
+
+/* Reference badges (task/ADR, colored by resolved status) */
+.badge-ref {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.68rem;
+}
+.badge-ref-done         { background: #1a3328; color: #5ec98a; }
+.badge-ref-in-progress  { background: #1a2050; color: #8aacff; }
+.badge-ref-blocked      { background: #3a1a1e; color: #f08090; }
+.badge-ref-planned      { background: #2a2d3e; color: var(--color-muted); }
+.badge-ref-mixed        { background: #2e2010; color: #d4944a; }
+/* Unresolved: loud dashed bright border, distinct from all status colors */
+.badge-ref-unresolved {
+  background: transparent;
+  color: #ff6b6b;
+  border: 1.5px dashed #ff6b6b;
+  padding: 0.1em 0.45em;
+}
+
+.roadmap-milestone-refs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
 
 /* Roster row: two side-by-side department tables */
 .roster-row {
@@ -569,7 +600,15 @@ code { font-family: monospace; background: var(--color-surface-raised); color: v
   width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
+  table-layout: fixed;
 }
+/* Fix column alignment across independent .agent-table elements:
+   AGENT column wide enough for "worker-prelaunch-checker" in monospace (~0.82rem),
+   MODEL column fits the SONNET/OPUS badge, PURPOSE fills the remainder. */
+.agent-table th:nth-child(1),
+.agent-table td:nth-child(1) { width: 15rem; }
+.agent-table th:nth-child(2),
+.agent-table td:nth-child(2) { width: 5.5rem; }
 .agent-table th {
   text-align: left;
   padding: 0.4rem 0.6rem;
