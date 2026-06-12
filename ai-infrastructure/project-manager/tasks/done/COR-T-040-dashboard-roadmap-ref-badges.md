@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-040
 title: "Dashboard roadmap: status-colored task/ADR reference badges"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-12
@@ -36,3 +36,4 @@ Out of scope: stage-5 ADR (separate follow-on); changes to non-roadmap panels.
 ## Activity log
 
 - 2026-06-12: Created and picked up (in-progress). Forks 1-4 + palette resolved with the user; routes through the dispatched-worker flow for the code deliverable, orchestrator-direct for the STATUS.md schema seed and backfill.
+- 2026-06-12: Done. Stages 1-3 delivered and user-confirmed (visual verify of the live dashboard at :8420). Deliverable committed in cb6e620: etl.py ref-resolution + task-only effective-status, RoadmapPanel.jsx badge rendering (Fork 1 status-pill removal + single/range/unresolved ref badges), styles.css badge palette, STATUS.md milestone schema seed; plus two verification-surfaced styling fixes (Agent Fleet column alignment via table-layout:fixed; roadmap milestone row dividers) and a blank-page regression fix (React reserved-prop `ref` -> `badge`). A rollup-semantic correction (ADR refs informational; task refs drive done-ness) was applied after verify-against-disk caught P2-3/P2-4 falsely resolving done from accepted ADRs. Handoff pair plus the styling report committed in cb6e620 (ADR-024). Deferred follow-ons (not this task): stage-4 per-milestone ref backfill and a stage-5 ADR codifying the roadmap-ref schema + etl resolution (promotes COR-03).
