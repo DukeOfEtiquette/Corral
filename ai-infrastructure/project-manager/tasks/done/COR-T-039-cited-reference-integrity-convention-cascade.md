@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-039
 title: "ADR-035 implementation: kickoff citation-completeness convention + explicit step-6 deliverable-path-resolution sub-step"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-12
@@ -28,3 +28,5 @@ Source of record: `./decisions/ADR-035-cited-reference-integrity-dispatched-work
 ## Activity log
 
 - 2026-06-12: Created in backlog. Filed as the ADR-035 implementation cascade at ADR-035 acceptance time (orchestrator-direct ADR; the doc edits are deliverables that route through the dispatched-worker flow). P2. Allocated ID 39 (.next-task-id -> 40). Unlabelled per ADR-031 (dept:* applied at the dogfood import, not hand-applied here).
+- 2026-06-12: Picked up and moved to in-progress. All decisions pinned by ADR-035 (zero anticipated decisions for the executor); routing through the dispatched-worker flow (draft+check kickoff, prelaunch, dispatch executor, close).
+- 2026-06-12: Done (commit f328786). Dispatched-worker flow ran clean: kickoff drafted+checked (PASS, 0 findings), prelaunch W1 PASS, executor COMPLETED, close W2 PASS (W3 inert). Three edits landed: ORCHESTRATOR-ROLE.md citation-completeness bullet (EDIT 1) + step-6 deliverable-path-resolution sub-step (EDIT 3), and KICKOFF-DRAFTER-SPEC.md Phase 5 self-audit item (EDIT 2). Verified against disk: all three present and faithful to ADR-035; scope clean (no checker/ADR/OBSERVATIONS files touched); no R9 or W-rule introduced; TDD step 5 untouched; no em dashes. First close verified under ADR-035's own new step-6 rule: the deliverable cites three repo-relative paths, all resolve on disk, prefix style matches each file's existing convention. Deliverable + kickoff/report pair (ADR-024) + STATUS hygiene committed as f328786; this task-resolution move committed separately.
