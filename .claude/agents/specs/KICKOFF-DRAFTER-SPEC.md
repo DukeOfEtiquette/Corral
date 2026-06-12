@@ -136,6 +136,7 @@ Before writing, scan the draft:
 6. **STATUS deltas presence (R6)**: confirm a "STATUS deltas" section is present, OR the body explicitly states "No task-specific STATUS deltas; universal hygiene only."
 7. **Invocation framing (R7)**: scan for "Open a fresh", "Run /", "How to invoke", "fresh Claude Code session"; remove (this content belongs in the orchestrator's chat reply).
 8. **Related tasks and ADRs presence (R8)**: confirm a "Related tasks and ADRs" section is present and either lists at least one `COR-T-NNN` or `ADR-NNN` entry or states the literal "none". If absent, render it from the `related_tasks_and_adrs` input.
+9. **Citation-completeness (advisory)**: for every repo-relative path or command the kickoff body directs the executor to cite or run, confirm that exact string appears verbatim in the kickoff's `references` / `files_in_scope` section or inline in the kickoff body. An executor asked to reconstruct a path from a naming convention (for example, `ADR-NNN-kebab-title`) will guess and often diverge from the real filename, shipping a broken link or failing command. If a path or command is directed but not carried, add it to the appropriate section. This is an advisory self-check, not a checker-enforced R-rule; it implements the citation-completeness convention in `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` ("Citation-completeness convention") per `./ai-infrastructure/project-manager/decisions/ADR-035-cited-reference-integrity-dispatched-work.md`.
 
 If any audit fires, revise the draft before proceeding to Phase 6 or Phase 7.
 
