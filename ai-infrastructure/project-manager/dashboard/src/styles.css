@@ -545,3 +545,65 @@ a:hover { text-decoration: underline; }
 /* Utilities */
 .muted { color: var(--color-muted); }
 code { font-family: monospace; background: var(--color-surface-raised); color: var(--color-text); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.85em; }
+
+/* Agent Fleet panel */
+.agent-group {
+  margin-bottom: 1.25rem;
+}
+.agent-group:last-child {
+  margin-bottom: 0;
+}
+
+.agent-group-heading {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.agent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.agent-table th {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+  border-bottom: 2px solid var(--color-border);
+  white-space: nowrap;
+}
+.agent-table td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+.agent-table tr:last-child td {
+  border-bottom: none;
+}
+.agent-table tr:hover td {
+  background: var(--color-surface-raised);
+}
+
+.agent-name {
+  font-weight: 500;
+  font-family: monospace;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.agent-purpose {
+  color: var(--color-muted);
+  line-height: 1.45;
+}
+
+.badge-model-opus   { background: #251e38; color: #b09ee8; }
+.badge-model-sonnet { background: #1a2d3a; color: #7ec8e8; }

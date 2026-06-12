@@ -3,6 +3,7 @@ import PulsePanel from '../panels/PulsePanel.jsx';
 import RoadmapPanel from '../panels/RoadmapPanel.jsx';
 import DepartmentsPanel from '../panels/DepartmentsPanel.jsx';
 import ActivityPanel from '../panels/ActivityPanel.jsx';
+import AgentsPanel from '../panels/AgentsPanel.jsx';
 
 export default function LandingView({ data }) {
   // The project-manager coordinator is not in data.departments (which is the
@@ -38,6 +39,7 @@ export default function LandingView({ data }) {
           <DepartmentsPanel departments={aiDepts} title="AI Roster" />
           <DepartmentsPanel departments={webDepts} title="Web App Roster" />
         </div>
+        <AgentsPanel agents={data.agents} />
         <RoadmapPanel roadmap={data.roadmap} />
         <ActivityPanel activity={data.recent_activity} />
       </main>

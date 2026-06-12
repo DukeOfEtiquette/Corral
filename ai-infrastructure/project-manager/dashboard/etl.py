@@ -24,6 +24,12 @@ Sources:
       frontmatter (id, adr, title, status, date).
   (f) Observations count: count COR-NN entries in
       /repo/ai-infrastructure/project-manager/OBSERVATIONS.md.
+  (g) Cross-department agents: /repo/.claude/agents/*.md frontmatter
+      (name, model, kind, purpose). purpose is the first sentence of the
+      frontmatter description field (text up to and including the first
+      period-then-whitespace; whole description when no such match exists).
+      Files whose frontmatter is absent or invalid are skipped (tolerant
+      parsing). Output is sorted by name.
 
 JSON contract shape (data.json):
   meta:            generated_at, source, project, current_phase (DERIVED from
@@ -51,6 +57,12 @@ JSON contract shape (data.json):
                     block stripped). body is an empty string when the file body
                     cannot be read.
   recent_activity: [ {workspace, date, text} ] newest-first, capped 30
+  agents:          [ {name, model, kind, purpose} ] name-sorted.
+                    name: frontmatter `name`; model: frontmatter `model`;
+                    kind: frontmatter `kind` (executor | dispatch);
+                    purpose: first sentence of frontmatter `description`
+                    (text up to and including the first period-then-whitespace;
+                    whole description when no such match exists).
 """
 
 import argparse
@@ -334,6 +346,79 @@ def collect_adrs(decisions_dir: Path) -> list:
 
 
 # ---------------------------------------------------------------------------
+# Agent fleet
+# ---------------------------------------------------------------------------
+
+def collect_agents(agents_dir: Path) -> list:
+    """
+    Scan agents_dir for *.md files and extract agent metadata via a line-based
+    scan of the frontmatter block. Does NOT use yaml or parse_frontmatter
+    because the agent `description` field is a single long plain-scalar line
+    containing colon-space sequences (e.g. "Context: ", "user: ") that PyYAML
+    rejects as mapping values. Line-based extraction is robust against these.
+
+    Isolates the frontmatter block using the same text.find("\\n---", 3) idiom
+    that parse_frontmatter and extract_body use. Extracts name, model, kind,
+    and description by scanning for lines whose stripped text starts with the
+    matching key prefix and taking the value after the first colon.
+
+    Returns a list of dicts with keys: name, model, kind, purpose.
+    purpose is the first sentence of the frontmatter description field (text
+    up to and including the first period-then-whitespace; falls back to the
+    whole description when no such match exists). Skips files where name,
+    model, or kind is missing or empty (tolerant parsing). Output is sorted
+    by name.
+    """
+    agents = []
+    for md_file in sorted(agents_dir.glob("*.md")):
+        try:
+            text = md_file.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        # Isolate the frontmatter block: must start with --- and close with \n---
+        if not text.startswith("---"):
+            continue
+        end = text.find("\n---", 3)
+        if end == -1:
+            continue
+        fm_block = text[3:end]
+        # Extract fields by line-based scan
+        name = ""
+        model = ""
+        kind = ""
+        description = ""
+        for line in fm_block.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("name:") and not name:
+                name = stripped[len("name:"):].strip()
+            elif stripped.startswith("model:") and not model:
+                model = stripped[len("model:"):].strip()
+            elif stripped.startswith("kind:") and not kind:
+                kind = stripped[len("kind:"):].strip()
+            elif stripped.startswith("description:") and not description:
+                description = stripped[len("description:"):].strip()
+        # Skip if any required field is missing or empty
+        if not name or not model or not kind:
+            continue
+        # Extract first sentence of description: text up to and including the
+        # first period that is immediately followed by whitespace. Falls back
+        # to the whole description when no such match exists.
+        m = re.search(r"\.\s", description)
+        if m:
+            purpose = description[: m.start() + 1]
+        else:
+            purpose = description.strip()
+        agents.append({
+            "name": name,
+            "model": model,
+            "kind": kind,
+            "purpose": purpose,
+        })
+    agents.sort(key=lambda x: x["name"])
+    return agents
+
+
+# ---------------------------------------------------------------------------
 # Main ETL
 # ---------------------------------------------------------------------------
 
@@ -371,6 +456,7 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     decisions_dir = pm_dir / "decisions"
     observations_path = pm_dir / "OBSERVATIONS.md"
     commands_dir = repo_root / ".claude" / "commands"
+    agents_dir = repo_root / ".claude" / "agents"
 
     # -- (a) Coordinator STATUS frontmatter ---------------------------------
     coordinator_fm = parse_frontmatter(status_path)
@@ -427,6 +513,9 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
 
     # -- (f) Observations count ----------------------------------------------
     observations_count = count_observations(observations_path)
+
+    # -- (g) Cross-department agents -----------------------------------------
+    agents = collect_agents(agents_dir)
 
     # -- (c) Department roster + existence check ----------------------------
     def dept_exists(slug: str) -> bool:
@@ -577,6 +666,7 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         "coordinator": coordinator,
         "workspace_details": workspace_details,
         "recent_activity": recent_activity,
+        "agents": agents,
     }
 
     served_dir.mkdir(parents=True, exist_ok=True)
@@ -595,6 +685,7 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
 WATCH_PATTERNS = [
     re.compile(r".*/ai-infrastructure/.*\.md$"),
     re.compile(r".*\.claude/commands/.*\.md$"),
+    re.compile(r".*\.claude/agents/.*\.md$"),
 ]
 
 
@@ -650,6 +741,7 @@ def run_watch(repo_root: Path, served_dir: Path) -> None:
     watch_dirs = [
         repo_root / "ai-infrastructure",
         repo_root / ".claude" / "commands",
+        repo_root / ".claude" / "agents",
     ]
 
     observer = PollingObserver()

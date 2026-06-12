@@ -2,6 +2,7 @@
 name: worker-prelaunch-checker
 description: Use this agent to independently lint a kickoff file at Executor prelaunch time against the universal Executor-acceptance rule W1 (deferral acceptance-test required, per ADR-023). Read-only. Fresh context per dispatch. Returns a structured PASS / FAIL report.\n\nExamples:\n\n<example>\nContext: The Orchestrator has drafted and checked a kickoff and must validate it before dispatching the executor.\nuser: "(automated) prelaunch-check the kickoff at ./.claude/artifacts/handoffs/COR-T-002-KICKOFF.md"\nassistant: "Invoking worker-prelaunch-checker for the W1 deferral scan."\n<commentary>\nUse worker-prelaunch-checker at the prelaunch checkpoint in ORCHESTRATOR-ROLE.md section "Dispatched-worker flow" (step 2). The Orchestrator runs it because the dispatched executor is a leaf (ADR-028). A FAIL is a hard gate: the Orchestrator does not dispatch the executor; it re-drafts the kickoff or surfaces to the user. The checker never edits the kickoff.\n</commentary>\n</example>
 model: sonnet
+kind: dispatch
 color: yellow
 ---
 
