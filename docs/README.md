@@ -8,6 +8,7 @@ Navigation index for Corral documentation. All `.md` files live in sanctioned lo
 |---|---|
 | `./ai-orchestration/roles/ORCHESTRATOR-ROLE.md` | Orchestrator role: coordination, review, pattern mining, the dispatch loop |
 | `./ai-orchestration/roles/WORKER-ROLE.md` | Worker role: kickoff execution, pinned report shape, checker dispatches |
+| `./ai-orchestration/roles/TEST-DESIGNER-ROLE.md` | Test Designer role: authoring failing tests against a surface's contract (TDD red phase, ADR-016) |
 
 ## AI-infrastructure workspace (project-manager)
 
