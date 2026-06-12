@@ -1,6 +1,6 @@
 # Corral
 
-Self-hosted, narrow-scope GitHub Issues clone: an issue database with multi-view kanban boards, plus an MCP server as the only seam for LLM agents. This file is the repo-root global operating rules for AI agents working anywhere in this repo. Humans should start at `./README.md`.
+Self-hosted, narrow-scope GitHub Issues clone: an issue database with multi-view kanban boards, plus an MCP server as the only seam for LLM agents. This file is the repo-root global operating rules for AI agents working anywhere in this repo. Humans should start at `./README.md`. The project's end goal (the portable project-manager plugin destination) is recorded in `./END-GOAL.md`.
 
 ## The two domains
 
@@ -32,7 +32,7 @@ Per `./ai-infrastructure/project-manager/decisions/ADR-006-admin-bootstrap-env-h
 
 ### Documentation placement
 
-All `.md` files go in sanctioned locations: the repo-root files (`CLAUDE.md`, `README.md`), `./ai-infrastructure/project-manager/` (the AI-infrastructure workspace, its `CLAUDE.md`, `STATUS.md`, `OBSERVATIONS.md`, `decisions/`, `tasks/`, and `docs/architecture/`), `./docs/` (the shared AI-orchestration role docs and the navigation index), and sibling AI-infrastructure department workspaces created later under `./ai-infrastructure/`. Never scatter `.md` files into source directories. Navigation index: `./docs/README.md`. Exception per the ADRs on handoffs: `./.claude/` holds AI-infrastructure artifacts (slash commands, agent definitions, agent specs), git-tracked handoff artifacts (kickoffs, worker reports) in `./.claude/artifacts/handoffs/`, and gitignored scratch in `./.claude/artifacts/tmp/`; these are domain-2 working files, not documentation.
+All `.md` files go in sanctioned locations: the repo-root files (`CLAUDE.md`, `README.md`, `END-GOAL.md`), `./ai-infrastructure/project-manager/` (the AI-infrastructure workspace, its `CLAUDE.md`, `STATUS.md`, `OBSERVATIONS.md`, `decisions/`, `tasks/`, and `docs/architecture/`), `./docs/` (the shared AI-orchestration role docs and the navigation index), and sibling AI-infrastructure department workspaces created later under `./ai-infrastructure/`. Never scatter `.md` files into source directories. Navigation index: `./docs/README.md`. Exception per the ADRs on handoffs: `./.claude/` holds AI-infrastructure artifacts (slash commands, agent definitions, agent specs), git-tracked handoff artifacts (kickoffs, worker reports) in `./.claude/artifacts/handoffs/`, and gitignored scratch in `./.claude/artifacts/tmp/`; these are domain-2 working files, not documentation.
 
 ### Writing style
 

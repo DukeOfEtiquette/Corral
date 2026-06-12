@@ -93,8 +93,41 @@ roadmap:
       - id: P5-3
         title: "Multi-user/agent concurrency live (ADR-020)"
         status: planned
+  - phase: 6
+    title: "Remote deployment & concurrency"
+    deliverables: "Deploy Corral to a remote server; prove multiple concurrent agent sessions work with no errors"
+    milestones:
+      - id: P6-1
+        title: "Remote deploy of the Corral app stack (ADR-033)"
+        status: planned
+      - id: P6-2
+        title: "Concurrency validation under multi-session load (exercises ADR-020)"
+        status: planned
+  - phase: 7
+    title: "Repoint ai-infrastructure at the remote"
+    deliverables: "Switch this project's dashboard and task seam from local markdown to the remote Corral deploy"
+    milestones:
+      - id: P7-1
+        title: "ai-infrastructure consumes the remote app via the MCP seam (ADR-004)"
+        status: planned
+      - id: P7-2
+        title: "Dashboard reads the remote deploy instead of local markdown"
+        status: planned
+  - phase: 8
+    title: "Extract the project-manager plugin"
+    deliverables: "Generalize project-manager into a portable Claude Code plugin; dogfood Corral with it"
+    milestones:
+      - id: P8-1
+        title: "Plugin extraction: role, dispatch loop, checkers, /create-department, dashboard, minus Corral departments (ADR-034)"
+        status: planned
+      - id: P8-2
+        title: "Dogfood Corral via the installed plugin"
+        status: planned
 last_updated: "2026-06-12"
 recent_updates:
+  - "2026-06-12: COR-T-038 executed: authored ./END-GOAL.md (the portable project-manager plugin destination narrative, citing ADR-008, ADR-021, ADR-032, ADR-033, ADR-034, and the roadmap). Extended ./README.md with three Phase 6-8 roadmap table rows (verbatim per kickoff), a ./END-GOAL.md row in the Repository layout table, and a lead-in line in the Roadmap section pointing at ./END-GOAL.md. Amended ./CLAUDE.md: added END-GOAL.md to the sanctioned repo-root files enumeration in the Documentation placement rule, and added a north-star pointer line in the opening orientation area."
+  - "2026-06-12: Seeded the post-dogfood trajectory. Two pending ADRs filed: ADR-033 (remote deployment topology, gates Phase 6) and ADR-034 (project-manager plugin extraction boundary, gates Phase 8). Roadmap extended with three incremental phases past Dogfood: Phase 6 (Remote deployment & concurrency; P6-1 remote deploy gated on ADR-033, P6-2 concurrency validation exercising ADR-020), Phase 7 (Repoint ai-infrastructure at the remote; P7-1 MCP seam consumes remote, P7-2 dashboard reads remote), Phase 8 (Extract the project-manager plugin; P8-1 extraction gated on ADR-034, P8-2 dogfood Corral via the installed plugin). These three phases are the incremental path; the final destination (the portable plugin end state) is the new repo-root END-GOAL.md. Filed COR-T-038 for the END-GOAL.md + README + CLAUDE.md deliverable (routes through the dispatched-worker flow); allocated ID 38 (.next-task-id -> 39). The roadmap frontmatter extension and the two pending ADRs were orchestrator-direct (decisions/ and STATUS carve-out)."
+  - "2026-06-12: COR-T-037 executed: added the Agent Fleet panel to the project-manager dashboard. New AgentsPanel.jsx renders two groups (Executors, Dispatch-loop and checkers) sourced from a new collect_agents() reader in etl.py. All six .claude/agents/*.md files gained a kind: frontmatter field (executor for executor.md and test-designer.md; dispatch for kickoff-drafter.md, kickoff-checker.md, worker-prelaunch-checker.md, worker-close-checker.md). etl.py: added collect_agents(), wired agents into run_etl data dict, updated module docstring (Sources item (g) and agents field in JSON contract shape), added .claude/agents/ watch pattern and watch_dirs entry. LandingView.jsx imports AgentsPanel and inserts it between the .roster-row close and RoadmapPanel. styles.css gained .agent-group, .agent-group-heading, .agent-table, .agent-name, .agent-purpose, .badge-model-opus, and .badge-model-sonnet."
   - "2026-06-12: COR-T-036 executed (ADR-032 rename cascade): renamed worker-agent to executor across all in-scope files. git mv: worker-agent.md -> executor.md, WORKER-ROLE.md -> EXECUTOR-ROLE.md, WORKER-AGENT-SPEC.md -> EXECUTOR-AGENT-SPEC.md. Global string replacements (worker-agent, WORKER-ROLE, WORKER-AGENT-SPEC) applied to executor.md, EXECUTOR-ROLE.md, EXECUTOR-AGENT-SPEC.md, ORCHESTRATOR-ROLE.md, test-designer.md, TEST-DESIGNER-ROLE.md, TEST-DESIGNER-AGENT-SPEC.md, kickoff-drafter.md, KICKOFF-DRAFTER-SPEC.md, KICKOFF-CHECKER-SPEC.md, worker-prelaunch-checker.md, WORKER-PRELAUNCH-CHECKER-SPEC.md, worker-close-checker.md, WORKER-CLOSE-CHECKER-SPEC.md, project-manager-orchestrator.md, backend-api-orchestrator.md, database-orchestrator.md, create-department.md, orchestrator-command.md (template), CLAUDE.md (project-manager, backend-api, database, templates/department), README.md (project-manager), docs/README.md, dashboard/etl.py (docs-curation -> docs roster rename). Checker file names (worker-prelaunch-checker, worker-close-checker) preserved. Verified zero live residual references outside append-only trees."
   - "2026-06-12: ADR-032 accepted (cross-department agent tier), orchestrator-direct. Pins the tier taxonomy (Tier 1 orchestrators; Tier 2 cross-department agents, split into executors {the general `executor` plus specialists like `test-designer`} and validators {the checkers}); adopts `cross-department agent` as the canonical term, retiring the informal `universal agent`; renames the general executor `worker-agent` to `executor` (with WORKER-ROLE.md to EXECUTOR-ROLE.md and WORKER-AGENT-SPEC.md to EXECUTOR-AGENT-SPEC.md; amends ADR-028); renames the `docs-curation` department menu entry to `docs` (amends ADR-021); and generalizes the agent-feeds-department pattern (a cross-department agent surfaces work a department owns; test-designer feeding the test-design department is the worked example, a future `docs` review agent feeding the `docs` department is the next instance). Forward-pointer notes added to ADR-028 (executor rename) and ADR-021 (docs rename). The mechanical rename cascade is filed as COR-T-036 (backlog, P2; analog of COR-T-025); allocated ID 36 (.next-task-id -> 37). The `docs` review agent and the `docs` department are deferred follow-ons, not built by this ADR."
   - "2026-06-12: COR-T-035 executed: authored the universal `test-designer` agent and wired the two-phase TDD flow. Delivered: `.claude/agents/test-designer.md` (model: opus, color: cyan), `docs/ai-orchestration/roles/TEST-DESIGNER-ROLE.md` (full standalone role doc mirroring WORKER-ROLE.md), `.claude/agents/specs/TEST-DESIGNER-AGENT-SPEC.md`. Edits: ORCHESTRATOR-ROLE.md gained the TDD two-phase surface flow subsection plus step-5 protected_test_paths note and step-6 git-diff no-touch note; WORKER-ROLE.md gained the no-touch universal-convention bullet and the W3 Checker dispatch note; worker-close-checker.md and WORKER-CLOSE-CHECKER-SPEC.md gained W3 and protected_test_paths across all touchpoints (Inputs, Phase 3, severity rubric, report schema, Example 3, Design Rationale, revision history); docs/README.md gained the TEST-DESIGNER-ROLE.md row."

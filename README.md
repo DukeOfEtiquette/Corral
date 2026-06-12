@@ -39,6 +39,7 @@ Rationale: `./ai-infrastructure/project-manager/decisions/ADR-002-tech-stack.md`
 | Path | Contents |
 |---|---|
 | `./CLAUDE.md` | Global operating rules for AI agents (Agent Discipline, writing style, two domains) |
+| `./END-GOAL.md` | The project's final destination: the portable project-manager plugin end state |
 | `./ai-infrastructure/project-manager/STATUS.md` | Current phase (single source of truth) |
 | `./ai-infrastructure/project-manager/OBSERVATIONS.md` | Append-only pattern log |
 | `./ai-infrastructure/project-manager/decisions/` | ADRs: accepted decisions and queued open questions |
@@ -48,7 +49,7 @@ Rationale: `./ai-infrastructure/project-manager/decisions/ADR-002-tech-stack.md`
 
 ## Roadmap
 
-Live phase and milestone status: `./ai-infrastructure/project-manager/STATUS.md`. Rendered live roadmap: `./ai-infrastructure/project-manager/dashboard/`.
+Live phase and milestone status: `./ai-infrastructure/project-manager/STATUS.md`. Rendered live roadmap: `./ai-infrastructure/project-manager/dashboard/`. The destination these phases point at: `./END-GOAL.md`.
 
 | Phase | Intent |
 |---|---|
@@ -58,6 +59,9 @@ Live phase and milestone status: `./ai-infrastructure/project-manager/STATUS.md`
 | **3. MCP server** | The FastMCP server goes live as the authenticated agent seam. |
 | **4. Kanban UI** | The React multi-view board with per-view label filters, plus the admin page. |
 | **5. Dogfood milestone** | Import the markdown tasks into the app via the MCP server; the project tracks itself and the markdown tasks freeze. |
+| **6. Remote deployment & concurrency** | Deploy Corral to a remote server and prove multiple concurrent agent sessions work with no errors. |
+| **7. Repoint ai-infrastructure at the remote** | Switch this project's dashboard and task seam from local markdown to the remote Corral deploy. |
+| **8. Extract the project-manager plugin** | Generalize the project-manager into a portable Claude Code plugin and dogfood Corral with it. |
 
 ## How decisions are recorded
 
