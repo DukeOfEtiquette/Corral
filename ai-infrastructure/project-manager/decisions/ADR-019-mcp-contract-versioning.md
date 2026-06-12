@@ -17,6 +17,8 @@ superseded_by: null
 
 Once the agent fleet in `~/rogue` (or any other consumer) depends on this MCP server, changes to tool names, parameters, or house rules can silently break running orchestrations. The contract needs an explicit evolution policy.
 
+> Forward pointer (ADR-016, accepted 2026-06-12): ADR-016 defers the MCP contract tests (golden per-tool request/response fixtures) to Phase 3 / `mcp-server`, decided alongside this versioning policy because the fixtures pin exactly the surface this ADR governs. Resolving ADR-019 and authoring the MCP contract-test corpus are expected to land together.
+
 ## Alternatives considered
 
 ### Option A: Additive-only policy

@@ -34,6 +34,6 @@ The project maintains two domains. AI infrastructure (domain b) is developed bef
 ## Consequences
 
 - Phase 1 of the roadmap is AI infrastructure: role docs, blocking-ADR resolution, department structure (ADR-021).
-- The testing strategy ADR (ADR-016) must address both the test-designer agent (domain b) and the tests themselves (domain a).
+- The testing strategy ADR (ADR-016) must address both the test-designer agent (domain b) and the tests themselves (domain a). (Resolved 2026-06-12: ADR-016 accepted. The test-designer is a universal domain-b agent with a two-phase TDD flow; the tests are domain-a artifacts authored per surface. Exemplar satisfied.)
 - Repo conventions for the AI-infra domain are adopted in ADR-009.
 - Both domains' work items flow through the same task system (ADR-008), so neither becomes invisible.
