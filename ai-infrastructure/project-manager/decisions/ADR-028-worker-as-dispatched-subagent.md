@@ -4,7 +4,7 @@ adr: 28
 title: "Worker as an orchestrator-dispatched subagent; retire the /corral-worker session"
 status: "accepted"
 date: "2026-06-09"
-related_adrs: [9, 23, 24]
+related_adrs: [9, 23, 24, 35]
 supersedes: []
 superseded_by: null
 ---
@@ -166,3 +166,4 @@ them to their final home.
 - Corral diverges from rogue by retiring `/corral-worker` rather than keeping it as a fallback,
   justified by Corral having no installed parallel-session base.
 - The agent-teams path (Option D) is parked, not foreclosed; a future ADR can revisit it.
+- Forward pointer (added 2026-06-12): ADR-035 makes this flow's step-6 verify-against-disk check explicit for deliverable citations, requiring the orchestrator to resolve every repo-relative path cited in the deliverable on disk before close. ADR-035 promotes OBSERVATIONS COR-04/05/06 (the unverified-claim family this step backstops).

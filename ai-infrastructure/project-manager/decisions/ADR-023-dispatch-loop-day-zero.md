@@ -4,7 +4,7 @@ adr: 23
 title: "Adopt the full drafter+checker dispatch loop at day zero, with scratch handoffs in gitignored .claude/artifacts/tmp/"
 status: "accepted"
 date: "2026-06-05"
-related_adrs: [3, 5, 8, 9, 21]
+related_adrs: [3, 5, 8, 9, 21, 35]
 supersedes: []
 superseded_by: null
 ---
@@ -70,3 +70,4 @@ Dropped: rogue R4 (game-type comparisons; a rogue-domain instance of R2/R3) and 
 - Four specs and four agent definitions become maintained artifacts; spec changes follow the same review discipline as any domain-2 artifact.
 - If a rule fires falsely or a needed rule is missing, the fix is a spec edit plus an OBSERVATIONS entry, mirroring rogue's false-positive protocol.
 - When departments land (ADR-021), department-scoped checkers can layer beside the universal four, mirroring rogue's universal-vs-workspace-scoped split.
+- Forward pointer (added 2026-06-12): ADR-035 extends the kickoff-drafting convention this loop enforces with a citation-completeness rule (when a kickoff directs the executor to cite a repo-relative path or run a command, the exact string is carried in the kickoff so the executor echoes a verified string rather than reconstructing it). Adopted as an owned-but-advisory drafter convention, not a new R-rule; a kickoff-checker R9 is ADR-035's recorded re-open path if the convention erodes.
