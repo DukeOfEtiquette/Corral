@@ -22,4 +22,4 @@ The coordinator workspace for Corral's AI-infrastructure. This workspace holds t
 
 ## Shared infrastructure (stays at repo root)
 
-The `.claude/` tree (commands, agents, specs, handoff artifacts) and `docs/ai-orchestration/` (the shared role docs `ORCHESTRATOR-ROLE.md` and `WORKER-ROLE.md`) live at the repo root as shared infrastructure usable by all workspaces. They are not inside this workspace directory.
+The `.claude/` tree (commands, agents, specs, handoff artifacts) and `docs/ai-orchestration/` (the shared role docs `ORCHESTRATOR-ROLE.md` and `EXECUTOR-ROLE.md`) live at the repo root as shared infrastructure usable by all workspaces. They are not inside this workspace directory.

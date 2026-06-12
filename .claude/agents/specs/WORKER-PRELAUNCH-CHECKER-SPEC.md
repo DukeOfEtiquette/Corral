@@ -1,8 +1,8 @@
-# Worker Prelaunch Checker Agent Specification
+# Executor Prelaunch Checker Agent Specification
 
 **Status**: Implemented
 **Created**: 2026-06-05
-**Purpose**: Independently lint a drafted kickoff file at Worker prelaunch time against the universal Worker-acceptance rule W1 (deferral acceptance-test required) and emit a structured PASS / FAIL report. Read-only. Fresh context per dispatch.
+**Purpose**: Independently lint a drafted kickoff file at Executor prelaunch time against the universal Executor-acceptance rule W1 (deferral acceptance-test required) and emit a structured PASS / FAIL report. Read-only. Fresh context per dispatch.
 **Lineage**: Ported and right-sized from rogue's `WORKER-PRELAUNCH-CHECKER-SPEC.md` v1.1 per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md` (corral W1 = rogue W2).
 
 > **Usage**: This is the detailed execution specification for the `worker-prelaunch-checker` agent.
@@ -13,9 +13,9 @@
 
 ## Overview
 
-The Worker Prelaunch Checker runs in a fresh context (no visibility into the Worker's reading pass, the Orchestrator's chat, or any drafter reasoning). Starting from the drafted kickoff file on disk plus the W1 rule definition in this spec, it scans for deferral items that lack an acceptance test or user-confirm flag and emits a structured report.
+The Executor Prelaunch Checker runs in a fresh context (no visibility into the Executor's reading pass, the Orchestrator's chat, or any drafter reasoning). Starting from the drafted kickoff file on disk plus the W1 rule definition in this spec, it scans for deferral items that lack an acceptance test or user-confirm flag and emits a structured report.
 
-This agent is dispatched by the Orchestrator after it has drafted and checked a kickoff and before it dispatches the `worker-agent` (`./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow", step 2). The Orchestrator runs it because the dispatched worker is a leaf and cannot dispatch its own checkers (ADR-028). Its verdict is gating: a FAIL prevents the Orchestrator from spending a worker dispatch against a kickoff that pins deferrals without proving they are safe; instead, the Orchestrator re-drafts the kickoff through the drafter+checker loop or surfaces the verdict to the user.
+This agent is dispatched by the Orchestrator after it has drafted and checked a kickoff and before it dispatches the `executor` (`./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow", step 2). The Orchestrator runs it because the dispatched executor is a leaf and cannot dispatch its own checkers (ADR-028). Its verdict is gating: a FAIL prevents the Orchestrator from spending an executor dispatch against a kickoff that pins deferrals without proving they are safe; instead, the Orchestrator re-drafts the kickoff through the drafter+checker loop or surfaces the verdict to the user.
 
 W1 fires on any kickoff containing a deferral surface (Decisions rows with a "deferred" answer, an explicit Out-of-scope section beyond a plain file list, or a Follow-ups section in the kickoff body). Kickoffs with no such surface see PASS by vacuity.
 
@@ -40,7 +40,7 @@ PASS means "this kickoff carries no unanchored deferrals"; it does NOT guarantee
 | **Grep** | Scan kickoff body for deferral-surface section headings and per-item acceptance-test patterns |
 | **Bash** | `test -f`, `wc -l` (read-only file checks) |
 
-**NOT PERMITTED**: Write, Edit, NotebookEdit. The checker is strictly read-only. The Worker's dispatch wrapper relies on this contract; a checker that silently modifies the kickoff breaks the prelaunch invariant.
+**NOT PERMITTED**: Write, Edit, NotebookEdit. The checker is strictly read-only. The Orchestrator's dispatch wrapper relies on this contract; a checker that silently modifies the kickoff breaks the prelaunch invariant.
 
 ---
 
@@ -73,11 +73,11 @@ For each deferral item identified in Phase 1, inspect the item text for either:
 - **An explicit acceptance test.** Language naming the observable that proves the deferral is acceptable for this task. Examples of satisfying language: "Acceptance: the existing <behaviour X> still works after this task"; "To prove deferral is acceptable: <user-runnable test step>"; "Verified acceptable by <named existing behaviour or doc reference>".
 - **An explicit "confirm with user before execution" flag.** Language directing the Worker to surface the deferral to the user before continuing. Examples of satisfying language: "Worker: confirm with user before continuing"; "Stop-condition: surface this deferral to the user for acceptance before execution"; "Requires user confirmation before the task begins."
 
-Items with neither emit FAIL: `W1, item N (line L), evidence "<item text excerpt>", recommendation "Name an explicit acceptance test for this deferral, or flag it for user confirmation before execution. A deferral without an acceptance criterion or a stop-condition is silently absorbed by the Worker as 'do nothing here', which ships a regression if the deferred behaviour is load-bearing. The kickoff body must either prove the deferral is safe or stop the Worker until the user confirms."`
+Items with neither emit FAIL: `W1, item N (line L), evidence "<item text excerpt>", recommendation "Name an explicit acceptance test for this deferral, or flag it for user confirmation before execution. A deferral without an acceptance criterion or a stop-condition is silently absorbed by the Executor as 'do nothing here', which ships a regression if the deferred behaviour is load-bearing. The kickoff body must either prove the deferral is safe or stop the Executor until the user confirms."`
 
 LLM-judgement note: a deferral that explicitly names what is deferred AND scopes the impact ("does not affect this task because <reason>") satisfies the rule even without a formal acceptance section, provided the scope-of-impact reasoning is concrete (cites a named existing behaviour, a doc, or a file:line). Vague "out of scope this iteration" without scope-of-impact reasoning is a FAIL.
 
-Items that pin the deferral to a target (a later task or phase) AND state the impact on this task is none ("deferred to COR-T-NNN; this task's surfaces do not depend on it because <named reason>") are PASS. Items that name a target but say nothing about this-task impact are FAIL: the target pin is a coordination signal for the Orchestrator, not an acceptance test for the Worker.
+Items that pin the deferral to a target (a later task or phase) AND state the impact on this task is none ("deferred to COR-T-NNN; this task's surfaces do not depend on it because <named reason>") are PASS. Items that name a target but say nothing about this-task impact are FAIL: the target pin is a coordination signal for the Orchestrator, not an acceptance test for the Executor.
 
 ### Phase 3: Synthesise findings into report
 
@@ -91,7 +91,7 @@ If zero FAIL findings exist, emit PASS. WARNINGs are not used by this checker in
 
 ## Report Schema
 
-The agent's full response IS the report. The Worker's dispatch wrapper parses this text directly; do not return supplementary commentary outside the schema.
+The agent's full response IS the report. The Orchestrator's dispatch wrapper parses this text directly; do not return supplementary commentary outside the schema.
 
 ```
 ## Status: PASS | FAIL
@@ -123,7 +123,7 @@ If the `Observed cleanly` list is empty (W1 produced findings), omit the section
 - **FAIL** (blocking): any W1 violation as defined in Phase 2.
 - **PASS**: zero findings.
 
-When in doubt on W1 LLM-judgement, classify as FAIL. The Worker's 3-exit menu (re-run orchestrator / proceed-with-rationale / abort) is the calibration channel for false positives; chronic false positives surface in the user's exit choice and are logged for spec tuning. False-positive observation pattern: append a `COR-NN` entry to `./ai-infrastructure/project-manager/OBSERVATIONS.md` with the evidence.
+When in doubt on W1 LLM-judgement, classify as FAIL. The three-exit menu (re-run orchestrator / proceed-with-rationale / abort) is the calibration channel for false positives; chronic false positives surface in the user's exit choice and are logged for spec tuning. False-positive observation pattern: append a `COR-NN` entry to `./ai-infrastructure/project-manager/OBSERVATIONS.md` with the evidence.
 
 ---
 
@@ -135,7 +135,7 @@ The checker does NOT:
 - Verify that named reference files exist (the orchestrator-side `kickoff-drafter` is responsible for that at draft time).
 - Modify the kickoff (read-only contract).
 - Lint the kickoff against orchestrator-side rules R1-R8 (that is the orchestrator-side `kickoff-checker`'s scope).
-- Validate the Worker's execution or report (that is `worker-close-checker`'s scope).
+- Validate the Executor's execution or report (that is `worker-close-checker`'s scope).
 
 ---
 
@@ -174,7 +174,7 @@ The checker does NOT:
 ### FAIL findings
 | ID | Rule | Line | Evidence | Recommendation |
 |----|------|------|----------|----------------|
-| F-001 | W1 | 87 | "Decision 4: <subject> deferred to COR-T-009" (names target task but does not state this-task impact; no acceptance test) | Name what proves the deferral is acceptable for this task, or flag for user confirmation before execution. A target pin alone is a coordination signal for the Orchestrator, not an acceptance test for the Worker. |
+| F-001 | W1 | 87 | "Decision 4: <subject> deferred to COR-T-009" (names target task but does not state this-task impact; no acceptance test) | Name what proves the deferral is acceptable for this task, or flag for user confirmation before execution. A target pin alone is a coordination signal for the Orchestrator, not an acceptance test for the Executor. |
 | F-002 | W1 | 115 | "<subject> deferred to a later phase" (no acceptance test, no user-confirm flag) | Name an explicit acceptance test, or flag for user confirmation |
 ```
 
@@ -182,7 +182,7 @@ The checker does NOT:
 
 ## Design Rationale
 
-**Why W1 is the only prelaunch rule in v1.** W1 (deferral acceptance-test required) is the one prelaunch failure mode whose shape is universal: any kickoff that permits a "decision pinned to deferred" row, an "out of scope" rationale, or a "follow-ups" tail-list is exposed to silent-absorption regression. Rogue's workspace-scoped prelaunch rules depended on workspace conventions Corral does not have; if departments later introduce their own kickoff conventions (ADR-021), department-scoped checkers can layer beside this one per `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow".
+**Why W1 is the only prelaunch rule in v1.** W1 (deferral acceptance-test required) is the one prelaunch failure mode whose shape is cross-department: any kickoff that permits a "decision pinned to deferred" row, an "out of scope" rationale, or a "follow-ups" tail-list is exposed to silent-absorption regression. Rogue's workspace-scoped prelaunch rules depended on workspace conventions Corral does not have; if departments later introduce their own kickoff conventions (ADR-021), department-scoped checkers can layer beside this one per `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow".
 
 **Why Sonnet (not Opus).** W1 is LLM-judgement bounded by tight rule definitions for what constitutes an acceptance test or a user-confirm flag. Sonnet handles this scope efficiently. If real-world data shows W1 missing valid violations or producing chronic false positives, Opus is a v2 candidate.
 
@@ -190,7 +190,7 @@ The checker does NOT:
 
 **Why read-only.** Independence is the load-bearing property. A checker that can modify the kickoff would be tempted (or prompted) to "auto-fix" findings, breaking the Worker's discipline of routing kickoff edits to the Orchestrator (the kickoff is the Orchestrator's artifact).
 
-**Why no WARNING severity in v1.** W1 is binary on the presence/absence of an acceptance test or user-confirm flag. Borderline cases default to FAIL per the rubric; the Worker's 3-exit menu is the calibration channel.
+**Why no WARNING severity in v1.** W1 is binary on the presence/absence of an acceptance test or user-confirm flag. Borderline cases default to FAIL per the rubric; the three-exit menu is the calibration channel.
 
 ---
 

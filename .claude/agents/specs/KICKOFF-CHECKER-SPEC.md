@@ -79,7 +79,7 @@ Scan prose regions for invocation instructions that belong in the orchestrator's
 
 Each hit is a FAIL: `R7, line L, evidence "...", recommendation "Move invocation framing to the orchestrator's chat reply per ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention'; the kickoff body is for worker task content only"`.
 
-Exception: the Worker pointer section's mention of `WORKER-ROLE.md` or the `worker-agent` (as references, without invocation framing) is conventional and does not fire R7.
+Exception: the Executor pointer section's mention of `EXECUTOR-ROLE.md` or the `executor` (as references, without invocation framing) is conventional and does not fire R7.
 
 ### Phase 4: R4 intermediate-checkpoint scan (structural)
 
@@ -148,7 +148,7 @@ Each hit is a FAIL: `R3, line L, evidence "...", recommendation "Resolve the par
 
 ### Phase 9: R8 Related-tasks-and-ADRs presence (structural)
 
-Enforces that every kickoff carries a curated list of related tasks and ADRs. The Orchestrator surveys `./ai-infrastructure/project-manager/tasks/` and `./ai-infrastructure/project-manager/decisions/` in its state survey; handing the worker a pre-triaged list inside the kickoff prevents the worker from scanning the trees and guessing relevance, which the Worker role forbids (`WORKER-ROLE.md`, section "Not in scope"). R8 is presence-based, the same class as R6: it confirms the section exists and was consciously filled; it does NOT verify the list is complete (completeness is the Orchestrator's judgement during the survey, out of scope for the checker).
+Enforces that every kickoff carries a curated list of related tasks and ADRs. The Orchestrator surveys `./ai-infrastructure/project-manager/tasks/` and `./ai-infrastructure/project-manager/decisions/` in its state survey; handing the executor a pre-triaged list inside the kickoff prevents the executor from scanning the trees and guessing relevance, which the Executor role forbids (`EXECUTOR-ROLE.md`, section "Not in scope"). R8 is presence-based, the same class as R6: it confirms the section exists and was consciously filled; it does NOT verify the list is complete (completeness is the Orchestrator's judgement during the survey, out of scope for the checker).
 
 1. Locate a section whose H2 or H3 heading is `Related tasks and ADRs`.
 2. **Missing section** (no such heading): emit FAIL: `R8, line (section expected), evidence "no 'Related tasks and ADRs' section present", recommendation "Add a 'Related tasks and ADRs' section listing each related item as COR-T-NNN or ADR-NNN plus a one-line relevance note, or the literal 'none' if there are none. The orchestrator curates this from its survey. See ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention', and ADR-023."`
@@ -163,7 +163,7 @@ Aggregate all FAIL findings from Phases 2-9 (Phase 1 produces F-000 only on file
 
 Order findings by phase number (R5 first, then R7, R4, R6, R1, R2, R3, R8). Within a rule, order by line number ascending. Assign IDs `F-001`, `F-002`, ... in emit order.
 
-If zero FAIL findings exist, emit PASS. If zero FAIL findings and one or more cosmetic-only warnings exist, emit PASS_WITH_WARNINGS. WARNINGs in v1 are reserved for findings the checker recognises but does not block on (for example, a missing "Worker pointer" section: the convention recommends the kickoff body cite `WORKER-ROLE.md` (and where useful the `worker-agent`) by name; absence is a WARNING, not a FAIL. Likewise, presence of an explicit report-path override without rationale is a WARNING).
+If zero FAIL findings exist, emit PASS. If zero FAIL findings and one or more cosmetic-only warnings exist, emit PASS_WITH_WARNINGS. WARNINGs in v1 are reserved for findings the checker recognises but does not block on (for example, a missing "Executor pointer" section: the convention recommends the kickoff body cite `EXECUTOR-ROLE.md` (and where useful the `executor`) by name; absence is a WARNING, not a FAIL. Likewise, presence of an explicit report-path override without rationale is a WARNING).
 
 ---
 

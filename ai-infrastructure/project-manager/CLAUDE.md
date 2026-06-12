@@ -7,7 +7,7 @@ This file is the operating rules for AI agents working inside the `ai-infrastruc
 After the COR-T-012 restructure, there are two path-resolution domains:
 
 - Inside this workspace (`ai-infrastructure/project-manager/`), `./X` resolves workspace-relative. References to sibling content that moved with this workspace (`./decisions/`, `./tasks/`, `./STATUS.md`, `./OBSERVATIONS.md`, `./docs/architecture/`) use `./X` and need no change.
-- References to the root-staying shared tree (`.claude/`, `docs/ai-orchestration/`, the repo-root `README.md`) use a BARE path with no `./` prefix: for example `docs/ai-orchestration/roles/WORKER-ROLE.md` or `.claude/agents/worker-agent.md`. A bare path without a `./` prefix means repo-root-relative shared infrastructure.
+- References to the root-staying shared tree (`.claude/`, `docs/ai-orchestration/`, the repo-root `README.md`) use a BARE path with no `./` prefix: for example `docs/ai-orchestration/roles/EXECUTOR-ROLE.md` or `.claude/agents/executor.md`. A bare path without a `./` prefix means repo-root-relative shared infrastructure.
 
 ## Coordinator write authority
 

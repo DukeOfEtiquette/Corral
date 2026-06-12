@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-036
 title: "ADR-032 implementation cascade: rename worker-agent to executor; docs-curation to docs"
-status: backlog
+status: in-progress
 labels: []
 priority: P2
 created: 2026-06-12
@@ -35,3 +35,4 @@ Out of scope: authoring the cross-department `docs` review agent (a separate fol
 ## Activity log
 
 - 2026-06-12: Created in backlog. Implements ADR-032 (accepted 2026-06-12). P2: a clarity/maintainability rename that should land before the next specialist agent (the docs reviewer) is built, so that agent is authored under the executor/cross-department taxonomy. Not blocking P2-2. Unlabelled per ADR-031.
+- 2026-06-12: Picked up; moved to in-progress. Routing through the dispatched-worker flow; enumerating live references and resolving the append-only-history scope boundary before drafting the kickoff.

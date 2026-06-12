@@ -9,13 +9,13 @@ The coordinator workspace for all AI-infrastructure work is `ai-infrastructure/p
 There are two path-resolution domains inside this workspace:
 
 - Inside this workspace (`ai-infrastructure/database/`), `./X` resolves workspace-relative. References to workspace-local content (`./decisions/`, `./STATUS.md`, `./OBSERVATIONS.md`) use `./X` and need no change.
-- References to the root-staying shared tree (`.claude/`, `docs/ai-orchestration/`, the repo-root `CLAUDE.md` / `README.md`) and to the coordinator (`ai-infrastructure/project-manager/`) use BARE paths with no `./` prefix: for example `docs/ai-orchestration/roles/WORKER-ROLE.md` or `ai-infrastructure/project-manager/STATUS.md`.
+- References to the root-staying shared tree (`.claude/`, `docs/ai-orchestration/`, the repo-root `CLAUDE.md` / `README.md`) and to the coordinator (`ai-infrastructure/project-manager/`) use BARE paths with no `./` prefix: for example `docs/ai-orchestration/roles/EXECUTOR-ROLE.md` or `ai-infrastructure/project-manager/STATUS.md`.
 
 ## Operated by
 
 This workspace is operated by the **`/database-orchestrator`** slash command. The command adopts the shared `ORCHESTRATOR-ROLE.md` (at `docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`) by reference; there is no per-department copy of the role doc (ADR-029).
 
-Deliverable work in this workspace executes through the universal dispatched **`worker-agent`** (at `.claude/agents/worker-agent.md`, Sonnet, foreground), dispatched by the `/database-orchestrator` command via the Task tool (ADR-028). There is no `/database-worker` command and no per-department worker-agent; the single universal worker execution path is shared across all workspaces.
+Deliverable work in this workspace executes through the cross-department dispatched **`executor`** (at `.claude/agents/executor.md`, Sonnet, foreground), dispatched by the `/database-orchestrator` command via the Task tool (ADR-028). There is no `/database-worker` command and no per-department executor; the single cross-department executor execution path is shared across all workspaces.
 
 The universal checker fleet (ADR-023) gates every worker run: the `worker-prelaunch-checker` and `worker-close-checker` subagents are dispatched by the orchestrator (not by the worker). A slot is reserved for an optional department-scoped checker that can layer beside the universal pair if this department's work warrants it; none is created by the scaffold recipe.
 

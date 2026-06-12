@@ -6,7 +6,7 @@ description: Adopt the {{DEPT_NAME}} Orchestrator role, survey department state,
 
 ## Phase 1: Adopt the role
 
-Read `docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestrator role for this session. Your role name for the user is "{{DEPT_NAME}} Orchestrator." All sections of that document apply, including the review discipline, the task lifecycle, the kickoff drafting convention, the drafter+checker dispatch loop, and the dispatched-worker flow (the `worker-agent` is the single worker execution path per ADR-028).
+Read `docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestrator role for this session. Your role name for the user is "{{DEPT_NAME}} Orchestrator." All sections of that document apply, including the review discipline, the task lifecycle, the kickoff drafting convention, the drafter+checker dispatch loop, and the dispatched-worker flow (the `executor` is the single executor execution path per ADR-028).
 
 This command scopes the Orchestrator role to the `{{DEPT_NAME}}` department workspace at `ai-infrastructure/{{DEPT_SLUG}}/`. The shared role doc (`ORCHESTRATOR-ROLE.md`) is adopted by reference; there is no per-department copy (ADR-029).
 
@@ -45,13 +45,13 @@ End the report by asking the user:
 
 Do NOT proactively act on any surveyed item. Orchestrator sessions are response-driven; the user chooses the entry point. Typical next directions:
 
-- "Pick up `{{DEPT_TASK_PREFIX}}-T-NNN`" (or "complete / do `{{DEPT_TASK_PREFIX}}-T-NNN`") -> transition per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then **route the work through the "Dispatched-worker flow"**: for a deliverable task, resolve any residual decisions, draft and check the kickoff, run the prelaunch checker, dispatch the `worker-agent`, then close. Do NOT execute the deliverable yourself; only pure coordination tasks (ADR/STATUS/triage) are orchestrator-direct. When unsure, dispatch.
+- "Pick up `{{DEPT_TASK_PREFIX}}-T-NNN`" (or "complete / do `{{DEPT_TASK_PREFIX}}-T-NNN`") -> transition per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then **route the work through the "Dispatched-worker flow"**: for a deliverable task, resolve any residual decisions, draft and check the kickoff, run the prelaunch checker, dispatch the `executor`, then close. Do NOT execute the deliverable yourself; only pure coordination tasks (ADR/STATUS/triage) are orchestrator-direct. When unsure, dispatch.
 - "Block / unblock `{{DEPT_TASK_PREFIX}}-T-NNN`" -> transition with the reason captured in the activity log.
 - "Resolve `{{DEPT_TASK_PREFIX}}-T-NNN`" -> commit gate per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then move to done.
 - "Add a new task" -> allocate the next ID from `ai-infrastructure/{{DEPT_SLUG}}/tasks/.next-task-id`, draft in `ai-infrastructure/{{DEPT_SLUG}}/tasks/backlog/` per `ai-infrastructure/project-manager/tasks/README.md` (the per-workspace task convention), using the `{{DEPT_TASK_PREFIX}}-T-NNN` ID format.
 - "Draft a kickoff for X" -> resolve anticipated decisions with the user, then run the drafter+checker dispatch loop per `ORCHESTRATOR-ROLE.md` (section "Drafter+checker dispatch loop"). Kickoff paths: `.claude/artifacts/handoffs/<TASK-OR-TOPIC>-KICKOFF.md`.
-- "Execute the kickoff" (or proceeding after a kickoff passes the loop) -> run the "Dispatched-worker flow" per `ORCHESTRATOR-ROLE.md`: dispatch the prelaunch checker, dispatch the `worker-agent` (Sonnet, foreground), branch on its `RETURN: COMPLETED` / `RETURN: ESCALATION` verdict, then run the close checker and verify the report against disk.
-- "Review the worker's output" -> the worker returns its report inline (and writes it to the derived `-REPORT.md` path); verify the report against the kickoff and the actual file state, independently re-deriving its claims.
+- "Execute the kickoff" (or proceeding after a kickoff passes the loop) -> run the "Dispatched-worker flow" per `ORCHESTRATOR-ROLE.md`: dispatch the prelaunch checker, dispatch the `executor` (Sonnet, foreground), branch on its `RETURN: COMPLETED` / `RETURN: ESCALATION` verdict, then run the close checker and verify the report against disk.
+- "Review the executor's output" -> the executor returns its report inline (and writes it to the derived `-REPORT.md` path); verify the report against the kickoff and the actual file state, independently re-deriving its claims.
 - "Resolve a pending ADR" -> read the pending ADR, frame the alternatives with the user, fill in the decision.
 - "Promote a logged observation" -> propose the guide, spec, ADR, or check it should become.
 

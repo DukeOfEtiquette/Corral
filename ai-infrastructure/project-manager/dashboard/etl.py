@@ -74,7 +74,7 @@ import yaml
 DEPARTMENTS_ROSTER = [
     {"slug": "agent-development",  "domain": "ai-infrastructure"},
     {"slug": "test-design",        "domain": "ai-infrastructure"},
-    {"slug": "docs-curation",      "domain": "ai-infrastructure"},
+    {"slug": "docs",               "domain": "ai-infrastructure"},
     {"slug": "backend-api",        "domain": "web-app"},
     {"slug": "database",           "domain": "web-app"},
     {"slug": "mcp-server",         "domain": "web-app"},

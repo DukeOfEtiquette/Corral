@@ -2,8 +2,8 @@
 
 **Status**: Implemented
 **Created**: 2026-06-12
-**Purpose**: Author FAILING tests for a named web-app surface against its contract (the relevant ADRs, the ADR-012 schema, the surface's endpoint or tool spec) as an Orchestrator-dispatched subagent, and return one of two verdict-lined results (COMPLETED report or ESCALATION). Adopts the Test Designer role; reads exactly the files the Orchestrator names (explicit context pass-down). This is the design half of Corral's TDD pair (ADR-016): the `test-designer` authors failing tests (red); the `worker-agent` implements to green.
-**Lineage**: Authored per `./ai-infrastructure/project-manager/decisions/ADR-016-testing-strategy-test-designer-agent.md` (accepted 2026-06-12), which established Corral as a TDD project and defined the universal `test-designer` as a dispatched agent parallel to `worker-agent` (ADR-028). The dispatch spine mirrors `worker-agent` / `WORKER-AGENT-SPEC.md`: same input package, same two verdict-lined return modes, same report shape, same STATUS-once rule, same prelaunch (W1) and close (W2) checkers run by the Orchestrator. The key distinctions are the Opus model tier (test design is judgement work), the test-files-only write scope, and the red-on-purpose correctness criterion.
+**Purpose**: Author FAILING tests for a named web-app surface against its contract (the relevant ADRs, the ADR-012 schema, the surface's endpoint or tool spec) as an Orchestrator-dispatched subagent, and return one of two verdict-lined results (COMPLETED report or ESCALATION). Adopts the Test Designer role; reads exactly the files the Orchestrator names (explicit context pass-down). This is the design half of Corral's TDD pair (ADR-016): the `test-designer` authors failing tests (red); the `executor` implements to green.
+**Lineage**: Authored per `./ai-infrastructure/project-manager/decisions/ADR-016-testing-strategy-test-designer-agent.md` (accepted 2026-06-12), which established Corral as a TDD project and defined the cross-department `test-designer` as a dispatched agent parallel to `executor` (ADR-028). The dispatch spine mirrors `executor` / `EXECUTOR-AGENT-SPEC.md`: same input package, same two verdict-lined return modes, same report shape, same STATUS-once rule, same prelaunch (W1) and close (W2) checkers run by the Orchestrator. The key distinctions are the Opus model tier (test design is judgement work), the test-files-only write scope, and the red-on-purpose correctness criterion.
 
 > **Usage**: This is the detailed execution specification for the `test-designer` agent.
 > The agent file at `./.claude/agents/test-designer.md` references this spec and `./docs/ai-orchestration/roles/TEST-DESIGNER-ROLE.md`.
@@ -29,9 +29,9 @@
 
 ## Overview
 
-The Test Designer Agent is the dispatched-subagent test-design execution path for Corral's TDD cycle, established by ADR-016. The Orchestrator drafts and checks a test-design kickoff (the `kickoff-drafter` / `kickoff-checker` loop), runs the prelaunch checker, then dispatches this agent via the Task tool (`model: opus`, foreground) to author the failing tests. The user interacts only with the Orchestrator; the Orchestrator dispatches and supervises the test designer. The test-design dispatch is always phase 1 of the two-phase TDD surface flow (ADR-016): phase 1 authors failing tests (red); phase 2 dispatches `worker-agent` to implement to green.
+The Test Designer Agent is the dispatched-subagent test-design execution path for Corral's TDD cycle, established by ADR-016. The Orchestrator drafts and checks a test-design kickoff (the `kickoff-drafter` / `kickoff-checker` loop), runs the prelaunch checker, then dispatches this agent via the Task tool (`model: opus`, foreground) to author the failing tests. The user interacts only with the Orchestrator; the Orchestrator dispatches and supervises the test designer. The test-design dispatch is always phase 1 of the two-phase TDD surface flow (ADR-016): phase 1 authors failing tests (red); phase 2 dispatches `executor` to implement to green.
 
-Three hard constraints, inherited from the worker-agent dispatch model (ADR-028), shape this spec:
+Three hard constraints, inherited from the executor dispatch model (ADR-028), shape this spec:
 
 - A dispatched subagent has NO Agent/Task tool. The test designer cannot dispatch its own prelaunch/close checkers; the Orchestrator runs them. The test designer is a leaf.
 - In-place resume is unavailable on the dispatched-subagent path. Escalation is therefore return-and-re-dispatch: the test designer returns an escalation, the Orchestrator answers, a FRESH test designer is dispatched with the answer folded in.
@@ -270,17 +270,17 @@ Inputs (attempt 2):
 The backend-api Orchestrator runs the two-phase TDD surface flow (ADR-016) for API-T-001:
 
 1. **Phase 1:** Dispatch `test-designer` (this agent, `model: opus`) with `API-T-001-TEST-DESIGN-KICKOFF.md`. Returns `RETURN: COMPLETED`; failing tests are authored. The test paths are `./app/tests/test_issues_api.py` etc.
-2. **Phase 2:** Dispatch `worker-agent` (`model: sonnet`) with `API-T-001-IMPL-KICKOFF.md`, which lists the phase-1 test paths in `files_out_of_scope` and passes them to the close checker as `protected_test_paths`.
+2. **Phase 2:** Dispatch `executor` (`model: sonnet`) with `API-T-001-IMPL-KICKOFF.md`, which lists the phase-1 test paths in `files_out_of_scope` and passes them to the close checker as `protected_test_paths`.
 
-The test designer is only involved in phase 1. If the implementation worker believes a test is wrong, it returns `RETURN: ESCALATION`; the Orchestrator routes the correction to a FRESH `test-designer` dispatch (phase 1 again), not to a worker edit.
+The test designer is only involved in phase 1. If the implementation executor believes a test is wrong, it returns `RETURN: ESCALATION`; the Orchestrator routes the correction to a FRESH `test-designer` dispatch (phase 1 again), not to an executor edit.
 
 ---
 
 ## Design Rationale
 
-**Why Opus (not Sonnet).** Test design is judgement work: deciding coverage (which behaviors and edge cases are load-bearing), reading the contract (the ADRs, the endpoint spec) as the specification, and writing tests that are meaningful assertions rather than tautologies. This parallels the Opus `kickoff-drafter` rather than the Sonnet `worker-agent`. The Opus/Sonnet asymmetry in the fleet is: Opus decides and designs (the Orchestrator, the kickoff-drafter, the test-designer); Sonnet executes (the worker-agent, the close/prelaunch checkers). Test design belongs on the Opus tier.
+**Why Opus (not Sonnet).** Test design is judgement work: deciding coverage (which behaviors and edge cases are load-bearing), reading the contract (the ADRs, the endpoint spec) as the specification, and writing tests that are meaningful assertions rather than tautologies. This parallels the Opus `kickoff-drafter` rather than the Sonnet `executor`. The Opus/Sonnet asymmetry in the fleet is: Opus decides and designs (the Orchestrator, the kickoff-drafter, the test-designer); Sonnet executes (the executor, the close/prelaunch checkers). Test design belongs on the Opus tier.
 
-**Why reuse the worker dispatch spine.** ADR-016 defines the test-designer as a universal dispatched agent parallel to `worker-agent`. Reusing the same input package, the same two verdict-lined return modes, the same six-section report shape, and the same STATUS-once rule keeps the fleet coherent: the Orchestrator uses the same dispatch pattern regardless of whether it is dispatching a test designer or a worker, and the checker fleet (W1, W2, W3) applies uniformly. The only structural additions are the Opus model pin and the test-files-only write scope; everything else is inherited.
+**Why reuse the executor dispatch spine.** ADR-016 defines the test-designer as a cross-department dispatched agent parallel to `executor`. Reusing the same input package, the same two verdict-lined return modes, the same six-section report shape, and the same STATUS-once rule keeps the fleet coherent: the Orchestrator uses the same dispatch pattern regardless of whether it is dispatching a test designer or an executor, and the checker fleet (W1, W2, W3) applies uniformly. The only structural additions are the Opus model pin and the test-files-only write scope; everything else is inherited.
 
 **Why test-files-only write scope.** The TDD separation (ADR-016) is load-bearing: test design and implementation are performed by separate agents so test design remains uncontaminated by implementation thinking and the implementer cannot weaken a test to make it pass. Enforcing this at the role level (the test designer may not write non-test files) makes the separation structural, not just a policy.
 
@@ -288,10 +288,10 @@ The test designer is only involved in phase 1. If the implementation worker beli
 
 **Why the same two checkers (W1 and W2), not new ones.** The test-design kickoff and report flow through the SAME `worker-prelaunch-checker` (W1) and `worker-close-checker` (W2) as any worker run. Both rules are surface-agnostic: W1 checks that every deferral in the kickoff has an acceptance test or user-confirm flag; W2 checks that every Follow-ups item is anchored. Neither is specific to implementation vs test-design. No new checker agents are needed. W3 (the no-touch rule) fires only on implementation closes and is inert on test-design closes.
 
-**Why return-and-re-dispatch instead of in-place resume.** Same rationale as `worker-agent`: in-place resume is unavailable on the dispatched-subagent path (ADR-028, rogue spike #146). The fresh-dispatch re-dispatch reconstructs state from the kickoff + the dual-channel report + the pinned answer, the same three-source pattern `TEST-DESIGNER-ROLE.md` "Crash recovery" uses.
+**Why return-and-re-dispatch instead of in-place resume.** Same rationale as `executor`: in-place resume is unavailable on the dispatched-subagent path (ADR-028, rogue spike #146). The fresh-dispatch re-dispatch reconstructs state from the kickoff + the dual-channel report + the pinned answer, the same three-source pattern `TEST-DESIGNER-ROLE.md` "Crash recovery" uses.
 
 ---
 
 ## Revision History
 
-- 2026-06-12: v1.0 initial authoring per ADR-016 (COR-T-035). Universal test-designer agent; the design half of Corral's TDD pair. Dispatch spine mirrors `worker-agent` / `WORKER-AGENT-SPEC.md`; distinguishing features are the Opus model tier, test-files-only write scope, and red-on-purpose correctness criterion.
+- 2026-06-12: v1.0 initial authoring per ADR-016 (COR-T-035). Cross-department test-designer agent; the design half of Corral's TDD pair. Dispatch spine mirrors `executor` / `EXECUTOR-AGENT-SPEC.md`; distinguishing features are the Opus model tier, test-files-only write scope, and red-on-purpose correctness criterion.

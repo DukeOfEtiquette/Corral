@@ -6,7 +6,7 @@ description: Adopt the Project Manager Orchestrator role, survey project state, 
 
 ## Phase 1: Adopt the role
 
-Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestrator role for this session. Your role name for the user is "Project Manager Orchestrator." All sections of that document apply, including the review discipline, the task lifecycle, the kickoff drafting convention, the drafter+checker dispatch loop, and the dispatched-worker flow (the `worker-agent` is the single worker execution path per ADR-028).
+Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestrator role for this session. Your role name for the user is "Project Manager Orchestrator." All sections of that document apply, including the review discipline, the task lifecycle, the kickoff drafting convention, the drafter+checker dispatch loop, and the dispatched-worker flow (the `executor` is the single executor execution path per ADR-028).
 
 ## Phase 2: Load project context
 
@@ -42,12 +42,12 @@ End the report by asking the user:
 
 Do NOT proactively act on any surveyed item. Orchestrator sessions are response-driven; the user chooses the entry point. Typical next directions:
 
-- "Pick up `COR-T-NNN`" (or "complete / do `COR-T-NNN`") -> transition per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then **route the work through the "Dispatched-worker flow"**: for a deliverable task, resolve any residual decisions, draft and check the kickoff, run the prelaunch checker, dispatch the `worker-agent`, then close. Do NOT execute the deliverable (the restructure, the code, the doc) yourself; only pure coordination tasks (ADR/STATUS/triage) are orchestrator-direct. When unsure, dispatch.
+- "Pick up `COR-T-NNN`" (or "complete / do `COR-T-NNN`") -> transition per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then **route the work through the "Dispatched-worker flow"**: for a deliverable task, resolve any residual decisions, draft and check the kickoff, run the prelaunch checker, dispatch the `executor`, then close. Do NOT execute the deliverable (the restructure, the code, the doc) yourself; only pure coordination tasks (ADR/STATUS/triage) are orchestrator-direct. When unsure, dispatch.
 - "Block / unblock `COR-T-NNN`" -> transition with the reason captured in the activity log.
 - "Resolve `COR-T-NNN`" -> commit gate per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then move to done.
 - "Add a new task" -> allocate the next ID from `./ai-infrastructure/project-manager/tasks/.next-task-id`, draft in `./ai-infrastructure/project-manager/tasks/backlog/` per `./ai-infrastructure/project-manager/tasks/README.md`.
 - "Draft a kickoff for X" -> resolve anticipated decisions with the user, then run the drafter+checker dispatch loop per `ORCHESTRATOR-ROLE.md` (section "Drafter+checker dispatch loop"). Kickoff paths: `./.claude/artifacts/handoffs/<TASK-OR-TOPIC>-KICKOFF.md`.
-- "Execute the kickoff" (or proceeding after a kickoff passes the loop) -> run the "Dispatched-worker flow" per `ORCHESTRATOR-ROLE.md`: dispatch the prelaunch checker, dispatch the `worker-agent` (Sonnet, foreground), branch on its `RETURN: COMPLETED` / `RETURN: ESCALATION` verdict, then run the close checker and verify the report against disk.
+- "Execute the kickoff" (or proceeding after a kickoff passes the loop) -> run the "Dispatched-worker flow" per `ORCHESTRATOR-ROLE.md`: dispatch the prelaunch checker, dispatch the `executor` (Sonnet, foreground), branch on its `RETURN: COMPLETED` / `RETURN: ESCALATION` verdict, then run the close checker and verify the report against disk.
 - "Review the worker's output" -> the worker returns its report inline (and writes it to the derived `-REPORT.md` path); verify the report against the kickoff and the actual file state, independently re-deriving its claims.
 - "Resolve a pending ADR" -> read the pending ADR, frame the alternatives with the user, fill in the decision.
 - "Promote a logged observation" -> propose the guide, spec, ADR, or check it should become.

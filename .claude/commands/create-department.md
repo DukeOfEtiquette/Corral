@@ -72,15 +72,15 @@ Resolve any residual anticipated decisions with the user. Then run the drafter+c
 
 Dispatch `worker-prelaunch-checker` via the Task tool with the kickoff path. On FAIL, route back to step 2.
 
-**Step 4: Dispatch the worker-agent.**
+**Step 4: Dispatch the executor.**
 
-Dispatch the universal `worker-agent` (Sonnet, foreground) via the Task tool with the explicit-context-pass-down package. The worker stamps all template files with tokens substituted and writes the report dual-channel.
+Dispatch the `executor` (Sonnet, foreground) via the Task tool with the explicit-context-pass-down package. The executor stamps all template files with tokens substituted and writes the report dual-channel.
 
-Interactive back-and-forth at creation time is expected and acceptable: escalation round-trips (if the worker surfaces an ambiguity) or Plan Mode for a genuinely unanticipated decision. Re-dispatch with the escalation answer folded in per the standard dispatched-worker escalation protocol (ADR-028, ceiling: 2 round-trips before mandatory user-surface).
+Interactive back-and-forth at creation time is expected and acceptable: escalation round-trips (if the executor surfaces an ambiguity) or Plan Mode for a genuinely unanticipated decision. Re-dispatch with the escalation answer folded in per the standard dispatched-executor escalation protocol (ADR-028, ceiling: 2 round-trips before mandatory user-surface).
 
 **Step 5: Run the close checker.**
 
-Dispatch `worker-close-checker` via the Task tool with the report path. On FAIL, surface to the user with the three-exit menu (accept-with-rationale / manually-edit / re-dispatch a corrective worker).
+Dispatch `worker-close-checker` via the Task tool with the report path. On FAIL, surface to the user with the three-exit menu (accept-with-rationale / manually-edit / re-dispatch a corrective executor).
 
 **Step 6: Verify against disk.**
 
@@ -105,8 +105,8 @@ Creating a department using a blessed ADR-021 menu slug is the label reservation
 
 ## What this command does NOT create
 
-- No `/<slug>-worker` command. Department deliverable work runs through the universal `worker-agent` (ADR-028). The single universal worker execution path is shared across all departments.
-- No per-department role-doc copies. The department's orchestrator command adopts `docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` by reference (ADR-029). The worker uses `docs/ai-orchestration/roles/WORKER-ROLE.md` by reference. No copies.
+- No `/<slug>-worker` command. Department deliverable work runs through the cross-department `executor` (ADR-028). The single cross-department executor execution path is shared across all departments.
+- No per-department role-doc copies. The department's orchestrator command adopts `docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` by reference (ADR-029). The executor uses `docs/ai-orchestration/roles/EXECUTOR-ROLE.md` by reference. No copies.
 - No department-scoped checker. The optional department-scoped checker slot is reserved (see the department `CLAUDE.md`); none is created by the recipe.
 
 ## References

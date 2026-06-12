@@ -2,7 +2,7 @@
 
 **Status**: Implemented
 **Created**: 2026-06-05
-**Purpose**: Author a kickoff file for a Corral Worker session, given a kickoff path and a structured decisions-resolved package from the Orchestrator. Enforces the universal kickoff conventions (rules R1-R8 per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md`).
+**Purpose**: Author a kickoff file for a Corral Executor session, given a kickoff path and a structured decisions-resolved package from the Orchestrator. Enforces the universal kickoff conventions (rules R1-R8 per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md`).
 **Lineage**: Ported and right-sized from rogue's `KICKOFF-DRAFTER-SPEC.md` v1.1 per ADR-023; the rule renumbering map is in that ADR.
 
 > **Usage**: This is the detailed execution specification for the `kickoff-drafter` agent.
@@ -89,7 +89,7 @@ Each decision is one bullet with a bolded title, the resolved answer, and a one-
 ### Phase 1: Load conventions
 
 1. Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`, section "Kickoff drafting convention". Capture the content rules and the audience/worker-pointer/report-path conventions.
-2. Read `./docs/ai-orchestration/roles/WORKER-ROLE.md`, sections "Report shape" and "Universal conventions", so the kickoff references rather than re-emits them.
+2. Read `./docs/ai-orchestration/roles/EXECUTOR-ROLE.md`, sections "Report shape" and "Universal conventions", so the kickoff references rather than re-emits them.
 
 The global writing rules in `./CLAUDE.md` (no em dashes in files, `./` path convention) bind every phase. If either role doc is missing or unreadable, abort with an error message; do not write a kickoff. The orchestrator's dispatch was malformed.
 
@@ -203,15 +203,15 @@ A kickoff body has this universal scaffold:
 
 ## STATUS deltas
 
-{Either a bulleted list of task-specific `./ai-infrastructure/project-manager/STATUS.md` edits the worker is expected to apply, OR the literal text "No task-specific STATUS deltas; universal hygiene only." Universal hygiene (bump `last_updated`, append `recent_updates`) is handled by the worker per WORKER-ROLE.md and not enumerated in the kickoff.}
+{Either a bulleted list of task-specific `./ai-infrastructure/project-manager/STATUS.md` edits the executor is expected to apply, OR the literal text "No task-specific STATUS deltas; universal hygiene only." Universal hygiene (bump `last_updated`, append `recent_updates`) is handled by the executor per EXECUTOR-ROLE.md and not enumerated in the kickoff.}
 
 ## Hard rules
 
 {Task-specific hard rules, if any. Universal rules (writing rules, run policy, git boundaries, report shape) are referenced, not re-emitted.}
 
-## Worker pointer
+## Executor pointer
 
-The worker is the dispatched `worker-agent` (ADR-028). Universal worker conventions live in `./docs/ai-orchestration/roles/WORKER-ROLE.md`. The closing report is written to `{kickoff_dir}/{kickoff_basename}-REPORT.md` per WORKER-ROLE.md, section "Report shape".
+The executor is the dispatched `executor` (ADR-028). Universal executor conventions live in `./docs/ai-orchestration/roles/EXECUTOR-ROLE.md`. The closing report is written to `{kickoff_dir}/{kickoff_basename}-REPORT.md` per EXECUTOR-ROLE.md, section "Report shape".
 ```
 
 The drafter NEVER includes:

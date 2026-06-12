@@ -1,8 +1,8 @@
-# Worker Close Checker Agent Specification
+# Executor Close Checker Agent Specification
 
 **Status**: Implemented
 **Created**: 2026-06-05
-**Purpose**: Independently lint a Worker's draft closing report at Worker close time against W2 (Follow-ups anchoring required) and, on implementation closes, W3 (no protected test file may appear in "Files touched"). Emit a structured PASS / FAIL report. Read-only. Fresh context per dispatch.
+**Purpose**: Independently lint an Executor's draft closing report at Executor close time against W2 (Follow-ups anchoring required) and, on implementation closes, W3 (no protected test file may appear in "Files touched"). Emit a structured PASS / FAIL report. Read-only. Fresh context per dispatch.
 **Lineage**: Ported and right-sized from rogue's `WORKER-CLOSE-CHECKER-SPEC.md` v1.1 per `./ai-infrastructure/project-manager/decisions/ADR-023-dispatch-loop-day-zero.md` (corral W2 = rogue W5). W3 added per `./ai-infrastructure/project-manager/decisions/ADR-016-testing-strategy-test-designer-agent.md` (COR-T-035).
 
 > **Usage**: This is the detailed execution specification for the `worker-close-checker` agent.
@@ -13,9 +13,9 @@
 
 ## Overview
 
-The Worker Close Checker runs in a fresh context (no visibility into the worker-agent's execution, the Orchestrator's chat, or any drafter reasoning). Starting from the worker's closing report on disk plus the W2 and W3 rule definitions in this spec, it scans the report for unanchored Follow-ups items (W2) and, when `protected_test_paths` is non-empty, for protected test files in "Files touched" (W3), and emits a structured report.
+The Executor Close Checker runs in a fresh context (no visibility into the executor's execution, the Orchestrator's chat, or any drafter reasoning). Starting from the executor's closing report on disk plus the W2 and W3 rule definitions in this spec, it scans the report for unanchored Follow-ups items (W2) and, when `protected_test_paths` is non-empty, for protected test files in "Files touched" (W3), and emits a structured report.
 
-This agent is dispatched by the Orchestrator after the `worker-agent` (or `test-designer`) returns COMPLETED with its dual-channel closing report written (in chat and on disk per `./docs/ai-orchestration/roles/WORKER-ROLE.md`, section "Report shape"). The Orchestrator runs it because the dispatched worker is a leaf and cannot dispatch its own checkers (ADR-028; `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow", step 5). Its verdict gates the close: on FAIL the Orchestrator surfaces a three-exit menu to the user (accept-with-rationale, manually-edit, re-dispatch a corrective worker).
+This agent is dispatched by the Orchestrator after the `executor` (or `test-designer`) returns COMPLETED with its dual-channel closing report written (in chat and on disk per `./docs/ai-orchestration/roles/EXECUTOR-ROLE.md`, section "Report shape"). The Orchestrator runs it because the dispatched executor is a leaf and cannot dispatch its own checkers (ADR-028; `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow", step 5). Its verdict gates the close: on FAIL the Orchestrator surfaces a three-exit menu to the user (accept-with-rationale, manually-edit, re-dispatch a corrective executor).
 
 W2 fires on any closing report whose Follow-ups section contains unanchored items. W3 fires only when `protected_test_paths` is non-empty (an implementation close under the TDD two-phase flow, ADR-016); it is inert on test-design closes, on tasks outside the TDD flow, and whenever `protected_test_paths` is absent or empty.
 
@@ -25,9 +25,9 @@ PASS means "this report passes all applicable rules"; it does NOT guarantee corr
 
 ## Agent Purpose
 
-- **Enforcement of W2**, the failure mode where a worker records a Follow-ups item without a coordination anchor. Unanchored "out of scope this iteration" items are unparseable by the Orchestrator and disappear from the coordination surface.
-- **Enforcement of W3** (conditional), the failure mode where an implementation worker touches a test file that the TDD two-phase flow (ADR-016) protected. W3 fires only when `protected_test_paths` is non-empty; it is inert otherwise.
-- **Independent verdict.** The checker does not see the worker-agent's execution or the Orchestrator's chat. Its only input is the report file, the rule definitions, and (when supplied) `protected_test_paths`. This independence catches drift the Orchestrator's review would miss.
+- **Enforcement of W2**, the failure mode where an executor records a Follow-ups item without a coordination anchor. Unanchored "out of scope this iteration" items are unparseable by the Orchestrator and disappear from the coordination surface.
+- **Enforcement of W3** (conditional), the failure mode where an implementation executor touches a test file that the TDD two-phase flow (ADR-016) protected. W3 fires only when `protected_test_paths` is non-empty; it is inert otherwise.
+- **Independent verdict.** The checker does not see the executor's execution or the Orchestrator's chat. Its only input is the report file, the rule definitions, and (when supplied) `protected_test_paths`. This independence catches drift the Orchestrator's review would miss.
 - **Structured output.** The report schema is parsed by the Orchestrator's dispatch wrapper; finding IDs and severity classifications are stable.
 - **Read-only contract.** The checker never modifies the report or any other file. Attempting to write or edit is a violation of the agent's core contract.
 
@@ -41,7 +41,7 @@ PASS means "this report passes all applicable rules"; it does NOT guarantee corr
 | **Grep** | Locate the Follow-ups section heading and scan items for anchor patterns |
 | **Bash** | `test -f`, `wc -l` (read-only file checks) |
 
-**NOT PERMITTED**: Write, Edit, NotebookEdit. The checker is strictly read-only. The Worker's dispatch wrapper relies on this contract; a checker that silently modifies the report breaks the close invariant. The Worker (not the checker) is the report author; the checker advises, the Worker patches on iteration 2 if needed.
+**NOT PERMITTED**: Write, Edit, NotebookEdit. The checker is strictly read-only. The Orchestrator's dispatch wrapper relies on this contract; a checker that silently modifies the report breaks the close invariant. The Executor (not the checker) is the report author; the checker advises, the Executor patches on iteration 2 if needed.
 
 ---
 
@@ -49,8 +49,8 @@ PASS means "this report passes all applicable rules"; it does NOT guarantee corr
 
 | Input | Description | Example |
 |-------|-------------|---------|
-| `report_path` | Repo-root-relative path to the Worker's or Test Designer's draft closing report (the dual-channel file copy) | `./.claude/artifacts/handoffs/COR-T-002-KICKOFF-REPORT.md` |
-| `protected_test_paths` | Optional list of test file paths the implementation worker must not have touched. Absent or empty on test-design closes and on tasks outside the TDD two-phase flow (ADR-016). Non-empty triggers W3. | `["./app/tests/test_issues_api.py"]` |
+| `report_path` | Repo-root-relative path to the Executor's or Test Designer's draft closing report (the dual-channel file copy) | `./.claude/artifacts/handoffs/COR-T-002-KICKOFF-REPORT.md` |
+| `protected_test_paths` | Optional list of test file paths the implementation executor must not have touched. Absent or empty on test-design closes and on tasks outside the TDD two-phase flow (ADR-016). Non-empty triggers W3. | `["./app/tests/test_issues_api.py"]` |
 
 ---
 
@@ -81,7 +81,7 @@ When `protected_test_paths` is non-empty:
 
 1. Locate the `## Files touched` section in the report (H2, case-insensitive). If the section is absent or empty, skip W3 (PASS by vacuity for this rule).
 2. For each path listed in `protected_test_paths`, check whether it appears (as a literal string match or a recognisable repo-relative variant) anywhere in the "Files touched" section.
-3. Any protected path found in "Files touched" emits FAIL: `W3, report "Files touched" section (line L), evidence "<matched path excerpt>", recommendation "The implementation worker must not create or edit test files (WORKER-ROLE.md no-touch rule, ADR-016). If the test is wrong, the worker should return RETURN: ESCALATION so the Orchestrator can route the correction to a fresh test-designer dispatch."`
+3. Any protected path found in "Files touched" emits FAIL: `W3, report "Files touched" section (line L), evidence "<matched path excerpt>", recommendation "The implementation executor must not create or edit test files (EXECUTOR-ROLE.md no-touch rule, ADR-016). If the test is wrong, the executor should return RETURN: ESCALATION so the Orchestrator can route the correction to a fresh test-designer dispatch."`
 
 LLM-judgement note: match the path string literally (exact match or equivalent repo-relative form). Do not infer intent; if the path string is present in "Files touched", it is a W3 FAIL regardless of context.
 
@@ -97,7 +97,7 @@ If zero FAIL findings exist, emit PASS. WARNINGs are not used by this checker in
 
 ## Report Schema
 
-The agent's full response IS the report. The Worker's dispatch wrapper parses this text directly; do not return supplementary commentary outside the schema.
+The agent's full response IS the report. The Orchestrator's dispatch wrapper parses this text directly; do not return supplementary commentary outside the schema.
 
 ```
 ## Status: PASS | FAIL
@@ -111,7 +111,7 @@ The agent's full response IS the report. The Worker's dispatch wrapper parses th
 | ID | Rule | Line | Evidence | Recommendation |
 |----|------|------|----------|----------------|
 | F-001 | W2 | 89 | "Cleanup: <subject>. Could remove or document." (no anchor, no triage flag) | Add a 'COR-T candidate' tag, name the pickup target, add 'triage to orchestrator', or drop from Follow-ups |
-| F-002 | W3 | 112 | "./app/tests/test_issues_api.py" appears in Files touched | The implementation worker must not create or edit test files (WORKER-ROLE.md no-touch rule, ADR-016). Return RETURN: ESCALATION if a test is wrong; the Orchestrator routes the correction to a fresh test-designer dispatch. |
+| F-002 | W3 | 112 | "./app/tests/test_issues_api.py" appears in Files touched | The implementation executor must not create or edit test files (EXECUTOR-ROLE.md no-touch rule, ADR-016). Return RETURN: ESCALATION if a test is wrong; the Orchestrator routes the correction to a fresh test-designer dispatch. |
 
 ### Observed cleanly
 - W2 (all Follow-ups items anchored, OR Follow-ups empty or absent)
@@ -139,7 +139,7 @@ When in doubt on W2 LLM-judgement (does this anchor count as a coordination sign
 
 The checker does NOT:
 
-- Verify the *correctness* of the Worker's reported outcomes in Deliverables completed (no mechanical way to know without re-running the Worker).
+- Verify the *correctness* of the Executor's reported outcomes in Deliverables completed (no mechanical way to know without re-running the Executor).
 - Verify Build / verification status entries.
 - Verify that Files touched is complete.
 - Modify the report (read-only contract).
@@ -205,7 +205,7 @@ The checker does NOT:
 ### FAIL findings
 | ID | Rule | Line | Evidence | Recommendation |
 |----|------|------|----------|----------------|
-| F-001 | W3 | 45 | "./app/tests/test_issues_api.py" appears in Files touched | The implementation worker must not create or edit test files (WORKER-ROLE.md no-touch rule, ADR-016). Return RETURN: ESCALATION if a test is wrong; the Orchestrator routes the correction to a fresh test-designer dispatch. |
+| F-001 | W3 | 45 | "./app/tests/test_issues_api.py" appears in Files touched | The implementation executor must not create or edit test files (EXECUTOR-ROLE.md no-touch rule, ADR-016). Return RETURN: ESCALATION if a test is wrong; the Orchestrator routes the correction to a fresh test-designer dispatch. |
 
 ### Observed cleanly
 - W2 (all Follow-ups items anchored, OR Follow-ups empty or absent)
@@ -215,9 +215,9 @@ The checker does NOT:
 
 ## Design Rationale
 
-**Why W2 and now W3, not just W2.** W2 (Follow-ups anchoring) remains the universal close rule for every worker and test-designer run. W3 (no-touch for protected test files) was added per ADR-016 as the third enforcement layer for Corral's TDD discipline: (a) WORKER-ROLE.md forbids the implementation worker from creating or editing test files; (b) the implementation kickoff lists test paths under `files_out_of_scope`; (c) W3 mechanically verifies (a) and (b) at close time. W3 is conditional because the no-touch rule only applies to implementation closes under the TDD two-phase flow; test-design closes and tasks outside the TDD flow have no protected paths and must not be flagged. The three-layer enforcement strategy (role convention + kickoff mechanism + checker rule) makes the TDD separation structural rather than policy-only.
+**Why W2 and now W3, not just W2.** W2 (Follow-ups anchoring) remains the cross-department close rule for every executor and test-designer run. W3 (no-touch for protected test files) was added per ADR-016 as the third enforcement layer for Corral's TDD discipline: (a) EXECUTOR-ROLE.md forbids the implementation executor from creating or editing test files; (b) the implementation kickoff lists test paths under `files_out_of_scope`; (c) W3 mechanically verifies (a) and (b) at close time. W3 is conditional because the no-touch rule only applies to implementation closes under the TDD two-phase flow; test-design closes and tasks outside the TDD flow have no protected paths and must not be flagged. The three-layer enforcement strategy (role convention + kickoff mechanism + checker rule) makes the TDD separation structural rather than policy-only.
 
-**Why W2 is still the only universal close rule.** W2 (Follow-ups anchoring) is the one Worker-close failure mode whose shape is universal: the Follow-ups section is part of the universal six-section closing-report shape, so any Worker session's output may have unanchored items. Rogue's workspace-scoped close rules depended on workspace conventions Corral does not have; if departments later introduce their own report conventions (ADR-021), department-scoped checkers can layer beside this one per `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow".
+**Why W2 is still the only cross-department close rule.** W2 (Follow-ups anchoring) is the one Executor-close failure mode whose shape is cross-department: the Follow-ups section is part of the cross-department six-section closing-report shape, so any Executor session's output may have unanchored items. Rogue's workspace-scoped close rules depended on workspace conventions Corral does not have; if departments later introduce their own report conventions (ADR-021), department-scoped checkers can layer beside this one per `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow".
 
 **Why no kickoff_path input.** W2 only needs the closing report's Follow-ups section. The Follow-ups items stand alone; cross-referencing the report against the kickoff is the Orchestrator's review pass, not this checker's scope. Keeping inputs minimal keeps the dispatch trivial.
 
@@ -225,7 +225,7 @@ The checker does NOT:
 
 **Why fresh context per dispatch.** The checker must not see the Worker's execution. The verdict is derived from the report plus the rule definition. This catches absorption-of-context errors a self-review would miss.
 
-**Why no WARNING severity in v1.** W2 is binary on the presence/absence of a coordination anchor. Borderline cases default to FAIL per the rubric; the Worker's single-retry budget plus 3-exit menu is the calibration channel.
+**Why no WARNING severity in v1.** W2 is binary on the presence/absence of a coordination anchor. Borderline cases default to FAIL per the rubric; the single-retry budget plus three-exit menu is the calibration channel.
 
 ---
 

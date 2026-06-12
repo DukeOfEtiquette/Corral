@@ -2,7 +2,7 @@
 
 This document defines the Test Designer role for Corral. The test designer is the design half of Corral's TDD pair (`./ai-infrastructure/project-manager/decisions/ADR-016-testing-strategy-test-designer-agent.md`): it authors FAILING tests for a surface against that surface's contract, and the implementation worker makes them pass. The separation keeps test design uncontaminated by implementation thinking and prevents an implementer from weakening a test to make it pass.
 
-The role is adopted by the `test-designer` subagent, which the Orchestrator dispatches via the Task tool. Like the `worker-agent` (ADR-028), the test designer is a universal dispatched agent in the shared `.claude/agents/` fleet, contextualized per surface by a test-design kickoff. The dispatch-specific deltas (the test designer returns to the Orchestrator rather than the user, escalates by return value, and runs no checker subagents) are named in "Identity (dispatched subagent)" below; everything else in this document applies unchanged.
+The role is adopted by the `test-designer` subagent, which the Orchestrator dispatches via the Task tool. Like the `executor` (ADR-028), the test designer is a cross-department dispatched agent in the shared `.claude/agents/` fleet, contextualized per surface by a test-design kickoff. The dispatch-specific deltas (the test designer returns to the Orchestrator rather than the user, escalates by return value, and runs no checker subagents) are named in "Identity (dispatched subagent)" below; everything else in this document applies unchanged.
 
 ## Identity (dispatched subagent)
 
@@ -134,7 +134,7 @@ Every Test Designer session writes the six-section report to two channels:
 
 **Edge case.** If the derived directory is not writable or the convention is otherwise unworkable (for example, the kickoff was supplied as inline text without a path), surface the conflict to the user before ending the session and ask where to save the report. Do not skip the file write silently. The file is the durable cross-session handoff channel; omitting it without acknowledgement breaks the contract.
 
-**Why both channels.** Chat output is for the user in the moment. The file is for any subsequent session (the originating Orchestrator, a downstream Worker, a fresh review pass) that needs to consume the report without re-reading the transcript. The two channels carry identical content; the file does not replace the chat output.
+**Why both channels.** Chat output is for the user in the moment. The file is for any subsequent session (the originating Orchestrator, a downstream Executor, a fresh review pass) that needs to consume the report without re-reading the transcript. The two channels carry identical content; the file does not replace the chat output.
 
 ## Wrap-up STATUS hygiene
 
@@ -149,12 +149,12 @@ Update that STATUS file in the same edit pass that closes out the deliverables. 
 
 ## Model-tier convention
 
-The `test-designer` runs on Opus: its agent file pins `model: opus`, and the Orchestrator dispatches it with the `model: opus` override. Test design is judgement work: deciding coverage, enumerating edge cases, reading the contract (the ADRs, the endpoint spec) as the specification. This parallels the Opus kickoff-drafter rather than the Sonnet worker-agent. The asymmetry is intentional:
+The `test-designer` runs on Opus: its agent file pins `model: opus`, and the Orchestrator dispatches it with the `model: opus` override. Test design is judgement work: deciding coverage, enumerating edge cases, reading the contract (the ADRs, the endpoint spec) as the specification. This parallels the Opus kickoff-drafter rather than the Sonnet executor. The asymmetry is intentional:
 
-- `worker-agent` executes on **Sonnet**: implementation against a tight plan benefits from Sonnet's speed and cost profile.
+- `executor` executes on **Sonnet**: implementation against a tight plan benefits from Sonnet's speed and cost profile.
 - `test-designer` designs on **Opus**: test design requires the higher judgement tier (Opus decides and designs, Sonnet executes).
 
-The Orchestrator command does not carry a model pin (default is Opus). Both the Orchestrator and the test designer run at Opus; the worker-agent alone runs at Sonnet.
+The Orchestrator command does not carry a model pin (default is Opus). Both the Orchestrator and the test designer run at Opus; the executor alone runs at Sonnet.
 
 ## Test Designer / kickoff-prompt boundary
 
@@ -171,7 +171,7 @@ The Orchestrator's kickoffs reference this role doc (and, where useful, the `tes
 ## Not in scope
 
 - **Implementing application logic.** The test designer writes only test files. Application source, schema migrations, and configuration files are the implementation worker's domain.
-- **Making tests pass.** The TDD cycle is red (test-designer) then green (worker-agent); the test designer's output is failing tests. Writing implementation code to make tests pass at this stage inverts the cycle.
+- **Making tests pass.** The TDD cycle is red (test-designer) then green (executor); the test designer's output is failing tests. Writing implementation code to make tests pass at this stage inverts the cycle.
 - **Surveying repo state.** Test designers do not run state surveys, read STATUS files (except the wrap-up hygiene write to the kickoff-named workspace STATUS), scan ADRs, enumerate scratch artifacts, or list tasks. The kickoff carries forward whatever survey context the Test Designer needs.
 - **Drafting new kickoffs.** Test designers consume kickoffs; they do not produce them. If execution surfaces work that warrants a separate kickoff, it goes under "Follow-ups" in the report, not into a new artifact authored by the Test Designer.
 - **Running the Orchestrator command.** The Test Designer does not invoke the Orchestrator command (any `/<slug>-orchestrator`); that loads survey state and a conflicting role identity.
@@ -180,7 +180,7 @@ The Orchestrator's kickoffs reference this role doc (and, where useful, the `tes
 
 ## Checker dispatch (Orchestrator-run)
 
-Per ADR-023, two universal checker subagents gate every dispatched agent run. Because the dispatched `test-designer` is a leaf (a dispatched subagent has no Agent/Task tool, ADR-028), the **Orchestrator** runs both checkers around the test designer; the Test Designer dispatches neither. The full protocol is canonical in `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow" (steps 2 and 5); this section names the two checkpoints and what they enforce so the Test Designer knows the contract its kickoff and report are held to.
+Per ADR-023, two cross-department checker subagents gate every dispatched agent run. Because the dispatched `test-designer` is a leaf (a dispatched subagent has no Agent/Task tool, ADR-028), the **Orchestrator** runs both checkers around the test designer; the Test Designer dispatches neither. The full protocol is canonical in `ORCHESTRATOR-ROLE.md`, section "Dispatched-worker flow" (steps 2 and 5); this section names the two checkpoints and what they enforce so the Test Designer knows the contract its kickoff and report are held to.
 
 Two checkpoints, both Orchestrator-run:
 
