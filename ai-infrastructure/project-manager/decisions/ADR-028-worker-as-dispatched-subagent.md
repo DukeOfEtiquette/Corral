@@ -79,6 +79,8 @@ the primitive matures.
 Corral adopts the worker-as-orchestrator-dispatched-subagent pattern, on the reshaped
 (return-and-re-dispatch) branch that rogue ADR-025's spike validated. Concrete elements:
 
+> Forward pointer (ADR-032, accepted 2026-06-12): the agent this ADR names `worker-agent` is renamed `executor`, its role doc `WORKER-ROLE.md` becomes `EXECUTOR-ROLE.md`, and its spec `WORKER-AGENT-SPEC.md` becomes `EXECUTOR-AGENT-SPEC.md`. The dispatch mechanics in this Decision are unchanged in substance (leaf node, return-and-re-dispatch, `model` override, foreground); only the names change. ADR-032 establishes the cross-department agent tier in which `executor` is the general execution agent alongside specialist executors like `test-designer`. The rename cascade is COR-T-036. Read `worker-agent` below as `executor`.
+
 1. **Dispatch mechanism.** After drafting and checking a kickoff, the orchestrator dispatches a
    universal `worker-agent` subagent (Task tool, `model: sonnet`, foreground) to execute it, rather
    than handing it to a separate human-driven session. The worker returns one of two verdict-lined
