@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-035
 title: "Author the universal test-designer agent and wire the TDD two-phase flow"
-status: backlog
+status: done
 labels: []
 priority: P1
 created: 2026-06-12
@@ -33,3 +33,5 @@ Out of scope: creating the `test-design` department workspace (deferred to a pro
 ## Activity log
 
 - 2026-06-12: Created in backlog. Implements ADR-016 (accepted 2026-06-12). P1: blocks Phase 2 P2-2 (backend-api API-T-001 is gated on the test-designer existing). Analog of COR-T-015 (authored worker-agent). Unlabelled per ADR-031 (dept:* applied at the dogfood import, not hand-applied here).
+- 2026-06-12: Picked up; moved to in-progress. Routing through the dispatched-worker flow (deliverable task); resolving anticipated design decisions with the user before drafting the kickoff.
+- 2026-06-12: Done (commit d125354). Dispatched-worker flow ran clean: kickoff drafted+checked (PASS), prelaunch W1 PASS, worker-agent COMPLETED, close W2/W3 PASS, verify-against-disk clean. Resolved design decisions: test-designer is a universal Opus dispatched agent (parallel to worker-agent), full standalone TEST-DESIGNER-ROLE.md, three-layer no-touch enforcement (WORKER-ROLE no-touch bullet + implementation-kickoff files_out_of_scope + new conditional close-checker rule W3 keyed on protected_test_paths). Nine files (3 new agent/role/spec, 6 edited). One follow-up logged: the worker-close-checker Pipeline diagram top label "Worker (Sonnet)" is now narrow (it also validates test-designer Opus reports); triaged to orchestrator, under discussion.
