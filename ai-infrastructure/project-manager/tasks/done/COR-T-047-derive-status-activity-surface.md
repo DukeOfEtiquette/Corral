@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-047
 title: "Derive the STATUS activity surface (ADR-039): git-sourced last_updated + recent_updates, retire universal STATUS hygiene"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-13
@@ -34,5 +34,6 @@ Out of scope: the ADR-039 decision itself (accepted); any change to the `data.js
 
 ## Activity log
 
+- 2026-06-13: Done. Both phases executed through the dispatched-worker flow. Phase A (derive-ETL + container): added git_last_updated / git_recent_updates collectors to dashboard/etl.py (git-by-path over each workspace's owned paths), installed git in the dashboard container + safe.directory for the read-only mount; data.json contract preserved; verified via compose build + headless render (COR-07), with the database feed capturing the COR-T-044 cross-workspace write (the motivating drift); committed efbd1b6 (the COR-T-048 cosmetic follow-up filed separately, 67d174a). Phase B (doctrine cascade, scope expanded with the user to include the 4 agent specs + the completion-signal reframe): retired universal STATUS hygiene across EXECUTOR/TEST-DESIGNER/ORCHESTRATOR role docs, the 4 agent specs, the 3 commands, and the department template (sentinel "universal hygiene only" -> "none"; completion signal now RETURN + verified deliverables); stripped last_updated/recent_updates frontmatter from the 4 STATUS files; added the CLAUDE.md commit-message convention; flipped OBSERVATIONS COR-03 to terminal; verified on disk + error-free render after the strip; committed 2a65fa1 (close-checker W2 PASS after a manual Follow-ups edit dropping a moot item). ADR-039 fully implemented: the STATUS activity surface is git-derived end to end and the cross-workspace-write drift gap is structurally closed.
 - 2026-06-13: Picked up; moved to in-progress. Plan: two sequential dispatched-worker flows under this one task -- Phase A (derive-ETL + container, contract-stable, COR-07 render gate) committed first, then Phase B (doctrine cascade + frontmatter removal), so the dashboard never breaks mid-cutover. Starting Phase A homework; no residual design decisions beyond those pinned in ADR-039 and the Description.
 - 2026-06-13: Created in backlog by the project-manager coordinator (orchestrator-direct) on acceptance of ADR-039. The implementation cascade for deriving the STATUS activity surface; two-phase sequencing pinned (derive-ETL + container render-verified first, then the doctrine cascade + frontmatter removal) so the activity surface is never simultaneously un-maintained and un-derived. Left standalone (no `epic:`) deliberately: the only fitting epic (COR-E-004 dashboard) is a done Phase-1 epic and linking a new task would reopen its rollup; ADR-036 permits standalone tasks. P2; visual deliverable (COR-07 render gate at close). Routes through the dispatched-worker flow; analog of the COR-T-044/045 two-phase split.
