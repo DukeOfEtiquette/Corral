@@ -120,7 +120,7 @@ function WorkspaceDetailFull({ detail }) {
           <h3>Recent updates</h3>
           <ol className="activity-list">
             {detail.recent_updates.map((u, i) => (
-              <li key={i}>
+              <li key={i} className="activity-item">
                 <span className="activity-date">{u.date}</span>
                 <span className="activity-text">{u.text}</span>
               </li>
