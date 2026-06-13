@@ -3,7 +3,7 @@ schema_version: 1
 adr: 36
 title: "Work-item taxonomy: roadmap, phase, epic, task, ADR"
 status: "accepted"
-date: "2026-06-13"
+date: "2026-06-12"
 related_adrs: [1, 8, 12, 13, 21, 24, 25, 31]
 supersedes: []
 superseded_by: null

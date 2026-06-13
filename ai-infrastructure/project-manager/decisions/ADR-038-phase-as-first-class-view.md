@@ -3,7 +3,7 @@ schema_version: 1
 adr: 38
 title: "Phase as a first-class work item: a View entity plus a phase:* label family"
 status: "accepted"
-date: "2026-06-13"
+date: "2026-06-12"
 related_adrs: [1, 8, 12, 17, 18, 25, 36, 37]
 supersedes: []
 superseded_by: null
@@ -11,7 +11,7 @@ superseded_by: null
 
 # ADR-038: Phase as a first-class work item: a View entity plus a phase:* label family
 
-> Accepted 2026-06-13. Revisits the Phase representation that ADR-036 mapped to a bare label and ADR-025 left a level short of the taxonomy. Amends ADR-036's import mapping (Phase: label -> View + phase:* label), amends ADR-018 (adds phase:* as a second reserved family), and amends ADR-012 (view ordering) via this later ADR per the ADR-024 precedent. Resolved alongside ADR-037 (the markdown storage representation), which targets this model.
+> Accepted 2026-06-12. Revisits the Phase representation that ADR-036 mapped to a bare label and ADR-025 left a level short of the taxonomy. Amends ADR-036's import mapping (Phase: label -> View + phase:* label), amends ADR-018 (adds phase:* as a second reserved family), and amends ADR-012 (view ordering) via this later ADR per the ADR-024 precedent. Resolved alongside ADR-037 (the markdown storage representation), which targets this model.
 
 ## Context
 
@@ -21,7 +21,7 @@ ADR-025 is the deeper root: it built a flat, one-level parent relation (epic -> 
 
 ADR-037 (markdown storage representation) surfaced the practical cost. Its goal is an importer that is a reader, not an interpreter. If a Phase becomes a markdown file with bottom-up linkage (mirroring `parent_id`) but the app stores Phase as a bare label, the asymmetry removed from inside the markdown reappears at the markdown-to-app seam: epic-file -> issue, phase-file -> label, by different rules. True end-to-end isomorphism requires Phase to be first-class in the app, not just in the markdown.
 
-A design conversation (2026-06-13) worked the alternatives with the operator and selected the View model below.
+A design conversation (2026-06-12) worked the alternatives with the operator and selected the View model below.
 
 ## Alternatives considered
 

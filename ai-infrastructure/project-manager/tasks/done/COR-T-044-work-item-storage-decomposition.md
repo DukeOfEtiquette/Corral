@@ -5,8 +5,8 @@ title: "Build the epic/phase file structure per ADR-037 (Phase A: trees, YAML fi
 status: done
 labels: []
 priority: P2
-created: 2026-06-13
-updated: 2026-06-13
+created: 2026-06-12
+updated: 2026-06-12
 ---
 
 ## Description
@@ -35,6 +35,6 @@ References: `./decisions/ADR-037-work-item-storage-representation.md`, `./decisi
 
 ## Activity log
 
-- 2026-06-13: Created in backlog. Triaged from the ADR-037 / ADR-038 resolution.
-- 2026-06-13: Split into a two-phase dispatch (decided with the user): COR-T-044 is Phase A (build the structure, dashboard untouched); Phase B (etl rewrite + roadmap-block removal + render verification) filed as COR-T-045. Provisional zero-task epics deferred (decided with the user): only the 6 epics with tasks are materialized. Picked up; moved to in-progress. Next: draft+check the kickoff and dispatch the executor.
-- 2026-06-13: Done. Kickoff drafted+checked (PASS), prelaunch PASS, executor dispatched (Sonnet). Delivered the epics/ + phases/ trees (6 epic files, 9 phase files), 40 task `epic:` linkage stamps, and the tasks/README convention, with the STATUS roadmap block and dashboard ETL left intact for Phase B. Verified against disk: per-epic counts exact (40 tasks, the report's "36" was a prose miscount), un-epic'd tasks untouched, roadmap block byte-unchanged, etl.py untouched; added the omitted ADR-031 forward-pointer note during close. Deliverable + handoffs committed in 7c6c8f7. Phase B is COR-T-045.
+- 2026-06-12: Created in backlog. Triaged from the ADR-037 / ADR-038 resolution.
+- 2026-06-12: Split into a two-phase dispatch (decided with the user): COR-T-044 is Phase A (build the structure, dashboard untouched); Phase B (etl rewrite + roadmap-block removal + render verification) filed as COR-T-045. Provisional zero-task epics deferred (decided with the user): only the 6 epics with tasks are materialized. Picked up; moved to in-progress. Next: draft+check the kickoff and dispatch the executor.
+- 2026-06-12: Done. Kickoff drafted+checked (PASS), prelaunch PASS, executor dispatched (Sonnet). Delivered the epics/ + phases/ trees (6 epic files, 9 phase files), 40 task `epic:` linkage stamps, and the tasks/README convention, with the STATUS roadmap block and dashboard ETL left intact for Phase B. Verified against disk: per-epic counts exact (40 tasks, the report's "36" was a prose miscount), un-epic'd tasks untouched, roadmap block byte-unchanged, etl.py untouched; added the omitted ADR-031 forward-pointer note during close. Deliverable + handoffs committed in 7c6c8f7. Phase B is COR-T-045.

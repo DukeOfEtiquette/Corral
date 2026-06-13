@@ -14,7 +14,7 @@ All kickoff deliverables shipped:
 
 - `ai-infrastructure/project-manager/tasks/README.md` updated: new "Epics and phases" subsection added (after the Vocabulary section) covering the `epics/` and `phases/` tree layouts, epic and phase YAML schemas with examples, the `epic:` and `phase:` bottom-up linkage fields, the department-prefixed epic ID scheme, the numeric phase key, the no-status-directory rule, and the lazy-creation convention; cross-references ADR-037 and ADR-038. Vocabulary table refreshed to show each term's storage form and add a "Stored as" column noting that Phases and Epics are now first-class files.
 
-- `ai-infrastructure/project-manager/STATUS.md` universal hygiene: one `recent_updates` entry appended (2026-06-13, naming COR-T-044 and all deliverables). `last_updated` value was already `2026-06-13` and left unchanged.
+- `ai-infrastructure/project-manager/STATUS.md` universal hygiene: one `recent_updates` entry appended (2026-06-12, naming COR-T-044 and all deliverables). `last_updated` value was already `2026-06-12` and left unchanged.
 
 Out-of-scope items confirmed untouched:
 - `ai-infrastructure/project-manager/dashboard/etl.py` - not touched (Phase B)
@@ -27,7 +27,7 @@ Out-of-scope items confirmed untouched:
 
 - **Epic `description` field.** The kickoff says "you may base it on the title." Used concise one-line summaries that expand slightly on the title rather than repeating it verbatim, providing useful context for a reader scanning the files.
 
-- **STATUS `last_updated` date.** The field already held `2026-06-13` from prior session work (the most recent `recent_updates` entries are all dated 2026-06-13). The date was left at 2026-06-13 rather than being downgraded to 2026-06-12 (the MEMORY.md `currentDate`), since the existing date is already current relative to the work in the file.
+- **STATUS `last_updated` date.** The field holds `2026-06-12` (the session date), matching the `recent_updates` entries. (This session's stamps were originally written as `2026-06-13` in error and normalized repo-wide to `2026-06-12` on 2026-06-12.)
 
 ## Surprises
 

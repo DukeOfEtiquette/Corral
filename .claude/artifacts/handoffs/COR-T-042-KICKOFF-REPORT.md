@@ -18,7 +18,7 @@ All four deliverables shipped per the kickoff:
 
 ## Surprises
 
-- The `last_updated` field in STATUS.md was already "2026-06-13" (today's date), so no date bump was needed; only the `recent_updates` entry was prepended. This is consistent with the kickoff's note that STATUS.md is settled and the instruction to perform universal hygiene.
+- The `last_updated` field in STATUS.md was already "2026-06-12" (today's date), so no date bump was needed; only the `recent_updates` entry was prepended. This is consistent with the kickoff's note that STATUS.md is settled and the instruction to perform universal hygiene.
 
 ## Follow-ups
 

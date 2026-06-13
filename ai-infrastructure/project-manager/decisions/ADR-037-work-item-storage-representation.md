@@ -3,7 +3,7 @@ schema_version: 1
 adr: 37
 title: "Work-item storage representation: epics and phases as first-class files"
 status: "accepted"
-date: "2026-06-13"
+date: "2026-06-12"
 related_adrs: [8, 12, 25, 27, 31, 36, 38]
 supersedes: []
 superseded_by: null
@@ -11,7 +11,7 @@ superseded_by: null
 
 # ADR-037: Work-item storage representation: epics and phases as first-class files
 
-> Accepted 2026-06-13. Decides how Phases and Epics are stored in the markdown era, a representation ADR-036 left unpinned. Resolved alongside ADR-038 (Phase as a first-class View), which the import targets defined here point at. The decomposition itself is a dispatched follow-on (COR-T-044), not performed by this ADR.
+> Accepted 2026-06-12. Decides how Phases and Epics are stored in the markdown era, a representation ADR-036 left unpinned. Resolved alongside ADR-038 (Phase as a first-class View), which the import targets defined here point at. The decomposition itself is a dispatched follow-on (COR-T-044), not performed by this ADR.
 
 ## Context
 
@@ -25,7 +25,7 @@ Three problems motivate revisiting it.
 
 3. **Churn coupling.** STATUS.md frontmatter mixes a slow-changing plan (the roadmap) with a fast-growing changelog (`recent_updates`, appended every session), burying the roadmap's git history under changelog noise.
 
-ADR-038 resolves the deeper half of this (Phase is now a first-class View entity, not a bare label), so making Phase a file in markdown has a first-class import target. This ADR decides the markdown-side representation against that model. A design conversation (2026-06-13) selected the file-based model below.
+ADR-038 resolves the deeper half of this (Phase is now a first-class View entity, not a bare label), so making Phase a file in markdown has a first-class import target. This ADR decides the markdown-side representation against that model. A design conversation (2026-06-12) selected the file-based model below.
 
 ## Alternatives considered
 

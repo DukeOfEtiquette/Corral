@@ -5,8 +5,8 @@ title: "Dashboard: remove dead milestone-* CSS left after the COR-T-041 epic res
 status: done
 labels: []
 priority: P3
-created: 2026-06-13
-updated: 2026-06-13
+created: 2026-06-12
+updated: 2026-06-12
 ---
 
 ## Description
@@ -31,5 +31,5 @@ Routes through the dispatched-worker flow (dashboard code deliverable). Surfaced
 
 ## Activity log
 
-- 2026-06-13: Created and picked up (in-progress) at user direction. Dead-CSS confirmed by the orchestrator (all listed classes have 0 jsx references after the COR-T-041 reshape). Routes through the dispatched-worker flow.
-- 2026-06-13: Done. Dispatched executor removed the ten dead milestone-era CSS rules (re-confirming zero JSX references first); live epic/ref/dept/phase classes untouched. Verified against disk: 0 dead classes remain, live classes intact, --no-cache build clean, and an orchestrator headless render confirmed zero visual change (the COR-07 practice). Committed in 2a102bb (kickoff/report pair included, ADR-024).
+- 2026-06-12: Created and picked up (in-progress) at user direction. Dead-CSS confirmed by the orchestrator (all listed classes have 0 jsx references after the COR-T-041 reshape). Routes through the dispatched-worker flow.
+- 2026-06-12: Done. Dispatched executor removed the ten dead milestone-era CSS rules (re-confirming zero JSX references first); live epic/ref/dept/phase classes untouched. Verified against disk: 0 dead classes remain, live classes intact, --no-cache build clean, and an orchestrator headless render confirmed zero visual change (the COR-07 practice). Committed in 2a102bb (kickoff/report pair included, ADR-024).

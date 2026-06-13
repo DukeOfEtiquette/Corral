@@ -16,7 +16,7 @@
 - [x] All live classes left intact: `.roadmap-epic-*`, `.badge-ref-*`, `.badge-epic-rollup`, `.badge-dept`, `.roadmap-cardinality-warning`, and all phase-level roadmap classes.
 - [x] Build verified via `docker compose -f ai-infrastructure/project-manager/dashboard/docker-compose.yml build --no-cache`: succeeded cleanly (vite built 292 modules, 13.25 kB CSS output).
 - [x] Container brought up: `docker compose ... up -d` confirmed container started on port 8420.
-- [x] STATUS.md universal hygiene applied (recent_updates entry prepended; last_updated already at 2026-06-13).
+- [x] STATUS.md universal hygiene applied (recent_updates entry prepended; last_updated already at 2026-06-12).
 
 ## Decisions made
 

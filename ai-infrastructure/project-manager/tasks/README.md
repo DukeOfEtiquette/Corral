@@ -36,7 +36,7 @@ The canonical work-item taxonomy for this project, per `./decisions/ADR-036-work
 
 ## Epics and phases (ADR-037, ADR-038)
 
-Per `./decisions/ADR-037-work-item-storage-representation.md` (accepted 2026-06-13), Epics and Phases are first-class files, stored as pure YAML (`.yml`). This is a deliberate file-type split: Tasks and ADRs are prose-first markdown; Epics and Phases are structure-first YAML, tracking the leaf-versus-container distinction.
+Per `./decisions/ADR-037-work-item-storage-representation.md` (accepted 2026-06-12), Epics and Phases are first-class files, stored as pure YAML (`.yml`). This is a deliberate file-type split: Tasks and ADRs are prose-first markdown; Epics and Phases are structure-first YAML, tracking the leaf-versus-container distinction.
 
 ### Trees
 

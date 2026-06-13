@@ -5,8 +5,8 @@ title: "Author tests for the DB-T-001 Postgres schema (retroactive test-design, 
 status: backlog
 labels: []
 priority: P2
-created: 2026-06-13
-updated: 2026-06-13
+created: 2026-06-12
+updated: 2026-06-12
 epic: DB-E-001
 ---
 
@@ -22,4 +22,4 @@ This is the second task of the **E2.1 Database schema & migrations** epic (ADR-0
 
 ## Activity log
 
-- 2026-06-13: Created in backlog by the project-manager coordinator (coordinator write authority, ADR-027). Surfaced during the ADR-036 roadmap restructure: the Database epic (E2.1) needed a second task, and DB-T-001's schema lacks the test coverage the post-COR-T-035 TDD flow now expects. Runs as a retroactive test-design dispatch under /database-orchestrator.
+- 2026-06-12: Created in backlog by the project-manager coordinator (coordinator write authority, ADR-027). Surfaced during the ADR-036 roadmap restructure: the Database epic (E2.1) needed a second task, and DB-T-001's schema lacks the test coverage the post-COR-T-035 TDD flow now expects. Runs as a retroactive test-design dispatch under /database-orchestrator.
