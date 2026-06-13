@@ -11,7 +11,7 @@ superseded_by: null
 
 # ADR-008: Bootstrap task tracking in git-tracked markdown; dogfooding is an explicit milestone
 
-> **Forward pointer (2026-06-13):** ADR-039 pre-stages the post-dogfood activity end-state. It derives the markdown-era STATUS activity feed (`last_updated`, `recent_updates`) from git history, which is the markdown-era analog of the app's `issue_events` audit log (ADR-012). At the dogfood migration the feed re-points its source from git to the events table without reshaping the dashboard `data.json` contract. See ADR-039.
+> **Forward pointer (2026-06-13):** ADR-039 pre-stages the post-dogfood activity end-state. It derives the markdown-era STATUS activity feed (`last_updated`, `recent_updates`) from git history, which is the markdown-era analog of the app's `issue_events` audit log (ADR-012). At the dogfood migration the feed re-points its source from git to the events table without reshaping the dashboard `data.json` contract. See ADR-039. ADR-040 carries this further: the full current-state surface (phase / next step / blocked) becomes derived, the markdown-era analog of reading project state from the app's own tables post-dogfood. See ADR-040.
 
 ## Context
 

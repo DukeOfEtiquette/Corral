@@ -13,7 +13,7 @@ superseded_by: null
 
 > Accepted 2026-06-12. Decides how Phases and Epics are stored in the markdown era, a representation ADR-036 left unpinned. Resolved alongside ADR-038 (Phase as a first-class View), which the import targets defined here point at. The decomposition itself is a dispatched follow-on (COR-T-044), not performed by this ADR.
 
-> **Forward pointer (2026-06-13):** ADR-039 extends this source-only derivation pattern (contract preserved, source moved) from the roadmap to the STATUS activity surface: `last_updated` and `recent_updates` become derived (git-by-path) and leave STATUS.md frontmatter, the same churn-coupling resolution applied one level further. See ADR-039.
+> **Forward pointer (2026-06-13):** ADR-039 extends this source-only derivation pattern (contract preserved, source moved) from the roadmap to the STATUS activity surface: `last_updated` and `recent_updates` become derived (git-by-path) and leave STATUS.md frontmatter, the same churn-coupling resolution applied one level further. See ADR-039. ADR-040 extends the same pattern one further hop, deriving the `STATUS.md` narrative body (`## Current phase` / `## Next step` / `## Blocked on`) so no hand-authored content remains in `STATUS.md`. See ADR-040.
 
 ## Context
 

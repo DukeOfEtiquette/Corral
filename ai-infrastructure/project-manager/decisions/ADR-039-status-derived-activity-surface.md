@@ -11,6 +11,8 @@ superseded_by: null
 
 # ADR-039: STATUS.md ownership: derive the activity surface, hand-author only forward intent
 
+> **Forward pointer (2026-06-13):** ADR-040 amends decision 1 and decision 3. This ADR kept the body sections (`## Current phase`, `## Next step`, `## Blocked on`) hand-authored as forward intent; ADR-040 derives them too (phase / next step from the roadmap rollup, blocked from the `blocked/` task trees), advancing the principle to "intent is authored only until a structured source can carry it." The "terminal derivation" this ADR claimed for the STATUS surface was one hop short; ADR-040 closes it. See ADR-040.
+
 ## Context
 
 Every workspace owns a `STATUS.md` whose frontmatter carries two hand-maintained fields, `last_updated` (a date) and `recent_updates` (a curated changelog of one rich entry per task/decision), plus a hand-authored body (`## Current phase`, `## Next step` on department STATUS, `## Blocked on`). The "universal STATUS hygiene" obligation (bump `last_updated`, append a `recent_updates` entry at the end of any session that makes progress) is wired into `EXECUTOR-ROLE.md`, `TEST-DESIGNER-ROLE.md`, `ORCHESTRATOR-ROLE.md`, all three orchestrator commands, the department command template, and the R6 kickoff convention.
