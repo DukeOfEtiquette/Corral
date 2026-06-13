@@ -10,6 +10,30 @@ Each workspace's tree follows the same layout and format below, but with its own
 - ID prefix (coordinator uses `COR-T`; departments use their own prefix, e.g. `DB-T`, `API-T`).
 - `.next-task-id` counter (plain integer; never shared across workspaces).
 
+## Vocabulary
+
+The canonical work-item taxonomy for this project, per `./decisions/ADR-036-work-item-taxonomy.md` (the binding why and what). This section carries the operating how and cross-references ADR-036 for rationale.
+
+| Term | What it is |
+|---|---|
+| **Roadmap** | The time-ordered strategic view: epics arranged over phases, communicating direction and progress. A living artifact, not a unit of work. |
+| **Phase** | A delivery band that groups epics. Sequential and gated. Completes when all its epics are done. |
+| **Epic** | A department-scoped deliverable capability composed of tasks. Completes when all its tasks are done. |
+| **Task** | The atomic, indivisible unit of work. A leaf; completes on its own. |
+| **ADR** | A decision and governance record (the rationale). Not a unit of work; never "completes". Referenced by epics and tasks; not imported as a work item. |
+
+**Containment:** A Phase contains only Epics. An Epic contains only Tasks. A Task is a leaf; it contains nothing.
+
+**Cardinality:** A Phase has at least 2 Epics; an Epic has at least 2 Tasks. These are project conventions describing intended shape, not schema constraints enforced by the database (ADR-025 permits looser). A forming epic may transiently hold fewer than 2 tasks while its siblings are filed.
+
+**Standalones:** A standalone Epic belongs to no phase (but still follows the >= 2 Tasks convention). A standalone Task belongs to no epic. Both float at the top level alongside phases. Most one-off coordinator work items are standalone tasks.
+
+**Epic scope:** An epic is department-scoped -- it has exactly one owning department, and all its tasks come from that department's task tree. Cross-department work is expressed as sibling epics under a shared phase, never as one epic reaching across departments.
+
+**Status rollup:** A Task's status is its directory (`backlog`, `in-progress`, `blocked`, `done`). An Epic's status derives from its tasks: done when >= 1 task and all are done; planned when it has no tasks or all are in backlog; in-progress otherwise. A Phase is done when all its epics are done. ADR references never enter any rollup.
+
+**ADRs drive no completion.** An accepted ADR never makes an epic or phase "done". Completion is a property of work (tasks); an ADR is a decision. See ADR-036 for the full rationale and the dogfood import mapping.
+
 ## Layout
 
 ```

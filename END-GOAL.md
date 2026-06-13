@@ -32,4 +32,4 @@ After the dogfood milestone, three incremental phases close the gap:
 - **Phase 7: Repoint ai-infrastructure at the remote.** Switch this project's dashboard and task seam from local markdown to the remote Corral deploy.
 - **Phase 8: Extract the project-manager plugin.** Generalize the project-manager into a portable Claude Code plugin and dogfood Corral with it. Gated on `./ai-infrastructure/project-manager/decisions/ADR-034-project-manager-plugin-extraction-boundary.md`.
 
-The full phase-by-phase plan lives in `./README.md` (the roadmap table) and `./ai-infrastructure/project-manager/STATUS.md` (the authoritative live status with sub-milestones). Phases 6-8 are the incremental steps; this document is the destination they point at.
+The full phase-by-phase plan lives in `./README.md` (the roadmap table) and `./ai-infrastructure/project-manager/STATUS.md` (the authoritative live status with epics). Phases 6-8 are the incremental steps; this document is the destination they point at.

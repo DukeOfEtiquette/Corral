@@ -49,7 +49,7 @@ Rationale: `./ai-infrastructure/project-manager/decisions/ADR-002-tech-stack.md`
 
 ## Roadmap
 
-Live phase and milestone status: `./ai-infrastructure/project-manager/STATUS.md`. Rendered live roadmap: `./ai-infrastructure/project-manager/dashboard/`. The destination these phases point at: `./END-GOAL.md`.
+Live phase and epic status: `./ai-infrastructure/project-manager/STATUS.md`. Rendered live roadmap: `./ai-infrastructure/project-manager/dashboard/`. The destination these phases point at: `./END-GOAL.md`.
 
 | Phase | Intent |
 |---|---|

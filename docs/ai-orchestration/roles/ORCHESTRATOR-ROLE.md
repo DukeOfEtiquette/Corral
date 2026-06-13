@@ -98,7 +98,7 @@ Resolving a pending ADR is orchestrator-direct work: it falls inside the `decisi
 
 5. Run the forward-pointer sweep in both directions, per the existing "Stale-reference sweep when resolving ADRs" bullet under "Kickoff drafting convention" (cross-reference that bullet by name; do not restate or duplicate its content). For each accepted ADR the decision amends, add a forward-pointer note while the amendment itself lives in the later ADR (the ADR-024 precedent: amend by a later ADR, never edit an accepted ADR's decision in place); mark resolved any "deferred to ADR-NNN (pending)" language in neighbours; and leave conditional leanings that did not fire accurate as written (do not edit what is still true). Contradicted leanings are decisions: surface them to the user. Stale cross-references are deliverables: fix them or triage them as follow-ups.
 
-6. Apply STATUS hygiene plus the task-specific deltas: bump `last_updated`, prepend a `recent_updates` entry, and update "Next step" and the roadmap milestone to drop the resolved task.
+6. Apply STATUS hygiene plus the task-specific deltas: bump `last_updated`, prepend a `recent_updates` entry, and update "Next step" and the roadmap epic to drop the resolved task.
 
 7. Close with two commits: commit 1 is the ADR acceptance plus forward-pointer notes plus STATUS (task still in-progress); commit 2 is the task move to done, whose done activity-log line cites commit 1's short hash. The split sidesteps the chicken-and-egg of recording the deliverable's hash in the done line.
 
