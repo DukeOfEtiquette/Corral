@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-048
 title: "Dashboard: add spacing between date and text in the recent-updates / activity feed"
-status: backlog
+status: done
 labels: []
 priority: P3
 created: 2026-06-13
@@ -21,4 +21,5 @@ Out of scope: any change to the ETL or the `data.json` contract (COR-T-047 owns 
 
 ## Activity log
 
+- 2026-06-13: Done. Dispatched-worker flow: kickoff drafted+checked (PASS; the drafter caught and corrected an orchestrator citation slip -- ActivityPanel.jsx is in src/panels/, not src/views/, per ADR-035), prelaunch W1 PASS, executor applied the one-line fix (added className="activity-item" to the WorkspaceView recent_updates row <li>, reusing the existing styles.css .activity-item flex+gap rule; no CSS edit), close-checker W2 PASS. Verified on disk (only WorkspaceView.jsx touched; no STATUS file -- correctly exercising the post-ADR-039 no-universal-hygiene model) and via a COR-07 headless render confirming the date/text gap now matches the landing feed. Deliverable committed bd0b22a. First task closed under the ADR-039 model (status_deltas none; no STATUS hygiene applied).
 - 2026-06-13: Created in backlog by the project-manager coordinator (orchestrator-direct). Surfaced during the COR-T-047 Phase A COR-07 render gate: the activity-feed date/text spacing nit was visible in the database workspace view. Filed as a standalone P3 cosmetic follow-up at user direction (not folded into COR-T-047 Phase B, which is the doctrine cascade + frontmatter removal). Left standalone (no `epic:`): the only fitting epic (COR-E-004 dashboard) is a done Phase-1 epic; ADR-036 permits standalone tasks.
