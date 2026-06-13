@@ -3,133 +3,139 @@ schema_version: 1
 roadmap:
   - phase: 0
     title: "Bootstrap"
-    deliverables: "Docs, decision records, task convention"
-    milestones:
-      - id: P0-1
-        title: "Docs scaffold (README, CLAUDE.md)"
-        status: done
-      - id: P0-2
-        title: "Decision records ADR-001..009 accepted"
-        status: done
-        adrs: [ADR-001..009]
-      - id: P0-3
-        title: "Task convention seeded (COR-T-001..006)"
-        status: done
-        tasks: [COR-T-001..006]
+    legacy: true
+    deliverables: "Repo init, ADR-001..009 accepted, the task convention seeded. Predates the task system (ADR-008); exempt from epic/task decomposition per ADR-036."
+    epics: []
   - phase: 1
     title: "AI infrastructure"
-    deliverables: "Orchestrator/worker role docs, the dispatch loop, the blocking ADRs, and the department structure"
-    milestones:
-      - id: P1-1
-        title: "Orchestrator/worker role docs + drafter+checker dispatch loop"
-        status: done
-        tasks: [COR-T-001]
-      - id: P1-2
-        title: "Blocking ADRs: schema, API shape, MCP surface, auth"
-        status: done
-      - id: P1-3
-        title: "Department structure + workspace restructure"
-        status: done
-      - id: P1-4
-        title: "project-manager insight dashboard"
-        status: done
-        tasks: [COR-T-014]
-      - id: P1-5
-        title: "Resolve pending ADRs: label taxonomy, native epics, per-agent MCP identity"
-        status: done
-      - id: P1-6
-        title: "Roadmap sub-milestone granularity in the dashboard"
-        status: done
-        tasks: [COR-T-017]
+    deliverables: "Orchestration role docs and the dispatch loop, the foundational ADRs, the department structure, and the dashboard"
+    epics:
+      - id: E1.1
+        dept: project-manager
+        title: "Orchestration system: roles, dispatch loop, agents"
+        tasks: [COR-T-001, COR-T-007, COR-T-015, COR-T-016, COR-T-019, COR-T-035, COR-T-036, COR-T-039]
+        adrs: [ADR-023, ADR-024, ADR-028, ADR-016, ADR-032, ADR-035]
+      - id: E1.2
+        dept: project-manager
+        title: "Data model, API & MCP decisions"
+        tasks: [COR-T-002, COR-T-003, COR-T-004, COR-T-005, COR-T-008, COR-T-009, COR-T-010]
+        adrs: [ADR-010, ADR-011, ADR-012, ADR-013, ADR-018, ADR-025, ADR-026]
+      - id: E1.3
+        dept: project-manager
+        title: "Department & workspace structure"
+        tasks: [COR-T-006, COR-T-011, COR-T-012, COR-T-013, COR-T-023, COR-T-025]
+        adrs: [ADR-021, ADR-027, ADR-030, ADR-031]
+      - id: E1.4
+        dept: project-manager
+        title: "project-manager dashboard"
+        tasks: [COR-T-014, COR-T-017, COR-T-018, COR-T-020, COR-T-022, COR-T-026, COR-T-027, COR-T-029, COR-T-030, COR-T-031, COR-T-032, COR-T-033, COR-T-034, COR-T-037, COR-T-040]
+        adrs: [ADR-027]
+      - id: E1.5
+        dept: project-manager
+        title: "Project orientation docs"
+        tasks: [COR-T-021, COR-T-038]
+        adrs: [ADR-034]
   - phase: 2
     title: "API + DB core"
-    deliverables: "Postgres schema, FastAPI endpoints, auth/sessions, invite tokens, migrations, admin seeding"
-    milestones:
-      - id: P2-0
-        title: "Create web-app departments (database, backend-api) via create-department"
-        status: done
-        tasks: [COR-T-023]
-      - id: P2-1
-        title: "Postgres schema (ADR-012)"
-        status: done
-        tasks: [DB-T-001]
-        adrs: [ADR-012]
-      - id: P2-2
-        title: "FastAPI endpoints with house rules"
-        status: planned
-      - id: P2-3
-        title: "Auth/sessions + invite tokens (ADR-011)"
-        status: planned
-        adrs: [ADR-011]
-      - id: P2-4
-        title: "Migrations + admin seeding (ADR-014, ADR-006)"
-        status: planned
-        adrs: [ADR-014, ADR-006]
+    deliverables: "Postgres schema and migrations, FastAPI endpoints, auth/sessions, invite tokens, admin seeding"
+    epics:
+      - id: E2.1
+        dept: database
+        title: "Database schema & migrations"
+        tasks: [DB-T-001, DB-T-002]
+        adrs: [ADR-012, ADR-014, ADR-025, ADR-026]
+      - id: E2.2
+        dept: backend-api
+        title: "Backend API"
+        tasks: []
+        adrs: [ADR-010, ADR-011, ADR-013]
   - phase: 3
     title: "MCP server"
     deliverables: "FastMCP server as an authenticated API client; the agent seam goes live"
-    milestones:
-      - id: P3-1
-        title: "FastMCP server as authenticated API client (ADR-004)"
-        status: planned
-      - id: P3-2
-        title: "Nine-tool agent seam goes live (ADR-013)"
-        status: planned
+    epics:
+      - id: E3.1
+        dept: mcp-server
+        title: "FastMCP server (authenticated API client)"
+        tasks: []
+        adrs: [ADR-004]
+      - id: E3.2
+        dept: mcp-server
+        title: "Nine-tool agent seam"
+        tasks: []
+        adrs: [ADR-013, ADR-019]
   - phase: 4
     title: "Kanban UI"
     deliverables: "React multi-view board with per-view label filters, admin page"
-    milestones:
-      - id: P4-1
-        title: "React multi-view board with per-view label filters (ADR-015, ADR-017, ADR-018)"
-        status: planned
-      - id: P4-2
+    epics:
+      - id: E4.1
+        dept: frontend-ui
+        title: "Multi-view kanban board"
+        tasks: []
+        adrs: [ADR-015, ADR-017, ADR-018]
+      - id: E4.2
+        dept: frontend-ui
         title: "Admin page"
-        status: planned
+        tasks: []
+        adrs: [ADR-006, ADR-007]
   - phase: 5
     title: "Dogfood milestone"
     deliverables: "Import the markdown tasks into the app via the MCP server; the project tracks itself; markdown tasks frozen"
-    milestones:
-      - id: P5-1
-        title: "Import markdown tasks into the app via the MCP server (ADR-008)"
-        status: planned
-      - id: P5-2
-        title: "Freeze markdown tasks; the project tracks itself"
-        status: planned
-      - id: P5-3
-        title: "Multi-user/agent concurrency live (ADR-020)"
-        status: planned
+    epics:
+      - id: E5.1
+        dept: project-manager
+        title: "Task import & freeze"
+        tasks: []
+        adrs: [ADR-008]
+      - id: E5.2
+        dept: backend-api
+        title: "Multi-user/agent concurrency"
+        tasks: []
+        adrs: [ADR-020]
   - phase: 6
     title: "Remote deployment & concurrency"
     deliverables: "Deploy Corral to a remote server; prove multiple concurrent agent sessions work with no errors"
-    milestones:
-      - id: P6-1
-        title: "Remote deploy of the Corral app stack (ADR-033)"
-        status: planned
-      - id: P6-2
-        title: "Concurrency validation under multi-session load (exercises ADR-020)"
-        status: planned
+    epics:
+      - id: E6.1
+        dept: devops
+        title: "Remote deploy of the app stack"
+        tasks: []
+        adrs: [ADR-033]
+      - id: E6.2
+        dept: devops
+        title: "Concurrency validation under load"
+        tasks: []
+        adrs: [ADR-020]
   - phase: 7
     title: "Repoint ai-infrastructure at the remote"
     deliverables: "Switch this project's dashboard and task seam from local markdown to the remote Corral deploy"
-    milestones:
-      - id: P7-1
-        title: "ai-infrastructure consumes the remote app via the MCP seam (ADR-004)"
-        status: planned
-      - id: P7-2
-        title: "Dashboard reads the remote deploy instead of local markdown"
-        status: planned
+    epics:
+      - id: E7.1
+        dept: project-manager
+        title: "Consume the remote app via the MCP seam"
+        tasks: []
+        adrs: [ADR-004]
+      - id: E7.2
+        dept: project-manager
+        title: "Dashboard reads the remote deploy"
+        tasks: []
+        adrs: []
   - phase: 8
     title: "Extract the project-manager plugin"
     deliverables: "Generalize project-manager into a portable Claude Code plugin; dogfood Corral with it"
-    milestones:
-      - id: P8-1
-        title: "Plugin extraction: role, dispatch loop, checkers, /create-department, dashboard, minus Corral departments (ADR-034)"
-        status: planned
-      - id: P8-2
+    epics:
+      - id: E8.1
+        dept: project-manager
+        title: "Plugin extraction"
+        tasks: []
+        adrs: [ADR-034]
+      - id: E8.2
+        dept: project-manager
         title: "Dogfood Corral via the installed plugin"
-        status: planned
+        tasks: []
+        adrs: []
 last_updated: "2026-06-13"
 recent_updates:
+  - "2026-06-13: ADR-036 roadmap restructure landed (STATUS phase->epic->task; dashboard reshape COR-T-041). STATUS.md roadmap restructured (orchestrator-direct) from phase->milestone to phase->epic->task: Phase 0 legacy (exempt); Phase 1 = 5 department-scoped epics over 38 tasks; Phase 2 = E2.1 Database (DB-T-001 + new DB-T-002) in-progress + E2.2 Backend API planned; Phases 3-8 = 2 provisional epics each; every epic carries a `dept`. ADR-036 amended: added 'Epic scope (department-scoped)' (an epic has one owning department, all tasks from that tree; cross-department work = sibling epics under a phase; each epic records its dept, rendered as the leading badge; enforced by a cross-dept consistency check) and refined 'Completion and status' with the precise rollup (done = >=1 task all done; planned = 0 tasks or all backlog; in-progress = otherwise; partial progress reads in-progress). COR-T-041 executed (dispatched): etl reads epics and rolls epic status up from tasks (task-only) and phase from epics, handling legacy; RoadmapPanel renders phase->epic with a left-most department badge, an EpicRollupBadge (count + status color), governing ADR badges, and click-to-expand task badges; cardinality check (1-task epic / <2-epic non-legacy phase) and cross-department check (epic tasks spanning >1 tree) added, both dormant on current data and spot-tested. Filed DB-T-002 (database backlog: retroactive schema tests, E2.1's second task). Vocabulary cascade (tasks/README Vocabulary section + milestone->epic doc sweep) queued as COR-T-042."
   - "2026-06-13: ADR-036 accepted (work-item taxonomy: roadmap, phase, epic, task, ADR), orchestrator-direct. Retires 'milestone' as a work container and pins the canonical vocabulary: Phase (collection of >=2 epics) contains Epic (collection of >=2 tasks) contains Task (atomic unit of work); standalone epics (no phase) and standalone tasks (no epic) float at the top level; ADRs are decision/governance records referenced by epics/tasks, never containing or completing work, and spawn work sized big->epic / small->task (and are themselves produced by a task). Status rolls up task->epic->phase; ADRs drive no completion (the principle behind COR-T-040's task-drives-done-ness). The >=2 minimums are project conventions (not app-enforced; ADR-025 permits looser) describing intended shape, transiently violable while an epic forms. App/dogfood mapping (ADR-025/ADR-008): Epic->type=epic, Task->type=task+parent_id, Phase->label, ADR->external reference, so the dogfood import stays a reader. Promotes observation COR-03 (hand-set milestone status retired in favor of task rollup). Forward-pointer notes added to ADR-025 (epic foundation) and ADR-008 (import mapping + the 'milestone' term sense). Named follow-ons (not yet filed): the roadmap restructure (regroup current single-task milestones into department-aligned epics-of-tasks; replaces the COR-T-040 stage-4 backfill), the rename/reshape cascade (Vocabulary section in tasks/README + milestone->epic across STATUS/dashboard/docs), and a dashboard cardinality consistency check."
   - "2026-06-12: COR-T-040 executed: dashboard ROADMAP now renders status-colored task/ADR reference badges resolved deterministically in etl.py (range-token expansion plus resolution against collect_all_tasks/collect_adrs), replacing the hand-set phase and milestone status pills. Milestone effective status now derives from TASK refs only (all done -> done; any in-progress/blocked -> in-progress; else planned), with ADR refs informational (rendered, colored by their own accepted/pending status, but not driving done-ness); ref-less milestones fall back to the hand-set status field (the escape hatch feeding derive_current_phase/derive_next_step). Fork 1: removed the phase-level DONE/CURRENT/UPCOMING and milestone-level DONE/PLANNED badges; kept the phase side color bar and CURRENT background. Fork 3: range tokens (ADR-001..009, COR-T-001..006) render as one rollup-colored badge with member count; unresolved refs get a loud dashed guard badge (the COR-04/05/06 deterministic guard in-dashboard). STATUS.md roadmap milestones seeded with structured tasks:[]/adrs:[] lists (orchestrator-direct schema seed). Two styling fixes folded in during verification: Agent Fleet tables given table-layout:fixed with shared column widths so AGENT/MODEL/PURPOSE align across both groups; roadmap milestone rows gained 1px divider lines. Also fixed a blank-page render regression (React reserved prop `ref` is not forwarded to function components, so badge data was undefined and crashed the tree; renamed the prop to `badge`). Deferred follow-ons: stage-4 per-milestone ref backfill (where non-green badge colors get exercised) and a stage-5 ADR codifying the roadmap-ref schema and etl resolution as convention (promotes COR-03)."
   - "2026-06-12: COR-T-039 executed: implemented ADR-035's prevention-first cited-reference integrity convention into ORCHESTRATOR-ROLE.md and KICKOFF-DRAFTER-SPEC.md. EDIT 1 added the 'Citation-completeness convention (owned-but-advisory)' bullet to ORCHESTRATOR-ROLE.md's 'Kickoff drafting convention' section (pins the convention, marks it NOT an R-rule, names R9 as the recorded re-open path, promotes from COR-04/COR-06). EDIT 2 added Phase 5 self-audit item 9 ('Citation-completeness (advisory)') to KICKOFF-DRAFTER-SPEC.md, cross-referencing ADR-035. EDIT 3 added the 'Deliverable-path resolution (explicit sub-step)' sentence to Dispatched-worker flow step 6 in ORCHESTRATOR-ROLE.md, turning the previously-emergent per-path verification into a written step. All three edits faithfully reflect ADR-035 Decision and Consequences; no R9 or W-rule introduced; TDD two-phase flow step 5 untouched."

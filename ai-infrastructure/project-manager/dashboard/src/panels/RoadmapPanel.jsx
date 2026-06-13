@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // Map a resolved_status to a CSS class suffix for the ref badge.
 // Uses existing color values per the kickoff's palette decision.
@@ -55,37 +55,135 @@ function RefBadge({ badge: r }) {
   return <SingleBadge badge={r} />;
 }
 
+// Department badge: left-most badge on each epic header.
+// Displays the epic's owning department slug in a neutral category-tag style.
+function DeptBadge({ dept }) {
+  if (!dept) return null;
+  return (
+    <span className="badge badge-dept" title={`Department: ${dept}`}>
+      {dept}
+    </span>
+  );
+}
+
+// Epic rollup badge: a single status-colored badge showing task progress.
+// Modeled on RangeBadge but specific to epic-level rollup.
+function EpicRollupBadge({ epic }) {
+  const { task_count, done_count, status } = epic;
+  let text;
+  if (task_count === 0) {
+    text = 'planned';
+  } else if (done_count === task_count) {
+    text = `${done_count} done`;
+  } else {
+    text = `${done_count}/${task_count}`;
+  }
+  return (
+    <span className={`badge badge-ref badge-epic-rollup badge-${refBadgeClass(status)}`}>
+      {text}
+    </span>
+  );
+}
+
 export default function RoadmapPanel({ roadmap }) {
+  const [expandedEpics, setExpandedEpics] = useState(new Set());
+
+  function toggleEpic(epicId) {
+    setExpandedEpics(prev => {
+      const next = new Set(prev);
+      if (next.has(epicId)) {
+        next.delete(epicId);
+      } else {
+        next.add(epicId);
+      }
+      return next;
+    });
+  }
+
   return (
     <div className="card">
       <h3>Roadmap</h3>
       <ol className="roadmap-list">
-        {roadmap.map((item) => (
-          <li key={item.phase} className={`roadmap-item roadmap-${item.status}`}>
-            <div className="roadmap-header">
-              <span className="roadmap-phase">Phase {item.phase}</span>
-              <span className="roadmap-title">{item.title}</span>
-            </div>
-            <p className="roadmap-deliverables">{item.deliverables}</p>
-            {item.milestones && item.milestones.length > 0 && (
-              <ul className="roadmap-milestones">
-                {item.milestones.map((ms) => (
-                  <li key={ms.id} className="roadmap-milestone-item">
-                    <span className="roadmap-milestone-id">{ms.id}</span>
-                    <span className="roadmap-milestone-title">{ms.title}</span>
-                    {ms.refs && ms.refs.length > 0 && (
-                      <span className="roadmap-milestone-refs">
-                        {ms.refs.map((r, i) => (
-                          <RefBadge key={i} badge={r} />
-                        ))}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
+        {roadmap.map((item) => {
+          const isLegacy = item.legacy === true;
+          return (
+            <li
+              key={item.phase}
+              className={`roadmap-item roadmap-${item.status}${isLegacy ? ' roadmap-legacy' : ''}`}
+            >
+              <div className="roadmap-header">
+                <span className="roadmap-phase">Phase {item.phase}</span>
+                <span className="roadmap-title">{item.title}</span>
+                {item.warning && (
+                  <span
+                    className="badge badge-ref badge-ref-unresolved roadmap-cardinality-warning"
+                    title={item.warning}
+                  >
+                    !
+                  </span>
+                )}
+              </div>
+              <p className="roadmap-deliverables">{item.deliverables}</p>
+              {!isLegacy && item.epics && item.epics.length > 0 && (
+                <ul className="roadmap-epics">
+                  {item.epics.map((ep) => {
+                    const epicKey = `${item.phase}-${ep.id}`;
+                    const isExpanded = expandedEpics.has(epicKey);
+                    const hasTasks = ep.tasks && ep.tasks.length > 0;
+                    return (
+                      <li key={ep.id} className="roadmap-epic-item">
+                        <div className="roadmap-epic-header">
+                          <span className="roadmap-epic-id">{ep.id}</span>
+                          <span className="roadmap-epic-title">{ep.title}</span>
+                          <span className="roadmap-epic-badges">
+                            <DeptBadge dept={ep.dept} />
+                            <EpicRollupBadge epic={ep} />
+                            {ep.adrs && ep.adrs.map((r, i) => (
+                              <RefBadge key={i} badge={r} />
+                            ))}
+                            {ep.warning && (
+                              <span
+                                className="badge badge-ref badge-ref-unresolved roadmap-cardinality-warning"
+                                title={ep.warning}
+                              >
+                                !
+                              </span>
+                            )}
+                            {ep.cross_dept_warning && (
+                              <span
+                                className="badge badge-ref badge-ref-unresolved roadmap-cardinality-warning"
+                                title={ep.cross_dept_warning}
+                              >
+                                dept!
+                              </span>
+                            )}
+                          </span>
+                          {hasTasks && (
+                            <button
+                              className="roadmap-epic-toggle"
+                              onClick={() => toggleEpic(epicKey)}
+                              aria-expanded={isExpanded}
+                              aria-label={isExpanded ? `Collapse ${ep.id}` : `Expand ${ep.id}`}
+                            >
+                              {isExpanded ? '▾' : '▸'}
+                            </button>
+                          )}
+                        </div>
+                        {isExpanded && hasTasks && (
+                          <div className="roadmap-epic-tasks">
+                            {ep.tasks.map((r, i) => (
+                              <RefBadge key={i} badge={r} />
+                            ))}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

@@ -48,7 +48,7 @@ Adopt `Phase`, `Epic`, `Task`, and `ADR` as the canonical terms (with `Roadmap` 
 |---|---|---|---|
 | **Roadmap** | The time-ordered strategic view: epics arranged over phases, communicating direction and progress. A living artifact, not a unit of work. | n/a (a view) | a board view (the dashboard until import) |
 | **Phase** | A delivery band that groups epics. Sequential and gated. | all its epics are done | a label (for example `phase:2`); not a work item |
-| **Epic** | A deliverable capability composed of tasks. | all its tasks are done | an issue with `type = epic` |
+| **Epic** | A department-scoped deliverable capability composed of tasks. | all its tasks are done | an issue with `type = epic` carrying its department's `dept:<slug>` label |
 | **Task** | The atomic, indivisible unit of work. | on its own (it is a leaf) | an issue with `type = task`, `parent_id` -> its epic (or null) |
 | **ADR** | A decision and governance record (the rationale). Not a unit of work; never "completes". | n/a | external (`decisions/`); referenced by issues, not imported as an issue |
 
@@ -59,9 +59,16 @@ Adopt `Phase`, `Epic`, `Task`, and `ADR` as the canonical terms (with `Roadmap` 
 - **Standalones float at the top level.** A *standalone Epic* is an epic that belongs to no phase (it still has at least 2 tasks). A *standalone Task* is a task that belongs to no epic. Because phases contain only epics, a standalone task is never a phase member; it sits at the top level alongside phases and standalone epics. Most one-off coordinator work items (a rename, a single ADR resolution) are standalone tasks, and that is expected.
 - **The minimums are conventions, not schema constraints.** ADR-025 permits an epic with zero children; these `>= 2` rules are a project modeling convention enforced by discipline and by a dashboard consistency check, not by the database. They describe the *intended shape*: a forming epic may transiently hold fewer than 2 tasks before its siblings are filed.
 
+### Epic scope (department-scoped)
+
+- **An epic is department-scoped: it has exactly one owning department, and all its tasks come from that department's task tree (ADR-031).** The coordinator (`project-manager`) counts as a department for this purpose; its `COR-T` epics are coordinator-scoped.
+- **Cross-department work is expressed as sibling epics under a shared phase, never as one epic reaching across departments.** A phase is the cross-cutting band; a capability spanning, for example, database and backend-api is two department-scoped epics (one per department) grouped by the phase. Phase 2 (E2.1 Database + E2.2 Backend API) is the worked example.
+- **Why single-owner.** Each department has its own orchestrator and task tree (ADR-027, ADR-031); a department-scoped epic has exactly one owner/driver, and at the dogfood import (ADR-008) it carries that department's single `dept:<slug>` label. A cross-department epic would have no single owner and no single import label.
+- **Each epic records its owning department** (a `dept` field on the roadmap epic), which the dashboard renders as the epic's leading badge. Enforced as a convention by a dashboard consistency check that flags an epic whose tasks span more than one department tree (dormant while every epic is single-tree), the same convention-plus-check model as the cardinality minimums.
+
 ### Completion and status
 
-- **Status rolls up.** A Task's status is its own (the directory it lives in, per ADR-031). An Epic is done when all its tasks are done. A Phase is done when all its epics are done.
+- **Status rolls up.** A Task's status is its own: the directory it lives in, per ADR-031 (`backlog`, `in-progress`, `blocked`, `done`). An Epic's status is derived from its tasks: **done** when it has at least one task and all are done; **planned** when it has no tasks or all its tasks are still in backlog; **in-progress** otherwise (some tasks done, or any task in-progress or blocked). Partial progress reads as in-progress, not planned (one of two tasks done is in-progress). A Phase is **done** when all its epics are done (a `legacy` phase is done by fiat); otherwise it is the current or an upcoming band by its position. ADR references never enter any of these rollups.
 - **ADRs drive no completion.** An ADR being accepted never makes an epic or phase "done". This is the principle behind COR-T-040's "tasks drive done-ness, ADRs are informational": completion is a property of *work* (tasks), and an ADR is a *decision*, not work.
 
 ### The role of ADRs

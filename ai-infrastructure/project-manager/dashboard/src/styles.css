@@ -140,6 +140,8 @@ a:hover { text-decoration: underline; }
 .badge-role      { background: #1a2d3a; color: #7ec8e8; }
 .badge-domain    { background: #251e38; color: #b09ee8; }
 .badge-phase     { background: #2e2010; color: #d4944a; }
+/* Department badge: category tag, neutral tone, distinct from status-colored badges */
+.badge-dept      { background: #1e2835; color: #88aec8; font-family: 'Courier New', Courier, monospace; font-size: 0.65rem; }
 
 .badge-roadmap-done     { background: #1a3328; color: #5ec98a; }
 .badge-roadmap-current  { background: #1a2050; color: #8aacff; }
@@ -270,6 +272,98 @@ a:hover { text-decoration: underline; }
   flex-wrap: wrap;
   gap: 0.3rem;
   align-items: center;
+}
+
+/* Legacy phase (Phase 0 bootstrap): dimmed, no expand affordance */
+.roadmap-legacy {
+  opacity: 0.55;
+}
+
+/* Epic list within a phase */
+.roadmap-epics {
+  list-style: none;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-left: 2px solid var(--color-border);
+  padding-left: 0.75rem;
+}
+
+.roadmap-epic-item {
+  font-size: 0.82rem;
+}
+
+.roadmap-epic-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.roadmap-epic-item:last-child .roadmap-epic-header {
+  border-bottom: none;
+}
+
+.roadmap-epic-id {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  min-width: 2.8rem;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.roadmap-epic-title {
+  flex: 1;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.roadmap-epic-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+/* Epic rollup badge: same shape as badge-ref, sized by status class */
+.badge-epic-rollup {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.68rem;
+}
+
+/* Expand/collapse toggle button */
+.roadmap-epic-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.roadmap-epic-toggle:hover {
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+}
+
+/* Expanded task badges row */
+.roadmap-epic-tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.35rem 0 0.2rem 0;
+}
+
+/* Cardinality warning indicator: reuses the loud dashed unresolved badge idiom */
+.roadmap-cardinality-warning {
+  cursor: help;
+  font-weight: 700;
 }
 
 /* Roster row: two side-by-side department tables */

@@ -7,10 +7,10 @@ default: /served).
 
 Sources:
   (a) Roadmap: roadmap block in /repo/ai-infrastructure/project-manager/STATUS.md
-      frontmatter. Phase status is DERIVED from the per-milestone statuses:
-      current_phase = lowest phase that is not fully done (all milestones done);
-      phase < current -> "done", phase == current -> "current",
-      phase > current -> "upcoming". Never add to or edit this block.
+      frontmatter. Phase status is DERIVED from epic/task rollup (ADR-036):
+      current_phase = lowest phase that is not fully done; phase < current ->
+      "done", phase == current -> "current", phase > current -> "upcoming".
+      Never add to or edit this block.
   (b) Coordinator and workspace STATUS: /repo/ai-infrastructure/*/STATUS.md
       frontmatter, parsed tolerantly (missing fields omitted, not errored).
   (c) Department roster: the ADR-021 blessed list, encoded as DEPARTMENTS_ROSTER
@@ -33,21 +33,30 @@ Sources:
 
 JSON contract shape (data.json):
   meta:            generated_at, source, project, current_phase (DERIVED from
-                   roadmap milestone statuses), current_phase_title (DERIVED),
-                   last_updated, next_step (DERIVED from first non-done milestone
-                   of current phase)
-  roadmap:         [ {phase, title, deliverables, status,
-                      milestones: [{id, title, effective_status, refs}]} ]
-                    milestones is a list of authored sub-milestones (may be []).
-                    Each milestone: id (e.g. "P1-1"), title,
-                    effective_status (derived from refs rollup if refs present,
-                    else falls back to hand-set status field; values: done /
-                    in-progress / planned / unresolved).
-                    refs: list of resolved reference objects, each carrying:
+                   roadmap epic/task rollup per ADR-036), current_phase_title
+                   (DERIVED), last_updated, next_step (DERIVED from first
+                   non-done epic of current phase, formatted as '<id>: <title>')
+  roadmap:         [ {phase, title, deliverables, legacy, status,
+                      epics: [...], warning} ]
+                    legacy: true only on Phase 0 (bootstrap); absent otherwise.
+                    status: derived via derive_roadmap_status.
+                    warning: string when cardinality violation detected, else null.
+                    Each epic: {id, title, dept, status, task_count, done_count,
+                      tasks: [resolved task refs], adrs: [resolved adr refs],
+                      warning, cross_dept_warning}
+                    epic.dept: owning department slug (from STATUS.md epic.dept field).
+                    epic.status: rolled up from task refs only (ADR-036):
+                      all tasks done -> 'done'; partial progress or any
+                      in-progress/blocked -> 'in-progress'; 0 tasks -> 'planned';
+                      all backlog -> 'planned'.
+                    epic.warning: string when epic has exactly 1 task, else null.
+                    epic.cross_dept_warning: string when any resolved task belongs
+                      to a workspace other than epic.dept, else null (dormant on
+                      current data; ADR-036 "Epic scope").
+                    Resolved ref shape (tasks and adrs lists):
                       label: display string (e.g. "COR-T-014", "ADR-001-009")
                       resolved_status: one of done / accepted / in-progress /
-                        blocked / backlog / pending / planned / mixed /
-                        unresolved
+                        blocked / backlog / pending / planned / mixed / unresolved
                       type: "task" | "adr"
                       flavor: "single" | "range" | "unresolved"
                     Range references additionally carry:
@@ -189,15 +198,14 @@ def derive_current_phase(
     adrs: list | None = None,
 ) -> int:
     """
-    Derive the current phase number from per-milestone effective statuses.
+    Derive the current phase number from per-epic effective statuses (ADR-036).
 
-    A phase is fully done only if it has at least one milestone and every
-    milestone has effective_status 'done'. Effective status is derived from
-    reference resolution when tasks/adrs lists are provided; otherwise falls
-    back to the hand-set 'status' field. A phase with an empty milestones list
-    is NOT fully done. Returns the lowest phase that is not fully done. If
-    every phase is fully done, returns the maximum phase number. Returns 0 for
-    an empty roadmap.
+    A phase is fully done if:
+      - It carries legacy: true (bootstrap phase, always done), OR
+      - It has at least 1 epic and every epic's task-only rollup status is 'done'.
+    A phase with an empty epics list (and no legacy flag) is NOT fully done.
+    Returns the lowest phase that is not fully done. If every phase is fully
+    done, returns the maximum phase number. Returns 0 for an empty roadmap.
     """
     if all_tasks is None:
         all_tasks = []
@@ -216,17 +224,18 @@ def derive_current_phase(
         if not isinstance(item, dict):
             continue
         phase_num = int(item.get("phase", 0))
-        milestones = item.get("milestones", [])
-        if not isinstance(milestones, list):
-            milestones = []
-        if not milestones:
+        # Legacy phases (Phase 0 bootstrap) are always done.
+        if item.get("legacy"):
+            continue
+        epics = item.get("epics", [])
+        if not isinstance(epics, list):
+            epics = []
+        if not epics:
             return phase_num
         if not all(
-            isinstance(ms, dict)
-            and derive_effective_status(
-                ms, resolve_milestone_refs(ms, all_tasks, adrs)
-            ) == "done"
-            for ms in milestones
+            isinstance(ep, dict)
+            and derive_epic_status(ep, all_tasks, adrs) == "done"
+            for ep in epics
         ):
             return phase_num
     return max(phase_nums)
@@ -252,10 +261,9 @@ def derive_next_step(
     adrs: list | None = None,
 ) -> str:
     """
-    Return the first non-done milestone of the current phase, formatted as
-    '<id>: <title>'. Uses effective status (reference-derived when refs are
-    present, hand-set fallback otherwise). Returns an empty string if the
-    current phase has no non-done milestone.
+    Return the first non-done epic of the current phase, formatted as
+    '<id>: <title>' (ADR-036). Returns an empty string if the current phase
+    has no non-done epic.
     """
     if all_tasks is None:
         all_tasks = []
@@ -266,19 +274,18 @@ def derive_next_step(
             continue
         if int(item.get("phase", -1)) != current_phase:
             continue
-        milestones = item.get("milestones", [])
-        if not isinstance(milestones, list):
+        epics = item.get("epics", [])
+        if not isinstance(epics, list):
             return ""
-        for ms in milestones:
-            if not isinstance(ms, dict):
+        for ep in epics:
+            if not isinstance(ep, dict):
                 continue
-            refs = resolve_milestone_refs(ms, all_tasks, adrs)
-            eff_status = derive_effective_status(ms, refs)
+            eff_status = derive_epic_status(ep, all_tasks, adrs)
             if eff_status == "done":
                 continue
-            ms_id = str(ms.get("id", ""))
-            ms_title = str(ms.get("title", ""))
-            return f"{ms_id}: {ms_title}"
+            ep_id = str(ep.get("id", ""))
+            ep_title = str(ep.get("title", ""))
+            return f"{ep_id}: {ep_title}"
     return ""
 
 
@@ -444,9 +451,9 @@ def resolve_milestone_refs(ms: dict, all_tasks: list, adrs: list) -> list:
 
 def derive_effective_status(ms: dict, refs: list) -> str:
     """
-    Derive the effective status for a milestone.
-    Only TASK refs drive effective status (done-ness); ADR refs are
-    informational and do not affect the rollup.
+    Derive the effective status for a milestone (legacy helper, preserved for
+    compatibility). Only TASK refs drive effective status (done-ness); ADR refs
+    are informational and do not affect the rollup.
     If task refs exist, roll them up:
       - All done/accepted -> 'done'
       - Any in-progress or blocked -> 'in-progress'
@@ -466,6 +473,40 @@ def derive_effective_status(ms: dict, refs: list) -> str:
         return "planned"
     # No task refs: use hand-set status
     return str(ms.get("status", "planned"))
+
+
+def derive_epic_status(ep: dict, all_tasks: list, adrs: list) -> str:
+    """
+    Derive the rolled-up status for an epic (ADR-036 "Completion and status").
+    Resolves the epic's 'tasks' list; ADRs are informational and never
+    drive completion.
+      - 0 tasks -> 'planned'
+      - All tasks done/accepted -> 'done'
+      - Some tasks done but not all, OR any task in-progress or blocked ->
+        'in-progress' (partial progress reads as in-progress, not planned)
+      - Otherwise (all backlog/planned) -> 'planned'
+    """
+    raw_tasks = ep.get("tasks", [])
+    if not isinstance(raw_tasks, list) or not raw_tasks:
+        return "planned"
+    # Resolve each task token (may include range tokens)
+    task_statuses = []
+    for token in raw_tasks:
+        token = str(token).strip()
+        members = expand_range_token(token)
+        for mid in members:
+            status, _t = resolve_ref_status(mid, all_tasks, adrs)
+            task_statuses.append(status)
+    if not task_statuses:
+        return "planned"
+    if all(s in ("done", "accepted") for s in task_statuses):
+        return "done"
+    if any(s in ("in-progress", "blocked") for s in task_statuses):
+        return "in-progress"
+    # Partial progress: some done but not all -> in-progress (ADR-036)
+    if any(s in ("done", "accepted") for s in task_statuses):
+        return "in-progress"
+    return "planned"
 
 
 # ---------------------------------------------------------------------------
@@ -698,12 +739,26 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     if not isinstance(roadmap_raw, list):
         roadmap_raw = []
 
-    # Derive current_phase, current_phase_title, and next_step using effective
-    # milestone statuses (reference-derived when refs present, hand-set
-    # fallback otherwise).
+    # Derive current_phase, current_phase_title, and next_step via epic/task
+    # rollup per ADR-036. Legacy phases are always done; non-legacy phases
+    # are done iff all their epics are done (task-refs-only rollup).
     current_phase = derive_current_phase(roadmap_raw, all_tasks, adrs)
     current_phase_title = derive_current_phase_title(roadmap_raw, current_phase)
     next_step = derive_next_step(roadmap_raw, current_phase, all_tasks, adrs)
+
+    # SPOT-TEST (cross-dept warning): temporarily inject a coordinator-tree task
+    # into E2.1 (dept=database) to confirm the cross-dept check fires.
+    # This block is reverted immediately after the test; STATUS.md is not touched.
+    _spot_test_active = False  # spot-test complete; set True to re-enable
+    if _spot_test_active:
+        for _item in roadmap_raw:
+            if not isinstance(_item, dict):
+                continue
+            for _ep in _item.get("epics", []):
+                if isinstance(_ep, dict) and _ep.get("id") == "E2.1":
+                    _ep_tasks = list(_ep.get("tasks", []))
+                    _ep_tasks.append("COR-T-001")  # coordinator task, not database
+                    _ep["tasks"] = _ep_tasks
 
     roadmap = []
     for item in roadmap_raw:
@@ -713,27 +768,102 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         deliverables = item.get("deliverables", "")
         if isinstance(deliverables, list):
             deliverables = "; ".join(str(d) for d in deliverables)
-        raw_milestones = item.get("milestones", [])
-        if not isinstance(raw_milestones, list):
-            raw_milestones = []
-        milestones = []
-        for ms in raw_milestones:
-            if not isinstance(ms, dict):
+        is_legacy = bool(item.get("legacy", False))
+        raw_epics = item.get("epics", [])
+        if not isinstance(raw_epics, list):
+            raw_epics = []
+
+        # Cardinality check (ADR-036): non-legacy phase with fewer than 2 epics.
+        phase_warning = None
+        if not is_legacy and len(raw_epics) < 2:
+            phase_warning = f"Phase {phase_num} has {len(raw_epics)} epic(s); expected >= 2 (ADR-036)."
+
+        epics_out = []
+        for ep in raw_epics:
+            if not isinstance(ep, dict):
                 continue
-            refs = resolve_milestone_refs(ms, all_tasks, adrs)
-            eff_status = derive_effective_status(ms, refs)
-            milestones.append({
-                "id": str(ms.get("id", "")),
-                "title": str(ms.get("title", "")),
-                "effective_status": eff_status,
-                "refs": refs,
+            # Resolve task refs for this epic using resolve_milestone_refs
+            # (epics share the same tasks/adrs fields as milestones did).
+            refs = resolve_milestone_refs(ep, all_tasks, adrs)
+            task_refs = [r for r in refs if r.get("type") == "task"]
+            adr_refs = [r for r in refs if r.get("type") == "adr"]
+
+            # Epic status: task-refs-only rollup (ADR-036).
+            epic_status = derive_epic_status(ep, all_tasks, adrs)
+
+            # Epic owning department (ADR-036 "Epic scope").
+            epic_dept = str(ep.get("dept", ""))
+
+            # Count tasks: expand all task tokens to get true counts.
+            raw_task_list = ep.get("tasks", [])
+            if not isinstance(raw_task_list, list):
+                raw_task_list = []
+            task_count = 0
+            done_count = 0
+            for token in raw_task_list:
+                token = str(token).strip()
+                members = expand_range_token(token)
+                for mid in members:
+                    task_count += 1
+                    status, _t = resolve_ref_status(mid, all_tasks, adrs)
+                    if status in ("done", "accepted"):
+                        done_count += 1
+
+            # Cardinality check: exactly 1 task is a smell (ADR-036).
+            # 0 tasks is "forming", not flagged.
+            epic_warning = None
+            if task_count == 1:
+                epic_warning = f"Epic {ep.get('id', '?')} has exactly 1 task; consider whether it should be a standalone task (ADR-036)."
+
+            # Cross-department consistency check (ADR-036 "Epic scope").
+            # Each task in an epic must belong to the epic's owning dept tree.
+            # Dormant on current data (every epic is single-tree).
+            cross_dept_warning = None
+            if epic_dept:
+                offenders = []
+                for token in raw_task_list:
+                    token = str(token).strip()
+                    members = expand_range_token(token)
+                    for mid in members:
+                        mid_upper = mid.upper()
+                        # Determine which workspace owns this task id.
+                        owning_ws = None
+                        for ws_slug, ws_tasks in per_workspace_tasks.items():
+                            for t in ws_tasks:
+                                if str(t.get("id", "")).upper() == mid_upper:
+                                    owning_ws = ws_slug
+                                    break
+                            if owning_ws is not None:
+                                break
+                        if owning_ws is not None and owning_ws != epic_dept:
+                            offenders.append(f"{mid} (in {owning_ws})")
+                if offenders:
+                    cross_dept_warning = (
+                        f"Epic {ep.get('id', '?')} (dept={epic_dept}) has tasks "
+                        f"from a foreign workspace: {', '.join(offenders)} (ADR-036)."
+                    )
+
+            epics_out.append({
+                "id": str(ep.get("id", "")),
+                "title": str(ep.get("title", "")),
+                "dept": epic_dept,
+                "status": epic_status,
+                "task_count": task_count,
+                "done_count": done_count,
+                "tasks": task_refs,
+                "adrs": adr_refs,
+                "warning": epic_warning,
+                "cross_dept_warning": cross_dept_warning,
             })
+
         roadmap.append({
             "phase": phase_num,
             "title": str(item.get("title", "")),
             "deliverables": str(deliverables),
+            "legacy": is_legacy,
             "status": derive_roadmap_status(phase_num, current_phase),
-            "milestones": milestones,
+            "epics": epics_out,
+            "warning": phase_warning,
         })
 
     # -- (f) Observations count ----------------------------------------------
