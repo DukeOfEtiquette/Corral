@@ -7,6 +7,10 @@
 
 set -e
 
+# Mark the read-only /repo mount as safe for git. The bind-mount is owned by
+# the host UID; git's dubious-ownership check rejects it without this config.
+git config --global --add safe.directory /repo
+
 python /app/etl.py
 
 # Launch the watcher as a background process. Failures are non-fatal to

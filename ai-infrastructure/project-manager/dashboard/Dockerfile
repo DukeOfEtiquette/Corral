@@ -16,6 +16,9 @@ RUN npm run build
 # Stage 2: Python slim image for ETL and static file serving
 FROM python:3.12-slim AS serve
 
+# Install git so the ETL can read git history from the read-only /repo mount
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+
 # Install Python dependencies for ETL and file watching
 RUN pip install --no-cache-dir PyYAML==6.0.2 watchdog==4.0.2
 

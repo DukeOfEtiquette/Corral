@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-047
 title: "Derive the STATUS activity surface (ADR-039): git-sourced last_updated + recent_updates, retire universal STATUS hygiene"
-status: backlog
+status: in-progress
 labels: []
 priority: P2
 created: 2026-06-13
@@ -34,4 +34,5 @@ Out of scope: the ADR-039 decision itself (accepted); any change to the `data.js
 
 ## Activity log
 
+- 2026-06-13: Picked up; moved to in-progress. Plan: two sequential dispatched-worker flows under this one task -- Phase A (derive-ETL + container, contract-stable, COR-07 render gate) committed first, then Phase B (doctrine cascade + frontmatter removal), so the dashboard never breaks mid-cutover. Starting Phase A homework; no residual design decisions beyond those pinned in ADR-039 and the Description.
 - 2026-06-13: Created in backlog by the project-manager coordinator (orchestrator-direct) on acceptance of ADR-039. The implementation cascade for deriving the STATUS activity surface; two-phase sequencing pinned (derive-ETL + container render-verified first, then the doctrine cascade + frontmatter removal) so the activity surface is never simultaneously un-maintained and un-derived. Left standalone (no `epic:`) deliberately: the only fitting epic (COR-E-004 dashboard) is a done Phase-1 epic and linking a new task would reopen its rollup; ADR-036 permits standalone tasks. P2; visual deliverable (COR-07 render gate at close). Routes through the dispatched-worker flow; analog of the COR-T-044/045 two-phase split.

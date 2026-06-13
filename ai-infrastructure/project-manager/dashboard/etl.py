@@ -17,6 +17,8 @@ Sources:
       "current", phase > current -> "upcoming".
   (b) Coordinator and workspace STATUS: /repo/ai-infrastructure/*/STATUS.md
       frontmatter, parsed tolerantly (missing fields omitted, not errored).
+      Note: last_updated and recent_updates / recent_activity are NOT read from
+      STATUS.md frontmatter; they are derived from git history (ADR-039).
   (c) Department roster: the ADR-021 blessed list, encoded as DEPARTMENTS_ROSTER
       below. ADR-021 is the authority for this list.
   (d) Per-workspace task trees (ADR-031): /repo/ai-infrastructure/project-manager/tasks/
@@ -34,12 +36,21 @@ Sources:
       period-then-whitespace; whole description when no such match exists).
       Files whose frontmatter is absent or invalid are skipped (tolerant
       parsing). Output is sorted by name.
+  (h) Activity surface (ADR-039): last_updated and recent_updates / recent_activity
+      are derived from git log over each workspace's owned paths (git-by-path).
+      The coordinator path set is: ai-infrastructure/project-manager/, docs/,
+      .claude/commands/, .claude/agents/. Each department's path set is:
+      ai-infrastructure/<slug>/. Uses `git -C <repo_root> log` via the git
+      binary installed in the container. The entrypoint marks /repo as a
+      safe.directory to clear git's dubious-ownership check on the read-only
+      bind-mount.
 
 JSON contract shape (data.json):
   meta:            generated_at, source, project, current_phase (DERIVED from
                    roadmap epic/task rollup per ADR-036), current_phase_title
-                   (DERIVED), last_updated, next_step (DERIVED from first
-                   non-done epic of current phase, formatted as '<id>: <title>')
+                   (DERIVED), last_updated (DERIVED from git history per ADR-039),
+                   next_step (DERIVED from first non-done epic of current phase,
+                   formatted as '<id>: <title>')
   roadmap:         [ {phase, title, deliverables, legacy, status,
                       epics: [...], warning} ]
                     legacy: true only on Phase 0 (bootstrap); absent otherwise.
@@ -81,7 +92,12 @@ JSON contract shape (data.json):
                     where body is the post-frontmatter markdown text (the YAML
                     block stripped). body is an empty string when the file body
                     cannot be read.
-  recent_activity: [ {workspace, date, text} ] newest-first, capped 30
+                    recent_updates entries: {date, text} dicts, newest-first,
+                    capped at RECENT_UPDATES_CAP (10). DERIVED from git history
+                    per ADR-039; the {date, text} and {workspace, date, text}
+                    contract shapes are unchanged.
+  recent_activity: [ {workspace, date, text} ] newest-first, capped 30.
+                    DERIVED from git history per ADR-039; contract shape unchanged.
   agents:          [ {name, model, kind, purpose} ] name-sorted.
                     name: frontmatter `name`; model: frontmatter `model`;
                     kind: frontmatter `kind` (executor | dispatch);
@@ -94,6 +110,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 import threading
 import time
@@ -162,30 +179,70 @@ def count_observations(obs_path: Path) -> int:
     return len(re.findall(r"###\s+COR-\d+", text))
 
 
-def parse_recent_updates(fm: dict) -> list:
+def git_last_updated(repo_root: Path, paths: list[str]) -> str:
     """
-    Extract recent_updates list from frontmatter. Each entry is either a
-    plain string "DATE: text" or a dict {date, text}. Normalise to
-    {date, text} dicts, newest-first, capped at RECENT_UPDATES_CAP.
+    Return the committer-date (YYYY-MM-DD) of the most recent commit that
+    touched any of the given repo-relative paths. Returns an empty string
+    when there are no commits for those paths or when git is unavailable.
+
+    Uses `git -C <repo_root> log -1 --format=%cs -- <paths>` (ADR-039).
+    The field separator %x1f is not needed here (single field), so plain
+    %cs suffices.
     """
-    raw = fm.get("recent_updates", [])
-    if not isinstance(raw, list):
+    if not paths:
+        return ""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_root), "log", "-1", "--format=%cs", "--"] + list(paths),
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        return result.stdout.strip()
+    except Exception:
+        return ""
+
+
+def git_recent_updates(repo_root: Path, paths: list[str]) -> list:
+    """
+    Return a list of {date, text} dicts derived from git log over the given
+    repo-relative paths, newest-first, capped at RECENT_UPDATES_CAP (ADR-039).
+
+    date: committer short date (%cs, YYYY-MM-DD)
+    text: commit subject (%s)
+
+    Uses ASCII unit separator (%x1f) as the field separator between date and
+    subject, since it cannot appear in a commit subject. Returns an empty list
+    when there are no commits for those paths or when git is unavailable.
+    """
+    if not paths:
         return []
-    result = []
-    for item in raw:
-        if isinstance(item, dict):
-            result.append({
-                "date": str(item.get("date", "")),
-                "text": str(item.get("text", "")),
-            })
-        elif isinstance(item, str):
-            # "YYYY-MM-DD: text" format used in STATUS.md
-            m = re.match(r"^(\d{4}-\d{2}-\d{2}):\s*(.*)", item, re.DOTALL)
-            if m:
-                result.append({"date": m.group(1), "text": m.group(2).strip()})
+    try:
+        result = subprocess.run(
+            [
+                "git", "-C", str(repo_root),
+                "log",
+                f"-{RECENT_UPDATES_CAP}",
+                "--format=%cs%x1f%s",
+                "--",
+            ] + list(paths),
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        entries = []
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split("\x1f", 1)
+            if len(parts) == 2:
+                entries.append({"date": parts[0], "text": parts[1]})
             else:
-                result.append({"date": "", "text": item.strip()})
-    return result[:RECENT_UPDATES_CAP]
+                entries.append({"date": "", "text": line})
+        return entries[:RECENT_UPDATES_CAP]
+    except Exception:
+        return []
 
 
 def derive_roadmap_status(phase: int, current_phase: int) -> str:
@@ -899,8 +956,20 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     agents_dir = repo_root / ".claude" / "agents"
 
     # -- (a) Coordinator STATUS frontmatter ---------------------------------
+    # last_updated and recent_updates are derived from git history (ADR-039);
+    # the frontmatter is still parsed for other fields (e.g. schema_version)
+    # but last_updated and recent_updates are no longer read from it.
     coordinator_fm = parse_frontmatter(status_path)
-    last_updated = str(coordinator_fm.get("last_updated", ""))
+
+    # Coordinator path ownership (ADR-039): the coordinator owns its own
+    # workspace plus the shared role docs, commands, and agents directories.
+    COORDINATOR_PATHS = [
+        "ai-infrastructure/project-manager/",
+        "docs/",
+        ".claude/commands/",
+        ".claude/agents/",
+    ]
+    last_updated = git_last_updated(repo_root, COORDINATOR_PATHS)
 
     # -- (d) Per-workspace task trees (ADR-031) ------------------------------
     # Collected here (before roadmap assembly) so reference resolution can
@@ -1062,9 +1131,9 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         p = repo_root / "ai-infrastructure" / slug / "STATUS.md"
         if not p.exists():
             return None
-        fm = parse_frontmatter(p)
+        # last_updated derived from git history (ADR-039)
         return {
-            "last_updated": str(fm.get("last_updated", "")),
+            "last_updated": git_last_updated(repo_root, [f"ai-infrastructure/{slug}/"]),
         }
 
     departments = []
@@ -1098,7 +1167,7 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     workspace_details = {}
 
     # Coordinator detail
-    coord_recent = parse_recent_updates(coordinator_fm)
+    coord_recent = git_recent_updates(repo_root, COORDINATOR_PATHS)
     workspace_details[COORDINATOR_SLUG] = {
         "header": {
             "slug": COORDINATOR_SLUG,
@@ -1146,8 +1215,11 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
             }
         else:
             dept_status_dir = repo_root / "ai-infrastructure" / slug
-            fm = parse_frontmatter(dept_status_dir / "STATUS.md")
-            dept_recent = parse_recent_updates(fm)
+            # last_updated and recent_updates are derived from git history
+            # over the department's owned paths (ADR-039).
+            dept_paths = [f"ai-infrastructure/{slug}/"]
+            dept_last_updated = git_last_updated(repo_root, dept_paths)
+            dept_recent = git_recent_updates(repo_root, dept_paths)
             dept_decisions_dir = dept_status_dir / "decisions"
             dept_adrs = collect_adrs(dept_decisions_dir) if dept_decisions_dir.is_dir() else None
             dept_obs_path = dept_status_dir / "OBSERVATIONS.md"
@@ -1160,7 +1232,7 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
                     "role": "department",
                     "exists": True,
                     "planned": False,
-                    "last_updated": str(fm.get("last_updated", "")),
+                    "last_updated": dept_last_updated,
                 },
                 "recent_updates": dept_recent or None,
                 "adrs": dept_adrs,
