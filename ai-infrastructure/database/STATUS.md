@@ -13,7 +13,7 @@ Single source of truth for current progress in the `Database` department. Update
 
 ## Next step
 
-`DB-T-001` and `DB-T-002` are closed (in `tasks/done/`). One open database item: `DB-T-003` (make the migration round-trip test runnable in the compose harness; P3, the round-trip behavior itself is already validated). Immediate downstream is backend-api P2-2 (FastAPI endpoints) and P2-3 (auth/sessions), built against this schema. Further schema changes use the same `app/db/` Alembic setup (new revisions after `0001`).
+`DB-T-001`, `DB-T-002`, and `DB-T-003` are all closed; epic `DB-E-001` (schema & migrations) is complete. No database task is currently open. The full schema test suite now runs as two clean compose jobs with no skip anywhere: `test` (the 130 read-only shape assertions, against a migrated DB) and `test-roundtrip` (the Alembic up/down round-trip). Immediate downstream is backend-api P2-2 (FastAPI endpoints) and P2-3 (auth/sessions), built against this tested schema. Further schema changes use the same `app/db/` Alembic setup (new revisions after `0001`).
 
 ## Blocked on
 

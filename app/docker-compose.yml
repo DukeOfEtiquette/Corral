@@ -31,3 +31,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  test-roundtrip:
+    build:
+      context: ./db
+      dockerfile: Dockerfile.test-roundtrip
+    environment:
+      DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully

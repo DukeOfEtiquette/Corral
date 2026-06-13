@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir -r requirements-test.txt
 # assert against the live database, never against the migration source.
 COPY tests/ ./tests/
 
-CMD ["pytest", "-v", "tests/"]
+CMD ["pytest", "-v", "tests/", "--ignore=tests/test_migration_roundtrip.py"]
