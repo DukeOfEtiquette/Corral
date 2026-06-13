@@ -1,10 +1,6 @@
 ---
 schema_version: 1
 department: "backend-api"
-last_updated: "2026-06-11"
-recent_updates:
-  - "2026-06-11: ADR-031 cascade (COR-T-025): department now owns its own tasks/ tree at ai-infrastructure/backend-api/tasks/; backlog is currently empty (P2-2 endpoints and P2-3 auth/sessions are the next deliverables to be filed)."
-  - "2026-06-10: Department workspace created via /create-department."
 ---
 
 # Status

@@ -136,16 +136,15 @@ Every Test Designer session writes the six-section report to two channels:
 
 **Why both channels.** Chat output is for the user in the moment. The file is for any subsequent session (the originating Orchestrator, a downstream Executor, a fresh review pass) that needs to consume the report without re-reading the transcript. The two channels carry identical content; the file does not replace the chat output.
 
-## Wrap-up STATUS hygiene
+## Wrap-up STATUS deltas
 
-Before assembling the closing report, update the **workspace STATUS the kickoff names** to reflect the session's outcomes. The target is the STATUS of the workspace the task belongs to: for a coordinator task that is `./ai-infrastructure/project-manager/STATUS.md`; for a department task (ADR-031, each department owns its own task tree) it is that department's `STATUS.md`. The kickoff's STATUS-deltas section names the exact file; default to the coordinator STATUS only when the kickoff names none. Two steps are universal across every Test Designer session:
+The activity surface (`last_updated`, `recent_updates`) is derived from git per ADR-039 and is never hand-edited. The Test Designer edits the workspace STATUS file only when the kickoff's `status_deltas` field names a task-specific edit to one of the hand-authored STATUS sections (Current phase, Next step where present, Blocked on).
 
-1. **Bump `last_updated`** in the frontmatter to today's `YYYY-MM-DD`.
-2. **Append a `recent_updates` entry** with today's date and a one-sentence summary of what the session delivered. Be specific (name the artifact and the kickoff or task), not generic ("worked on stuff").
+The target is the STATUS of the workspace the task belongs to: for a coordinator task that is `./ai-infrastructure/project-manager/STATUS.md`; for a department task (ADR-031, each department owns its own task tree) it is that department's `STATUS.md`. The kickoff's STATUS-deltas section names the exact file.
 
-Beyond these two, the kickoff names any **task-specific STATUS deltas** the Test Designer is responsible for applying: phase changes, "Next step" rewording, "Blocked on" updates. Apply exactly what the kickoff names; do not invent edits. If the kickoff says "universal hygiene only", the universal two are the full obligation.
+Apply exactly what the kickoff names; do not invent edits. If `status_deltas` is `"none"`, STATUS is not touched and does not appear in "Files touched".
 
-Update that STATUS file in the same edit pass that closes out the deliverables. List it in the closing report's "Files touched" section so the Orchestrator's review pass can confirm the hygiene step happened.
+When a named delta is applied, update that STATUS file in the same edit pass that closes out the deliverables, and list it in the closing report's "Files touched" section so the Orchestrator's review pass can confirm the delta was applied. The completion signal is `RETURN: COMPLETED` plus the verified deliverables on disk; it is not conditioned on STATUS being touched.
 
 ## Model-tier convention
 
@@ -172,7 +171,7 @@ The Orchestrator's kickoffs reference this role doc (and, where useful, the `tes
 
 - **Implementing application logic.** The test designer writes only test files. Application source, schema migrations, and configuration files are the implementation worker's domain.
 - **Making tests pass.** The TDD cycle is red (test-designer) then green (executor); the test designer's output is failing tests. Writing implementation code to make tests pass at this stage inverts the cycle.
-- **Surveying repo state.** Test designers do not run state surveys, read STATUS files (except the wrap-up hygiene write to the kickoff-named workspace STATUS), scan ADRs, enumerate scratch artifacts, or list tasks. The kickoff carries forward whatever survey context the Test Designer needs.
+- **Surveying repo state.** Test designers do not run state surveys, read STATUS files (except when `status_deltas` names a hand-authored section edit to apply), scan ADRs, enumerate scratch artifacts, or list tasks. The kickoff carries forward whatever survey context the Test Designer needs.
 - **Drafting new kickoffs.** Test designers consume kickoffs; they do not produce them. If execution surfaces work that warrants a separate kickoff, it goes under "Follow-ups" in the report, not into a new artifact authored by the Test Designer.
 - **Running the Orchestrator command.** The Test Designer does not invoke the Orchestrator command (any `/<slug>-orchestrator`); that loads survey state and a conflicting role identity.
 - **Pattern-mining and observation logging.** Patterns surfaced during execution go under "Follow-ups" so the Orchestrator can decide whether to log them. The Test Designer does not write to `./ai-infrastructure/project-manager/OBSERVATIONS.md` or propose ADRs.
@@ -197,6 +196,6 @@ The role is adopted by the `test-designer` subagent (`./.claude/agents/test-desi
 2. Reads its bootstrap pair (`./.claude/agents/specs/TEST-DESIGNER-AGENT-SPEC.md` and this document) so it adopts the Test Designer role with the Identity deltas. Role name: "Test Designer Agent".
 3. Loads exactly the `explicit_reads` the Orchestrator named (plus the kickoff and, on re-dispatch, the resume anchor). Does NOT survey `./ai-infrastructure/project-manager/STATUS.md`, `./ai-infrastructure/project-manager/OBSERVATIONS.md`, ADRs, or task listings; the kickoff and explicit-reads carry the context.
 4. Reads the kickoff end-to-end, then executes (the Orchestrator already ran the prelaunch checker before dispatch).
-5. Performs the wrap-up STATUS hygiene (on COMPLETED only) and the dual-channel report write, then returns the verdict-lined result. The Orchestrator runs the close checker after the return.
+5. Applies any named STATUS deltas (on COMPLETED only, when `status_deltas` is not `"none"`) and performs the dual-channel report write, then returns the verdict-lined result. The Orchestrator runs the close checker after the return.
 
 The full dispatch package, workflow phases, and return schemas live in `./.claude/agents/specs/TEST-DESIGNER-AGENT-SPEC.md`.

@@ -26,7 +26,7 @@ Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 1. **Tasks**: list `ai-infrastructure/backend-api/tasks/backlog/`, `ai-infrastructure/backend-api/tasks/in-progress/`, and `ai-infrastructure/backend-api/tasks/blocked/`. Skip `ai-infrastructure/backend-api/tasks/done/`. For in-progress and blocked entries, read the file and give a one-line characterisation (flag any that look stalled or whose blocker has cleared). For backlog entries list `id` and `title` only.
 2. **Epics**: list `ai-infrastructure/backend-api/epics/` (each epic's id, title, phase, and rolled-up task count from its linked tasks). If the `epics/` tree does not exist yet, skip gracefully (lazy creation: it is created on this department's first epic).
 3. **Handoff artifacts**: list `.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024) belonging to this department's tasks. A kickoff with no sibling `-REPORT.md` may be awaiting dispatch or have had its worker dispatch interrupted; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `.claude/artifacts/tmp/` for leftover scratch relevant to this department.
-4. **Recent observations**: note any `ai-infrastructure/backend-api/OBSERVATIONS.md` entries added since the last STATUS update.
+4. **Recent observations**: note any `ai-infrastructure/backend-api/OBSERVATIONS.md` entries added recently. For recent activity in the workspace, consult `git log -- ai-infrastructure/backend-api/` or the dashboard rather than reading `recent_updates` from STATUS frontmatter (the activity surface is git-derived per ADR-039).
 
 ## Phase 4: Report findings
 
@@ -61,5 +61,5 @@ Do NOT proactively act on any surveyed item. Orchestrator sessions are response-
 - Scratch artifacts in `.claude/artifacts/tmp/` are safe to delete once consumed, but do not delete unless the user explicitly asks. Handoff artifacts in `.claude/artifacts/handoffs/` are tracked history and are not deleted (ADR-024).
 - If you notice a pattern that looks like a new observation candidate, flag it to the user rather than silently logging it. Promotion is a user-aware decision, not a silent side effect.
 - Tasks live in markdown per `ai-infrastructure/project-manager/tasks/README.md` until the dogfood milestone (ADR-008); after migration, task operations move to the MCP server (ADR-004) and this command gets updated.
-- Update `ai-infrastructure/backend-api/STATUS.md` at the end of any session that makes progress (universal hygiene: bump `last_updated`, append a `recent_updates` entry).
+- `ai-infrastructure/backend-api/STATUS.md` holds only hand-authored forward intent (`Current phase` / `Next step` / `Blocked on`); update those when intent changes. The activity history (`last_updated`, `recent_updates`) is derived from git per ADR-039 and is not hand-maintained.
 - Tasks are tracked in `ai-infrastructure/backend-api/tasks/` with `API-T-NNN` IDs (ADR-031). The `dept:backend-api` label is applied at the dogfood import (ADR-008), derived from the tree; do not hand-apply it to task files in the markdown era.

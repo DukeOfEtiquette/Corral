@@ -1,12 +1,6 @@
 ---
 schema_version: 1
 department: "database"
-last_updated: "2026-06-11"
-recent_updates:
-  - "2026-06-11: DB-T-001 delivered: Alembic baseline migration 0001 (eleven tables, ./app/db) and ./app/docker-compose.yml compose verification path authored and verified - migration applies cleanly against compose Postgres, all eleven tables and seven named indexes confirmed, downgrade/upgrade round-trip clean."
-  - "2026-06-11: DB-T-001 (Postgres schema, P2-1) picked up: moved to tasks/in-progress/; residual DDL decisions resolved with the user. Coordinator ADR-014 (migrations tooling) accepted to unblock it: Alembic with hand-written migrations, no ORM in v1. Pinned for the kickoff: full v1 schema in a single baseline migration (core ADR-012 tables + ADR-025 epic columns + full ADR-011 auth tables); machine-user identity (ADR-026) via a separate agent_credentials table with a kind discriminator on users. Next: draft+check the kickoff and dispatch the worker."
-  - "2026-06-11: ADR-031 cascade (COR-T-025): department now owns its own tasks/ tree at ai-infrastructure/database/tasks/; DB-T-001 (Postgres schema, P2-1) relocated from the coordinator pool and lives in backlog."
-  - "2026-06-10: Department workspace created via /create-department."
 ---
 
 # Status

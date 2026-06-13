@@ -45,7 +45,7 @@ The executor does NOT free-explore. It reads the kickoff, the `explicit_reads` t
 
 - **Execute** the kickoff at `kickoff_path` against `workspace`, making the changes the kickoff specifies against the files it names, per `EXECUTOR-ROLE.md` section "Execute the plan".
 - **Escalate by return value** when an `EXECUTOR-ROLE.md` failure mode fires (ambiguous kickoff, kickoff-vs-observed-state conflict, convention conflict, an unpinned decision the work requires). Return `RETURN: ESCALATION` with the four-part block; do not guess, and do not ask the user directly (the Orchestrator is the interlocutor).
-- **Complete and report** when the deliverables are done. Return `RETURN: COMPLETED` with the six-section report, write the dual-channel report file, and apply STATUS hygiene once.
+- **Complete and report** when the deliverables are done. Return `RETURN: COMPLETED` with the six-section report, write the dual-channel report file, and apply any named `status_deltas` once (only on COMPLETED).
 - **Resume on re-dispatch** by reconstructing state from the kickoff + `resume_anchor` + `escalation_answer` + `prior_progress_summary`, not by re-executing completed work.
 
 ---
@@ -74,7 +74,7 @@ The Orchestrator passes these via the Task-tool dispatch prompt. The executor pa
 | `kickoff_path` | repo-relative path | The kickoff to execute. Read end-to-end before acting. | `./.claude/artifacts/handoffs/COR-T-015-KICKOFF.md` |
 | `explicit_reads` | markdown list | Every file the executor loads, in order, each with a one-line why. `./CLAUDE.md` is auto-loaded; the list adds each reference the kickoff names. Read exactly these. | (see below) |
 | `report_path` | repo-relative path OR "derive" | Dual-channel report destination. "derive" = `<kickoff-dir>/<KICKOFF-BASENAME>-REPORT.md` per `EXECUTOR-ROLE.md` section "Report shape", dual-channel. | (derived) |
-| `status_deltas` | markdown list OR "universal hygiene only" | Task-specific STATUS fields to mutate on COMPLETED. | `phase ... ; "Next step" reword` |
+| `status_deltas` | markdown list OR `"none"` | Task-specific edits to the hand-authored STATUS sections (Current phase, Next step where present, Blocked on), or the literal `"none"` when there are none. The activity surface is git-derived (ADR-039) and never written. | `phase ... ; "Blocked on" update` |
 | `attempt_number` | int | 1 on first dispatch; N+1 on re-dispatch. | `1` |
 | `escalation_answer` | markdown OR "(none)" | The Orchestrator's pinned answer to the prior escalation. Empty on attempt 1. | `(none)` |
 | `resume_anchor` | repo-relative path OR "(none)" | The prior attempt's partial `report_path`. Empty on attempt 1. | `(none)` |
@@ -131,7 +131,7 @@ The Orchestrator passes these via the Task-tool dispatch prompt. The executor pa
 A genuine gap the executor must not resolve itself: an ambiguous kickoff, a kickoff-vs-observed-state conflict (including a missing `explicit_reads` file), a kickoff request that conflicts with a universal convention, or an out-of-scope decision the kickoff did not pin. When one blocks correct execution:
 
 1. Write a PARTIAL report to `report_path`: the six-section shape with completed sections filled in, unfinished sections marked `(incomplete: blocked on escalation)`, and the four-part escalation block appended.
-2. Do NOT apply STATUS hygiene (the task is not done).
+2. Do NOT apply STATUS deltas (the task is not done).
 3. Return `RETURN: ESCALATION` + the four-part block (see Return Schema).
 
 Escalation is a faithful surfacing of a real gap, not an Option-A/B deferral. If the kickoff genuinely pins the decision and the executor simply did not look hard enough, that is not an escalation; re-read and proceed.
@@ -140,8 +140,8 @@ Escalation is a faithful surfacing of a real gap, not an Option-A/B deferral. If
 
 When the deliverables are done:
 
-1. Apply STATUS hygiene ONCE per `EXECUTOR-ROLE.md` section "Wrap-up STATUS hygiene": bump `last_updated`, append one `recent_updates` entry, apply the kickoff's named `status_deltas`. This is the ONLY phase that mutates `./ai-infrastructure/project-manager/STATUS.md`.
-2. Write the full six-section report to `report_path` (dual-channel). List `report_path` and `./ai-infrastructure/project-manager/STATUS.md` under "Files touched".
+1. Apply the kickoff's named `status_deltas` ONCE, on COMPLETED only, per `EXECUTOR-ROLE.md` section "Wrap-up STATUS deltas". The activity surface (`last_updated`, `recent_updates`) is git-derived (ADR-039) and is never written. Mutate the workspace STATUS file only when `status_deltas` names a hand-authored section edit; if `status_deltas` is `"none"`, STATUS is not touched.
+2. Write the full six-section report to `report_path` (dual-channel). List `report_path` under "Files touched"; list the workspace STATUS file only when a delta was applied.
 3. Return `RETURN: COMPLETED` + the six-section report (identical to the file).
 
 ---
@@ -163,7 +163,7 @@ RETURN: COMPLETED
 ## Build / verification status
 ```
 
-Side effects before returning: the identical six sections are written to `report_path`; STATUS hygiene is applied once. "Files touched" lists `report_path` and `./ai-infrastructure/project-manager/STATUS.md`.
+Side effects before returning: the identical six sections are written to `report_path`; any named `status_deltas` are applied once (on COMPLETED only). "Files touched" lists `report_path` and the workspace STATUS file only when a delta was applied. The completion signal is the `RETURN` line plus the verified deliverables on disk.
 
 ### Mode B: ESCALATION
 
@@ -193,7 +193,7 @@ Side effect before returning: a partial report is written to `report_path`. STAT
 2. **No em dashes** in any file written (U+2014, U+2013). Repo writing rule (`./CLAUDE.md`).
 3. **Explicit reads only.** Read `kickoff_path`, `explicit_reads`, `resume_anchor` (re-dispatch); nothing else.
 4. **Leaf node.** Dispatch no subagents.
-5. **STATUS-once.** Mutate `./ai-infrastructure/project-manager/STATUS.md` only on COMPLETED, exactly one `recent_updates` entry and one `last_updated` bump.
+5. **STATUS-once.** Mutate the workspace STATUS file only on COMPLETED, and only when `status_deltas` names a hand-authored section edit. The activity surface (`last_updated`, `recent_updates`) is git-derived (ADR-039) and is never written. Apply named deltas at most once per attempt.
 6. **Repo-relative `./` paths.** Per `./CLAUDE.md`, cite paths repo-root-relative, not absolute.
 7. **Cite, do not invent.** Per `./CLAUDE.md` Agent Discipline, every claim about repo state in the report is verified in-session.
 
@@ -209,7 +209,7 @@ Side effect before returning: a partial report is written to `report_path`. STAT
 | A file in `explicit_reads` is missing | Escalate (kickoff-vs-observed-state conflict); do not guess. |
 | Kickoff asks the executor to dispatch a subagent | Note it; the Orchestrator runs subagents. Proceed if non-blocking; escalate if blocking. |
 | `report_path` directory not writable | Escalate (surface the path conflict); do not skip the file write silently. |
-| Deliverables done but STATUS deltas ambiguous | Apply only the universal two (`last_updated`, `recent_updates`) plus exactly what the kickoff named; do not invent fields. |
+| Deliverables done but STATUS deltas ambiguous | Apply only exactly what the kickoff named (edits to the hand-authored sections); do not invent fields. The activity surface is never written. |
 
 Abort behaviour: return an error message (not a COMPLETED or ESCALATION verdict). The Orchestrator treats abort as a malformed-dispatch case and surfaces it to the user.
 
@@ -230,7 +230,7 @@ Inputs:
 - explicit_reads:
   - ./docs/ai-orchestration/roles/EXECUTOR-ROLE.md (the role to adopt)
 - report_path: derive
-- status_deltas: universal hygiene only
+- status_deltas: none
 - attempt_number: 1
 - escalation_answer: (none)
 - resume_anchor: (none)
@@ -239,7 +239,7 @@ Inputs:
 Return RETURN: COMPLETED + the six-section report, or RETURN: ESCALATION + the four-part block.
 ```
 
-**Return:** `RETURN: COMPLETED` + the six-section report; `COR-T-015-KICKOFF-REPORT.md` and `./ai-infrastructure/project-manager/STATUS.md` written.
+**Return:** `RETURN: COMPLETED` + the six-section report; `COR-T-015-KICKOFF-REPORT.md` written. STATUS not touched (status_deltas is "none").
 
 ### Example 2: Escalation then re-dispatch
 
@@ -256,7 +256,7 @@ Inputs (attempt 2):
   - Drafted the notes body in the partial report; stopped at the output-path ambiguity.
 ```
 
-**Return:** `RETURN: COMPLETED` + report; STATUS hygiene applied once on this final attempt.
+**Return:** `RETURN: COMPLETED` + report; any named STATUS deltas applied once on this final attempt.
 
 ---
 
@@ -268,7 +268,7 @@ Inputs (attempt 2):
 
 **Why return-and-re-dispatch instead of in-place resume.** In-place resume is unavailable on the dispatched-subagent path (rogue spike #146, recorded in ADR-028). The fresh-executor re-dispatch reconstructs state from the kickoff + the dual-channel report (the resume anchor) + the pinned answer, the same three-source pattern `EXECUTOR-ROLE.md` section "Crash recovery" already uses, with the escalation answer added.
 
-**Why STATUS-once on COMPLETED.** A multi-attempt task must not double-stamp STATUS (multiple `recent_updates` entries, premature phase flips). Making hygiene a COMPLETED-only side effect keeps one task to one STATUS update, and makes the close-checker-visible signal (`./ai-infrastructure/project-manager/STATUS.md` in "Files touched") appear only on the truly-final attempt.
+**Why STATUS-once on COMPLETED.** A multi-attempt task must not double-apply a named STATUS delta (premature phase flips across re-dispatches). Applying named deltas only on COMPLETED keeps one task to one STATUS change, and makes the close-checker-visible signal (STATUS in "Files touched") appear only on the truly-final attempt. For the common `"none"` case STATUS is never touched.
 
 **Why the executor is a leaf (checkers Orchestrator-run).** A dispatched subagent has no Agent tool. So the prelaunch and close checkers move up to the Orchestrator (which already dispatches `kickoff-drafter` / `kickoff-checker` per ADR-023). This is the key structural difference from the old `/corral-worker` session, which dispatched its own checkers; the dispatched executor cannot. The full orchestrator-run protocol is in `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` section "Dispatched-worker flow".
 

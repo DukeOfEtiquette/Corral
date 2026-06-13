@@ -38,6 +38,10 @@ All `.md` files go in sanctioned locations: the repo-root files (`CLAUDE.md`, `R
 
 No em dashes in files. Use a regular hyphen, comma, colon, or rephrase. Em dashes in conversation responses are acceptable; in files they are not.
 
+### Commit messages
+
+Every commit subject leads with the task or ADR ID it advances (e.g. `COR-T-047:` or `ADR-039:`), followed by a specific one-line summary of what changed. This is owned-but-advisory (per ADR-035): it feeds the git-derived activity dashboard (ADR-039) and is the primary signal for `git log`-based recent-activity reads. If message quality erodes, the recorded re-open path is a commit-msg hook or checker subagent.
+
 ## Workspace orientation
 
 | Workspace | Path | What lives there |

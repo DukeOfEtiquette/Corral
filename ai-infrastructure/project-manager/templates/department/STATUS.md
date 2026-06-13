@@ -1,9 +1,6 @@
 ---
 schema_version: 1
 department: "{{DEPT_SLUG}}"
-last_updated: "{{DATE}}"
-recent_updates:
-  - "{{DATE}}: Department workspace created via /create-department."
 ---
 
 # Status

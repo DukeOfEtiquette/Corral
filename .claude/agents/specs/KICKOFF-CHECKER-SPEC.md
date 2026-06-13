@@ -96,10 +96,10 @@ Each hit is a FAIL: `R4, line L, evidence "...", recommendation "Remove the inte
 
 Parse the kickoff body for either:
 
-- A section explicitly naming task-specific `./ai-infrastructure/project-manager/STATUS.md` edits the worker is expected to apply (phase changes, "Next step" rewording, "Blocked on" updates), OR
-- The explicit disclaimer `No task-specific STATUS deltas; universal hygiene only.` (or close paraphrase).
+- A section explicitly naming task-specific edits to the hand-authored STATUS sections (Current phase, Next step where present, Blocked on) the worker is expected to apply, OR
+- The explicit disclaimer `No task-specific STATUS deltas; none.` (or close paraphrase).
 
-If neither is present, emit FAIL: `R6, kickoff body, evidence "no STATUS deltas section or universal-hygiene-only disclaimer found", recommendation "Name the task-specific ./ai-infrastructure/project-manager/STATUS.md edits the task will apply, or state explicitly that only universal hygiene applies (per ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention')"`.
+If neither is present, emit FAIL: `R6, kickoff body, evidence "no STATUS deltas section or none-disclaimer found", recommendation "Name the task-specific STATUS section edits the task will apply to the hand-authored sections (Current phase, Next step where present, Blocked on), or state explicitly that there are none using the literal 'No task-specific STATUS deltas; none.' (per ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention')"`.
 
 The FAIL is binary on presence/absence of the section or disclaimer, not on per-field completeness.
 

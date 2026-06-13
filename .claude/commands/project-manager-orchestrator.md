@@ -23,7 +23,7 @@ Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 1. **Tasks**: list `./ai-infrastructure/project-manager/tasks/backlog/`, `./ai-infrastructure/project-manager/tasks/in-progress/`, and `./ai-infrastructure/project-manager/tasks/blocked/`. Skip `./ai-infrastructure/project-manager/tasks/done/`. For in-progress and blocked entries, read the file and give a one-line characterisation (flag any that look stalled or whose blocker has cleared). For backlog entries list `id` and `title` only.
 2. **Epics and phases**: list `./ai-infrastructure/project-manager/epics/` (each epic's id, title, phase, and rolled-up task count from its linked tasks) and `./ai-infrastructure/project-manager/phases/` (each phase's id, title, and order). If the `epics/` or `phases/` tree does not exist yet, skip gracefully.
 3. **Handoff artifacts**: list `./.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024). A kickoff with no sibling `-REPORT.md` may be awaiting dispatch or have had its worker dispatch interrupted; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `./.claude/artifacts/tmp/` for leftover scratch.
-4. **Recent observations**: note any `./ai-infrastructure/project-manager/OBSERVATIONS.md` entries added since the last STATUS update.
+4. **Recent observations**: note any `./ai-infrastructure/project-manager/OBSERVATIONS.md` entries added recently. For recent activity in the workspace, consult `git log -- ai-infrastructure/project-manager/` or the dashboard rather than reading `recent_updates` from STATUS frontmatter (the activity surface is git-derived per ADR-039).
 
 ## Phase 4: Report findings
 
@@ -59,4 +59,4 @@ Do NOT proactively act on any surveyed item. Orchestrator sessions are response-
 - Scratch artifacts in `./.claude/artifacts/tmp/` are safe to delete once consumed, but do not delete unless the user explicitly asks. Handoff artifacts in `./.claude/artifacts/handoffs/` are tracked history and are not deleted (ADR-024).
 - If you notice a pattern that looks like a new observation candidate, flag it to the user rather than silently logging it. Promotion is a user-aware decision, not a silent side effect.
 - Tasks live in markdown per `./ai-infrastructure/project-manager/tasks/README.md` until the dogfood milestone (ADR-008); after migration, task operations move to the MCP server (ADR-004) and this command gets updated.
-- Update `./ai-infrastructure/project-manager/STATUS.md` at the end of any session that makes progress (universal hygiene: bump `last_updated`, append a `recent_updates` entry).
+- `./ai-infrastructure/project-manager/STATUS.md` holds only hand-authored forward intent (`Current phase` / `Blocked on`); update those when intent changes. The activity history (`last_updated`, `recent_updates`) is derived from git per ADR-039 and is not hand-maintained.
