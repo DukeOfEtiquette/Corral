@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-041
 title: "Dashboard reshape: render the phase -> epic -> task roadmap (ADR-036)"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-13
@@ -24,3 +24,4 @@ Pinned design (resolved with the user 2026-06-13):
 ## Activity log
 
 - 2026-06-13: Created and picked up (in-progress). Follows the ADR-036 STATUS.md restructure (orchestrator-direct). Density decision (epic rollup, expandable) resolved with the user; routes through the dispatched-worker flow. The vocabulary cascade (tasks/README Vocabulary section + milestone->epic doc sweep) is a separate follow-on (COR-T-042, not yet filed).
+- 2026-06-13: Done. Dispatched executor reshaped the dashboard to phase->epic->task; a corrective dispatch then fixed the rollup formula (E2.1 partial-progress now reads in-progress), added the left-most department badge per epic, and wired the cross-department consistency check. User-confirmed visually (dept badges left-most, E2.1 blue, legacy phase dimmed). Deliverable committed in 37ac5f4 (alongside the STATUS phase->epic->task restructure, the ADR-036 epic-scope + rollup amendment, and DB-T-002). Both consistency checks dormant on current data, spot-tested and reverted. Kickoff/report pair committed in 37ac5f4 (ADR-024).
