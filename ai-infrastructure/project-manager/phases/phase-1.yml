@@ -1,0 +1,5 @@
+schema_version: 1
+id: 1
+title: "AI infrastructure"
+description: "Orchestration role docs and the dispatch loop, the foundational ADRs, the department structure, and the dashboard."
+order: 1

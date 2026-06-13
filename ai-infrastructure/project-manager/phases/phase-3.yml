@@ -1,0 +1,5 @@
+schema_version: 1
+id: 3
+title: "MCP server"
+description: "FastMCP server as an authenticated API client; the agent seam goes live."
+order: 3

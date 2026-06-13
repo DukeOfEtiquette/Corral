@@ -1,0 +1,5 @@
+schema_version: 1
+id: 4
+title: "Kanban UI"
+description: "React multi-view board with per-view label filters, admin page."
+order: 4

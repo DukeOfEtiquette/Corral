@@ -1,0 +1,5 @@
+schema_version: 1
+id: 8
+title: "Extract the project-manager plugin"
+description: "Generalize project-manager into a portable Claude Code plugin; dogfood Corral with it."
+order: 8

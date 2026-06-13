@@ -7,6 +7,7 @@ labels: []
 priority: P2
 created: 2026-06-12
 updated: 2026-06-12
+epic: COR-E-001
 ---
 
 ## Description

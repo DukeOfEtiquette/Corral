@@ -7,6 +7,7 @@ labels: [dept:agent-development]
 priority: P2
 created: 2026-06-11
 updated: 2026-06-11
+epic: COR-E-003
 ---
 
 ## Description

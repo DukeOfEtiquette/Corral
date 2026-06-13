@@ -7,6 +7,7 @@ labels: [dept:docs-curation]
 priority: P2
 created: 2026-06-05
 updated: 2026-06-08
+epic: COR-E-003
 ---
 
 ## Description

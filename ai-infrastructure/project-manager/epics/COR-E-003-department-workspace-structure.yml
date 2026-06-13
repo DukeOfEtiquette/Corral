@@ -1,0 +1,7 @@
+schema_version: 1
+id: COR-E-003
+title: "Department & workspace structure"
+dept: project-manager
+phase: 1
+description: "AI-infrastructure restructure, the create-department recipe, and the per-department task-trees convention."
+adrs: [21, 27, 30, 31]

@@ -1,0 +1,7 @@
+schema_version: 1
+id: COR-E-005
+title: "Project orientation docs"
+dept: project-manager
+phase: 1
+description: "Human-facing orientation: thinned README roadmap section and the END-GOAL.md portable plugin destination narrative."
+adrs: [34]

@@ -1,0 +1,5 @@
+schema_version: 1
+id: 5
+title: "Dogfood milestone"
+description: "Import the markdown tasks into the app via the MCP server; the project tracks itself; markdown tasks frozen."
+order: 5

@@ -7,6 +7,7 @@ labels: [dept:backend-api]
 priority: P1
 created: 2026-06-05
 updated: 2026-06-08
+epic: COR-E-002
 ---
 
 ## Description

@@ -1,0 +1,5 @@
+schema_version: 1
+id: 7
+title: "Repoint ai-infrastructure at the remote"
+description: "Switch this project's dashboard and task seam from local markdown to the remote Corral deploy."
+order: 7

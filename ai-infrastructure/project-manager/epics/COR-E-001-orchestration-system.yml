@@ -1,0 +1,7 @@
+schema_version: 1
+id: COR-E-001
+title: "Orchestration system: roles, dispatch loop, agents"
+dept: project-manager
+phase: 1
+description: "Role docs, the drafter+checker dispatch loop, and the universal cross-department agents (executor, test-designer, checkers)."
+adrs: [23, 24, 28, 16, 32, 35]

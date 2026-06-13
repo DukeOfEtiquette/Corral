@@ -1,0 +1,5 @@
+schema_version: 1
+id: 6
+title: "Remote deployment & concurrency"
+description: "Deploy Corral to a remote server; prove multiple concurrent agent sessions work with no errors."
+order: 6

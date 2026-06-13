@@ -1,0 +1,7 @@
+schema_version: 1
+id: COR-E-004
+title: "project-manager dashboard"
+dept: project-manager
+phase: 1
+description: "The project-manager insight dashboard: ETL, React SPA, live watch, roadmap panel, roster panels, agent fleet, and all iterative dashboard improvements."
+adrs: [27]

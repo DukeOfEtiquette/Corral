@@ -1,0 +1,7 @@
+schema_version: 1
+id: DB-E-001
+title: "Database schema & migrations"
+dept: database
+phase: 2
+description: "Postgres baseline schema and Alembic migrations for the full v1 schema, plus retroactive schema tests."
+adrs: [12, 14, 25, 26]

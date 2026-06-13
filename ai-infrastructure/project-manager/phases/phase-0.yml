@@ -1,0 +1,6 @@
+schema_version: 1
+id: 0
+title: "Bootstrap"
+description: "Repo init, ADR-001..009 accepted, the task convention seeded; predates the task system (ADR-008), exempt from epic/task decomposition per ADR-036."
+order: 0
+legacy: true

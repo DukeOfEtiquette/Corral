@@ -1,0 +1,5 @@
+schema_version: 1
+id: 2
+title: "API + DB core"
+description: "Postgres schema and migrations, FastAPI endpoints, auth/sessions, invite tokens, admin seeding."
+order: 2

@@ -1,0 +1,7 @@
+schema_version: 1
+id: COR-E-002
+title: "Data model, API & MCP decisions"
+dept: project-manager
+phase: 1
+description: "ADR resolutions covering the issues schema, REST API shape, MCP surface, auth, label taxonomy, native epics, and per-agent identity."
+adrs: [10, 11, 12, 13, 18, 25, 26]
