@@ -84,3 +84,5 @@ Epics are ordinary issues carrying their own `status`, so they flow through the 
 5. **ADR-019 not preempted.** Adding epic tools additively is compatible with every ADR-019 alternative; this ADR does not decide the versioning policy. It adds tools in the additive manner ADR-013 Consequence #4 already names and leaves the formal policy to ADR-019.
 
 6. **At-most-one matches the house style.** Single-parent cardinality echoes ADR-018's at-most-one `dept:*` decision, keeping the enforcement model uniform: a single nullable FK, validated API-side, rather than a join table whose multiplicity would have to be policed at every mutation point.
+
+7. **ADR-036 work-item taxonomy (forward pointer).** The project's planning vocabulary is pinned in ADR-036 (accepted), which layers a roadmap taxonomy on this epic model: a roadmap Epic maps to a `type = epic` issue and a Task to a `type = task` issue with `parent_id` set to its epic, Phases become labels, and ADRs stay external references. ADR-036 adds the project-level taxonomy and cardinality conventions only; it does not change this schema. See `./ADR-036-work-item-taxonomy.md`.
