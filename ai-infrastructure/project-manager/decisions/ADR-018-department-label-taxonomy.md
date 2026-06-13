@@ -58,3 +58,5 @@ Option A (namespaced families, rogue-style), with the specifics below. The shape
 4. **`dept:ai-infra` retired.** COR-T-007 and COR-T-015 now carry `dept:agent-development`; the orphan bucket the COR-T-014 dashboard work noted is cleared. The dashboard ETL prefix-filter needs no change (it already filters by `dept:` prefix and tolerates zero).
 
 5. **Still deferred.** The concrete `dept:*` color palette and any epic/type family wait on the Kanban UI phase (ADR-015/017) and ADR-025 respectively. Neither blocks Phase 1.
+
+6. **ADR-038 phase:* family (forward pointer).** ADR-038 (accepted) adds `phase:*` as a second reserved label family (the phase-as-View model: at-most-one per issue, epic-only, API-enforced), superseding item 2's "`dept:*` only in v1." See `./ADR-038-phase-as-first-class-view.md`.

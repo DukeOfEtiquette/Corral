@@ -43,3 +43,4 @@ Build Corral: a self-hosted client+server web app where the server tracks issues
 - The GitHub features not rebuilt are genuinely lost until someone decides to add them; that loss is accepted (see future-work candidates in pending ADRs).
 - The product boundary informs the schema (ADR-012), the board/status model (ADR-017), and the label taxonomy (ADR-018).
 - The app must eventually replace GitHub Issues for this project's own task tracking (ADR-008).
+- Roadmap phases, like department boards, are realized as views over the issue database, not as bare labels (ADR-038).

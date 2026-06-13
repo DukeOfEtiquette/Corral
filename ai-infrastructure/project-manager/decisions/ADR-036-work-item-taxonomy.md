@@ -96,3 +96,7 @@ At import, Epics become `type = epic` issues, Tasks become `type = task` issues 
 6. **A canonical operating reference carries the how-to-follow.** This ADR is the binding *why and what*; a "Vocabulary" section in `../tasks/README.md` (the canonical work convention for the markdown era) carries the operating *how* and points back here. Propagating the taxonomy into `../tasks/README.md`, `STATUS.md`, the dashboard, and the role docs is the rename-and-reshape cascade, filed as a follow-on (the analog of the ADR-032 rename cascade, COR-T-036).
 
 7. **This ADR does not touch the schema.** ADR-025 remains the authority for `issues.type` and `parent_id`. This ADR layers the project's planning taxonomy and roadmap semantics on top of that model; a forward-pointer note is added to ADR-025.
+
+8. **ADR-037 storage representation (forward pointer).** How each term is stored in the markdown era (Tasks/ADRs as files, Phases/Epics as STATUS frontmatter) was left unpinned here and is decided by ADR-037 (accepted): Epics and Phases each become first-class files with bottom-up linkage, and the roadmap becomes a derived view. See `./ADR-037-work-item-storage-representation.md`.
+
+9. **ADR-038 phase as a View (forward pointer).** The Dogfood mapping above sends a Phase to a label; ADR-038 (accepted) refines this: a Phase imports as a View entity plus a reserved `phase:*` label its epics carry, not a bare label. The taxonomy and rollup semantics here are unchanged. See `./ADR-038-phase-as-first-class-view.md`.
