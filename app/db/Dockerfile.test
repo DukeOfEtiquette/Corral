@@ -1,0 +1,13 @@
+FROM python:3.12-slim
+
+WORKDIR /app/db
+
+COPY requirements-test.txt .
+RUN pip install --no-cache-dir -r requirements-test.txt
+
+# Copy ONLY the tests directory into the image. The migration (alembic/) is
+# deliberately kept out of the test image so the schema characterization tests
+# assert against the live database, never against the migration source.
+COPY tests/ ./tests/
+
+CMD ["pytest", "-v", "tests/"]
