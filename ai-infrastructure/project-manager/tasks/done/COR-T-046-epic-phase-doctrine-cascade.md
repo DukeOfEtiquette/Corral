@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-046
 title: "Epic/phase doctrine cascade: operationalize ADR-037/038 in role docs, commands, and scaffold docs"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-12
@@ -40,3 +40,4 @@ Out of scope: any change to the storage decomposition, the epic/phase YAML files
 - 2026-06-12: Created in backlog by the project-manager coordinator (orchestrator-direct, coordinator task tree). Surfaced by a post-ADR-037/038 audit: COR-T-044/045 delivered the data layer (storage decomposition + ETL) and `tasks/README.md` carries the convention, but the operational doctrine (role docs, survey commands, department `CLAUDE.md` files) was never updated and `ORCHESTRATOR-ROLE.md` line ~101 carries a now-stale roadmap-edit instruction. Five gaps enumerated above, each verified on disk; the lazy-creation non-gaps and the deferred ADR-038 realization are explicitly fenced off. Left standalone (no `epic:` linkage) deliberately: the only fitting epic (COR-E-001) is a done Phase-1 epic, and linking a new backlog task would reopen its rollup and Phase 1; ADR-036 permits standalone tasks. P2 (one latent correctness fix plus completeness; non-blocking). Routes through the dispatched-worker flow as a documentation cascade (analog of COR-T-042) when picked up.
 - 2026-06-12: Added item 6 at user direction -- backfill the missing `epic:` linkage on the restructure tasks (COR-T-041/043/045 -> COR-E-004; COR-T-042/044 left standalone), with the per-task linkage pinned here as an orchestrator decision so the kickoff carries it resolved.
 - 2026-06-12: Picked up; moved to in-progress. No residual anticipated decisions -- the five doctrine gaps, the item-6 linkage backfill, and the lazy-creation / deferred-ADR-038 fences are all pinned in the Description. Next: draft+check the kickoff and dispatch the executor through the dispatched-worker flow.
+- 2026-06-12: Done. Drafter+checker loop PASS (iteration 2, after a prelaunch W1 re-draft adding ADR-038 deferral scope-of-impact reasoning); prelaunch W1 PASS; executor dispatched (Sonnet) returned COMPLETED; close-checker W2 PASS. All six decisions verified against disk: the three stale STATUS-hygiene refs are gone from both role docs (the line-85 dogfood-event reference intact), the epic/phase lifecycle subsection + epics/phases survey steps + CLAUDE.md epics docs landed, the ADR-030 forward-pointer was added, and epic: COR-E-004 was backfilled on COR-T-041/043/045 with COR-T-042/044 left standalone. Protected set (etl.py, epic/phase YAML, tasks/README, ADR-037/038, create-department.md command) untouched; template {{TOKEN}} style preserved; every cited deliverable path resolves (ADR-035 sub-step). Deliverable + kickoff/report pair committed in e7eb571 (ADR-024).
