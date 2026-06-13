@@ -21,8 +21,9 @@ Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 ## Phase 3: Survey state
 
 1. **Tasks**: list `./ai-infrastructure/project-manager/tasks/backlog/`, `./ai-infrastructure/project-manager/tasks/in-progress/`, and `./ai-infrastructure/project-manager/tasks/blocked/`. Skip `./ai-infrastructure/project-manager/tasks/done/`. For in-progress and blocked entries, read the file and give a one-line characterisation (flag any that look stalled or whose blocker has cleared). For backlog entries list `id` and `title` only.
-2. **Handoff artifacts**: list `./.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024). A kickoff with no sibling `-REPORT.md` may be awaiting dispatch or have had its worker dispatch interrupted; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `./.claude/artifacts/tmp/` for leftover scratch.
-3. **Recent observations**: note any `./ai-infrastructure/project-manager/OBSERVATIONS.md` entries added since the last STATUS update.
+2. **Epics and phases**: list `./ai-infrastructure/project-manager/epics/` (each epic's id, title, phase, and rolled-up task count from its linked tasks) and `./ai-infrastructure/project-manager/phases/` (each phase's id, title, and order). If the `epics/` or `phases/` tree does not exist yet, skip gracefully.
+3. **Handoff artifacts**: list `./.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024). A kickoff with no sibling `-REPORT.md` may be awaiting dispatch or have had its worker dispatch interrupted; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `./.claude/artifacts/tmp/` for leftover scratch.
+4. **Recent observations**: note any `./ai-infrastructure/project-manager/OBSERVATIONS.md` entries added since the last STATUS update.
 
 ## Phase 4: Report findings
 
@@ -30,6 +31,7 @@ Report in a structured shape:
 
 - **Status**: current phase and next step per `./ai-infrastructure/project-manager/STATUS.md`.
 - **Tasks**: in-progress and blocked with one-line characterisations; backlog as id + title.
+- **Epics and phases**: coordinator epics listed with id, title, phase, and rolled-up task count; coordinator-owned phases listed with id, title, and order. Omit if the trees do not exist yet.
 - **Handoff and scratch artifacts**: each with a one-line characterisation; flag active vs settled or stale.
 - **Observations and decisions**: brief synthesis of recent entries and any pending ADRs ready to resolve.
 - **Anything else**: notable inconsistencies (e.g., STATUS.md contradicting the task tree).
@@ -45,7 +47,7 @@ Do NOT proactively act on any surveyed item. Orchestrator sessions are response-
 - "Pick up `COR-T-NNN`" (or "complete / do `COR-T-NNN`") -> transition per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then **route the work through the "Dispatched-worker flow"**: for a deliverable task, resolve any residual decisions, draft and check the kickoff, run the prelaunch checker, dispatch the `executor`, then close. Do NOT execute the deliverable (the restructure, the code, the doc) yourself; only pure coordination tasks (ADR/STATUS/triage) are orchestrator-direct. When unsure, dispatch.
 - "Block / unblock `COR-T-NNN`" -> transition with the reason captured in the activity log.
 - "Resolve `COR-T-NNN`" -> commit gate per `ORCHESTRATOR-ROLE.md` (section "Task lifecycle"), then move to done.
-- "Add a new task" -> allocate the next ID from `./ai-infrastructure/project-manager/tasks/.next-task-id`, draft in `./ai-infrastructure/project-manager/tasks/backlog/` per `./ai-infrastructure/project-manager/tasks/README.md`.
+- "Add a new task" -> allocate the next ID from `./ai-infrastructure/project-manager/tasks/.next-task-id`, draft in `./ai-infrastructure/project-manager/tasks/backlog/` per `./ai-infrastructure/project-manager/tasks/README.md`. Decide `epic:` linkage at filing time: set `epic: <id>` if the task belongs to an epic, or leave absent for a standalone task.
 - "Draft a kickoff for X" -> resolve anticipated decisions with the user, then run the drafter+checker dispatch loop per `ORCHESTRATOR-ROLE.md` (section "Drafter+checker dispatch loop"). Kickoff paths: `./.claude/artifacts/handoffs/<TASK-OR-TOPIC>-KICKOFF.md`.
 - "Execute the kickoff" (or proceeding after a kickoff passes the loop) -> run the "Dispatched-worker flow" per `ORCHESTRATOR-ROLE.md`: dispatch the prelaunch checker, dispatch the `executor` (Sonnet, foreground), branch on its `RETURN: COMPLETED` / `RETURN: ESCALATION` verdict, then run the close checker and verify the report against disk.
 - "Review the worker's output" -> the worker returns its report inline (and writes it to the derived `-REPORT.md` path); verify the report against the kickoff and the actual file state, independently re-deriving its claims.

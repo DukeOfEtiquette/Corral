@@ -24,8 +24,9 @@ Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 ## Phase 3: Survey state
 
 1. **Tasks**: list `ai-infrastructure/backend-api/tasks/backlog/`, `ai-infrastructure/backend-api/tasks/in-progress/`, and `ai-infrastructure/backend-api/tasks/blocked/`. Skip `ai-infrastructure/backend-api/tasks/done/`. For in-progress and blocked entries, read the file and give a one-line characterisation (flag any that look stalled or whose blocker has cleared). For backlog entries list `id` and `title` only.
-2. **Handoff artifacts**: list `.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024) belonging to this department's tasks. A kickoff with no sibling `-REPORT.md` may be awaiting dispatch or have had its worker dispatch interrupted; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `.claude/artifacts/tmp/` for leftover scratch relevant to this department.
-3. **Recent observations**: note any `ai-infrastructure/backend-api/OBSERVATIONS.md` entries added since the last STATUS update.
+2. **Epics**: list `ai-infrastructure/backend-api/epics/` (each epic's id, title, phase, and rolled-up task count from its linked tasks). If the `epics/` tree does not exist yet, skip gracefully (lazy creation: it is created on this department's first epic).
+3. **Handoff artifacts**: list `.claude/artifacts/handoffs/` for in-flight kickoffs and reports (ADR-024) belonging to this department's tasks. A kickoff with no sibling `-REPORT.md` may be awaiting dispatch or have had its worker dispatch interrupted; a kickoff with one may be awaiting review; pairs belonging to done tasks are settled history. Also list `.claude/artifacts/tmp/` for leftover scratch relevant to this department.
+4. **Recent observations**: note any `ai-infrastructure/backend-api/OBSERVATIONS.md` entries added since the last STATUS update.
 
 ## Phase 4: Report findings
 

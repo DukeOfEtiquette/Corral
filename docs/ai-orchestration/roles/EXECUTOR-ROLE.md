@@ -135,7 +135,7 @@ Before assembling the closing report, update the **workspace STATUS the kickoff 
 1. **Bump `last_updated`** in the frontmatter to today's `YYYY-MM-DD`.
 2. **Append a `recent_updates` entry** with today's date and a one-sentence summary of what the session delivered. Be specific (name the artifact and the kickoff or task), not generic ("worked on stuff").
 
-Beyond these two, the kickoff names any **task-specific STATUS deltas** the Executor is responsible for applying: phase changes, "Next step" rewording, "Blocked on" updates. Apply exactly what the kickoff names; do not invent edits. If the kickoff says "universal hygiene only", the universal two are the full obligation.
+Beyond these two, the kickoff names any **task-specific STATUS deltas** the Executor is responsible for applying: phase changes, "Blocked on" updates. Apply exactly what the kickoff names; do not invent edits. If the kickoff says "universal hygiene only", the universal two are the full obligation.
 
 Update that STATUS file in the same edit pass that closes out the deliverables. List it in the closing report's "Files touched" section so the Orchestrator's review pass can confirm the hygiene step happened.
 

@@ -23,6 +23,10 @@ The universal checker fleet (ADR-023) gates every worker run: the `worker-prelau
 
 This workspace owns its own `./tasks/` tree (ADR-031), allocating `{{DEPT_TASK_PREFIX}}-T-NNN` IDs from `./tasks/.next-task-id`. The tree follows the standard task convention (`ai-infrastructure/project-manager/tasks/README.md`) scoped to this department. A task's department is implied by the tree it lives in; the `dept:{{DEPT_SLUG}}` label is applied at the dogfood import (ADR-008), not hand-applied in the markdown era. Do not invent a parallel task system here and do not tag tasks with `dept:{{DEPT_SLUG}}` by hand.
 
+## Epics
+
+When this department's first epic is ready to file, an `./epics/` tree is created alongside `./tasks/` (lazy creation per ADR-021 and ADR-031). It allocates `{{DEPT_TASK_PREFIX}}-E-NNN` IDs from `./epics/.next-epic-id`. Epic files are pure YAML in `./epics/`; tasks link to their epic via the `epic:` frontmatter field (bottom-up linkage, ADR-037). The coordinator-owned `phases/` tree is at `ai-infrastructure/project-manager/phases/` and is not duplicated here. See `ai-infrastructure/project-manager/tasks/README.md` section "Epics and phases" for the full convention.
+
 ## Decisions
 
 Binding choices specific to this department get an ADR in `./decisions/` (conventions in `./decisions/README.md`). Cross-cutting decisions that affect the whole project belong in `ai-infrastructure/project-manager/decisions/`.
@@ -44,3 +48,4 @@ docker compose is the only supported run path once code exists (`ai-infrastructu
 | `./OBSERVATIONS.md` | Append-only pattern log, `{{DEPT_OBS_PREFIX}}-NN` IDs |
 | `./decisions/` | Department-local ADRs |
 | `./tasks/` | Department task tree (`{{DEPT_TASK_PREFIX}}-T-NNN` IDs, own `.next-task-id`) |
+| `./epics/` | Department epic tree (`{{DEPT_TASK_PREFIX}}-E-NNN` IDs, own `.next-epic-id`); created lazily on the first epic |
