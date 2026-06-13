@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-045
 title: "Repoint the dashboard ETL at the epic/phase files and retire the STATUS roadmap block (ADR-037 Phase B)"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-13
@@ -28,3 +28,5 @@ References: `./decisions/ADR-037-work-item-storage-representation.md`, `./decisi
 ## Activity log
 
 - 2026-06-13: Created in backlog. The Phase B cutover of the ADR-037 cascade, split from COR-T-044 with the user so the dashboard never breaks mid-restructure (Phase A builds the new files with the old ETL still reading the old block; this task switches the ETL and removes the block). Picked up after COR-T-044 is complete and verified. Visual deliverable (COR-07 render gate at close).
+- 2026-06-13: Picked up; moved to in-progress. COR-T-044 (Phase A) is done (committed 7c6c8f7 + 3299ea4): the epics/ + phases/ files and bottom-up linkage are in place. Orchestrator homework on etl.py + RoadmapPanel.jsx surfaced two pinned refinements for the kickoff: (1) epic `adrs` are integers in the YAML, map them to ADR-NNN tokens for the existing resolver; (2) the phase cardinality check must treat 0-epic phases as "forming" (not flagged), only flagging 1-epic phases, so the deferred future phases do not show spurious warnings. Next: draft+check kickoff and dispatch executor with the COR-07 render gate at close.
+- 2026-06-13: Done. Kickoff drafted+checked (PASS), prelaunch PASS, executor dispatched (Sonnet). Delivered the file-based roadmap reader (collect_roadmap_from_files + _collect_tasks_by_epic) wired into run_etl, the phase cardinality refinement (0 epics not flagged, 1 flagged), and removal of the STATUS roadmap block. Verified via compose (the sanctioned path) + headless render (COR-07): data.json contract intact, RoadmapPanel.jsx untouched, roadmap renders correctly. Corrected at close: the executor downgraded last_updated to 2026-06-12 (reset to 2026-06-13). Phase 2 shows the expected 1-epic warning (Backend API deferred); user confirmed the render and accepted the warning as-is. Deliverable committed 1bacdd5. Completes the ADR-037/038 cascade.
