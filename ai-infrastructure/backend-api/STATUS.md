@@ -13,7 +13,7 @@ Single source of truth for current progress in the `Backend API` department. Upd
 
 ## Next step
 
-The `ai-infrastructure/backend-api/tasks/backlog/` is currently empty. P2-2 (FastAPI endpoints) and P2-3 (auth/sessions) are the next deliverables to be filed when the database schema (DB-T-001) is under way. Route them through the `/backend-api-orchestrator` dispatched-worker flow.
+The `ai-infrastructure/backend-api/tasks/backlog/` is currently empty. The next work is the Backend API epic (Phase 2): FastAPI endpoints (`API-T-001`), auth/sessions, and migrations + admin seeding. Its upstream, the Database epic (`DB-E-001`), is complete, so this work is unblocked. File the first surface as a test-design dispatch followed by an implementation dispatch (ADR-016), routed through the `/backend-api-orchestrator` dispatched-worker flow.
 
 ## Blocked on
 
