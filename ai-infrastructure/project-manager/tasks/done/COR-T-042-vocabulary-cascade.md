@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-042
 title: "ADR-036 vocabulary cascade: tasks/README Vocabulary section + milestone->epic doc sweep"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-13
@@ -27,3 +27,4 @@ Source of truth for the Vocabulary content is ADR-036 (`ai-infrastructure/projec
 ## Activity log
 
 - 2026-06-13: Created and picked up (in-progress). The last ADR-036 follow-on (after the STATUS restructure and the COR-T-041 dashboard reshape, both committed). Routes through the dispatched-worker flow (documentation deliverable). Milestone-occurrence survey done by the orchestrator: exactly 3 work-container spots to sweep, the rest are the event sense and stay.
+- 2026-06-13: Done. Dispatched executor added the Vocabulary section to tasks/README.md (five terms + the containment/cardinality/epic-scope/status-rollup/ADR rules, cross-referencing ADR-036) and swept the three work-container 'milestone' spots to 'epic' (ORCHESTRATOR-ROLE.md, README.md, END-GOAL.md), leaving every dogfood-event 'milestone' untouched. Verified against disk: 3 sweeps landed, do-not-touch lines intact, no stray work-container 'milestone' in the in-scope files. Committed in 5ee6abc (kickoff/report pair included, ADR-024). Completes the ADR-036 restructure follow-on set. Surfaced follow-up: the dead .roadmap-milestone-* / .badge-milestone-* CSS after the COR-T-041 reshape is a candidate dashboard cleanup task.
