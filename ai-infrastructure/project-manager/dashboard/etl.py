@@ -6,11 +6,15 @@ data.json to the container-internal served directory (SERVED_DIR env var,
 default: /served).
 
 Sources:
-  (a) Roadmap: roadmap block in /repo/ai-infrastructure/project-manager/STATUS.md
-      frontmatter. Phase status is DERIVED from epic/task rollup (ADR-036):
-      current_phase = lowest phase that is not fully done; phase < current ->
-      "done", phase == current -> "current", phase > current -> "upcoming".
-      Never add to or edit this block.
+  (a) Roadmap: phase YAML files in /repo/ai-infrastructure/project-manager/phases/
+      (phase-0.yml .. phase-N.yml) and epic YAML files in every
+      /repo/ai-infrastructure/<workspace>/epics/ tree (discovered generically;
+      today project-manager and database each have one). Epics are grouped under
+      their phase via the epic's `phase:` field. Tasks are collected bottom-up:
+      each task file's `epic:` frontmatter field names its epic. Phase status is
+      DERIVED from epic/task rollup (ADR-036): current_phase = lowest phase that
+      is not fully done; phase < current -> "done", phase == current ->
+      "current", phase > current -> "upcoming".
   (b) Coordinator and workspace STATUS: /repo/ai-infrastructure/*/STATUS.md
       frontmatter, parsed tolerantly (missing fields omitted, not errored).
   (c) Department roster: the ADR-021 blessed list, encoded as DEPARTMENTS_ROSTER
@@ -679,6 +683,182 @@ def collect_agents(agents_dir: Path) -> list:
 
 
 # ---------------------------------------------------------------------------
+# Roadmap file reader (ADR-037 Phase B)
+# ---------------------------------------------------------------------------
+
+def collect_roadmap_from_files(repo_root: Path) -> list:
+    """
+    Assemble a roadmap_raw list from the phase and epic YAML files (ADR-037).
+
+    Phase files: /repo/ai-infrastructure/project-manager/phases/phase-*.yml
+      Each carries: id (int), title, description, order, optional legacy (bool).
+      Mapped to roadmap_raw: phase <- id, title <- title,
+        deliverables <- description, legacy <- legacy (default False).
+      Phases are ordered by the `order` field ascending.
+
+    Epic files: discovered generically from every
+      /repo/ai-infrastructure/<workspace>/epics/ tree.
+      Each carries: id, title, dept, phase (int), description, adrs (list[int]).
+      Epics are grouped under their phase via the epic's `phase:` field.
+      An epic with no `phase:` field is standalone and omitted here.
+
+    Tasks are collected bottom-up via _collect_tasks_by_epic: each task file's
+      `epic:` frontmatter field names its epic.
+
+    ADR integers are converted to the token form "ADR-%03d" % N so the
+      existing resolve_milestone_refs / resolve_ref_status path handles them.
+
+    Returns a list of dicts matching the roadmap_raw shape:
+      {phase: int, title: str, deliverables: str, legacy: bool,
+       epics: [ {id: str, dept: str, title: str,
+                 tasks: [task-id strings], adrs: [ADR-NNN strings]} ]}
+    ordered by phase ascending.
+    """
+    pm_dir = repo_root / "ai-infrastructure" / "project-manager"
+    phases_dir = pm_dir / "phases"
+
+    # -- Read phase files -------------------------------------------------------
+    phases = []
+    if phases_dir.is_dir():
+        for phase_file in phases_dir.glob("phase-*.yml"):
+            try:
+                data = yaml.safe_load(phase_file.read_text(encoding="utf-8")) or {}
+            except (OSError, yaml.YAMLError):
+                continue
+            if "id" not in data:
+                continue
+            phases.append({
+                "phase": int(data["id"]),
+                "title": str(data.get("title", "")),
+                "deliverables": str(data.get("description", "")),
+                "legacy": bool(data.get("legacy", False)),
+                "order": int(data.get("order", data["id"])),
+            })
+    # Sort by order field ascending
+    phases.sort(key=lambda p: p["order"])
+
+    # -- Discover epic files generically ----------------------------------------
+    # Walk ai-infrastructure/<workspace>/epics/ for all existing workspaces.
+    ai_infra_root = repo_root / "ai-infrastructure"
+    all_epics = []
+    if ai_infra_root.is_dir():
+        for workspace_dir in sorted(ai_infra_root.iterdir()):
+            if not workspace_dir.is_dir():
+                continue
+            epics_dir = workspace_dir / "epics"
+            if not epics_dir.is_dir():
+                continue
+            for epic_file in sorted(epics_dir.glob("*.yml")):
+                try:
+                    data = yaml.safe_load(epic_file.read_text(encoding="utf-8")) or {}
+                except (OSError, yaml.YAMLError):
+                    continue
+                if "id" not in data or "phase" not in data:
+                    # Standalone epic: omit from phase roadmap
+                    continue
+                # Convert ADR integer list to token strings: [27] -> ["ADR-027"]
+                raw_adrs = data.get("adrs", [])
+                if not isinstance(raw_adrs, list):
+                    raw_adrs = []
+                adr_tokens = []
+                for adr_int in raw_adrs:
+                    try:
+                        adr_tokens.append("ADR-%03d" % int(adr_int))
+                    except (ValueError, TypeError):
+                        pass
+                all_epics.append({
+                    "id": str(data["id"]),
+                    "title": str(data.get("title", "")),
+                    "dept": str(data.get("dept", "")),
+                    "phase": int(data["phase"]),
+                    "adrs": adr_tokens,
+                })
+
+    # -- Bottom-up task collection: group task IDs by epic id -------------------
+    # collect_tasks discards the `epic:` frontmatter field, so we use a
+    # separate scan that reads each task's epic: field directly.
+    tasks_by_epic = _collect_tasks_by_epic(repo_root)
+
+    # -- Group epics by phase and attach tasks -----------------------------------
+    epics_by_phase: dict[int, list] = {}
+    for epic in all_epics:
+        phase_num = epic["phase"]
+        if phase_num not in epics_by_phase:
+            epics_by_phase[phase_num] = []
+        epic_id = epic["id"]
+        task_ids = tasks_by_epic.get(epic_id, [])
+        epics_by_phase[phase_num].append({
+            "id": epic_id,
+            "dept": epic["dept"],
+            "title": epic["title"],
+            "tasks": task_ids,
+            "adrs": epic["adrs"],
+        })
+
+    # -- Assemble roadmap_raw ---------------------------------------------------
+    roadmap_raw = []
+    for phase_entry in phases:
+        phase_num = phase_entry["phase"]
+        epics = epics_by_phase.get(phase_num, [])
+        roadmap_raw.append({
+            "phase": phase_num,
+            "title": phase_entry["title"],
+            "deliverables": phase_entry["deliverables"],
+            "legacy": phase_entry["legacy"],
+            "epics": epics,
+        })
+
+    return roadmap_raw
+
+
+def _collect_tasks_by_epic(repo_root: Path) -> dict:
+    """
+    Walk all task trees (coordinator + each existing department directory under
+    ai-infrastructure/) and collect task IDs grouped by their `epic:` frontmatter
+    field. Returns a dict mapping epic_id -> list of task_id strings.
+
+    This supplements collect_tasks, which does not surface the `epic:` field.
+    Uses the same directory-walking convention (TASK_STATUSES subdirectories).
+    """
+    epic_to_tasks: dict[str, list[str]] = {}
+
+    def _scan_tree(tasks_root: Path) -> None:
+        for status_dir in TASK_STATUSES:
+            dir_path = tasks_root / status_dir
+            if not dir_path.is_dir():
+                continue
+            for md_file in sorted(dir_path.glob("*.md")):
+                fm = parse_frontmatter(md_file)
+                if not fm:
+                    continue
+                task_id = str(fm.get("id", ""))
+                epic_id = str(fm.get("epic", ""))
+                if not task_id or not epic_id:
+                    continue
+                if epic_id not in epic_to_tasks:
+                    epic_to_tasks[epic_id] = []
+                epic_to_tasks[epic_id].append(task_id)
+
+    # Coordinator tasks
+    pm_tasks_root = repo_root / "ai-infrastructure" / "project-manager" / "tasks"
+    _scan_tree(pm_tasks_root)
+
+    # All department tasks: discover generically
+    ai_infra_root = repo_root / "ai-infrastructure"
+    if ai_infra_root.is_dir():
+        for workspace_dir in sorted(ai_infra_root.iterdir()):
+            if not workspace_dir.is_dir():
+                continue
+            if workspace_dir.name == "project-manager":
+                continue  # already scanned above
+            tasks_root = workspace_dir / "tasks"
+            if tasks_root.is_dir():
+                _scan_tree(tasks_root)
+
+    return epic_to_tasks
+
+
+# ---------------------------------------------------------------------------
 # Main ETL
 # ---------------------------------------------------------------------------
 
@@ -734,10 +914,8 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     # Collected here (before roadmap assembly) for the same reason.
     adrs = collect_adrs(decisions_dir)
 
-    # -- (a) Roadmap ---------------------------------------------------------
-    roadmap_raw = coordinator_fm.get("roadmap", [])
-    if not isinstance(roadmap_raw, list):
-        roadmap_raw = []
+    # -- (a) Roadmap (ADR-037 Phase B: read from epic/phase files) ----------------
+    roadmap_raw = collect_roadmap_from_files(repo_root)
 
     # Derive current_phase, current_phase_title, and next_step via epic/task
     # rollup per ADR-036. Legacy phases are always done; non-legacy phases
@@ -773,9 +951,10 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         if not isinstance(raw_epics, list):
             raw_epics = []
 
-        # Cardinality check (ADR-036): non-legacy phase with fewer than 2 epics.
+        # Cardinality check (ADR-036): non-legacy phase with exactly 1 epic.
+        # 0 epics is "forming/future" (not flagged); 1 epic is a cardinality smell.
         phase_warning = None
-        if not is_legacy and len(raw_epics) < 2:
+        if not is_legacy and len(raw_epics) == 1:
             phase_warning = f"Phase {phase_num} has {len(raw_epics)} epic(s); expected >= 2 (ADR-036)."
 
         epics_out = []
@@ -1039,6 +1218,7 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
 # spurious triggers from unrelated files in the watched trees.
 WATCH_PATTERNS = [
     re.compile(r".*/ai-infrastructure/.*\.md$"),
+    re.compile(r".*/ai-infrastructure/.*\.yml$"),  # epic and phase YAML files (ADR-037)
     re.compile(r".*\.claude/commands/.*\.md$"),
     re.compile(r".*\.claude/agents/.*\.md$"),
 ]
