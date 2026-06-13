@@ -11,6 +11,8 @@ superseded_by: null
 
 # ADR-008: Bootstrap task tracking in git-tracked markdown; dogfooding is an explicit milestone
 
+> **Forward pointer (2026-06-13):** ADR-039 pre-stages the post-dogfood activity end-state. It derives the markdown-era STATUS activity feed (`last_updated`, `recent_updates`) from git history, which is the markdown-era analog of the app's `issue_events` audit log (ADR-012). At the dogfood migration the feed re-points its source from git to the events table without reshaping the dashboard `data.json` contract. See ADR-039.
+
 ## Context
 
 This project needs robust task management, and task management is exactly what the project builds. The chicken-and-egg question: where do this project's own tasks live before the app can store them? Continuing on GitHub Issues would add load to the very rate limits the project exists to escape.

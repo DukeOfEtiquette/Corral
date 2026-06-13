@@ -2,16 +2,14 @@
 schema_version: 1
 adr: 39
 title: "STATUS.md ownership: derive the activity surface, hand-author only forward intent"
-status: "pending"
+status: "accepted"
 date: "2026-06-13"
-related_adrs: [37, 8, 27, 12, 23, 24, 29]
+related_adrs: [37, 8, 27, 12, 23, 24, 29, 35]
 supersedes: []
 superseded_by: null
 ---
 
 # ADR-039: STATUS.md ownership: derive the activity surface, hand-author only forward intent
-
-> Pending: this ADR frames the question and records the operator's leanings; no decision is taken yet. The Alternatives, Decision, and Consequences below are framing stubs to be filled in when the ADR is resolved (per the Pending-ADR resolution playbook in `docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md`). Resolvable next session; not phase-gated.
 
 ## Context
 
@@ -21,57 +19,56 @@ This surface drifts. The motivating instance: a fresh `/database-orchestrator` s
 
 This is the COR-03 pattern continuing (`OBSERVATIONS.md`): each time a hand-maintained pointer is replaced by derivation, the drift relocates to whatever is still hand-maintained. ADR-037 already derived the roadmap out of STATUS frontmatter (the churn-coupling resolution), eliminating roadmap/structural-status drift. The remaining hand-maintained surface, the activity log (`last_updated` + `recent_updates`), is now the drift carrier. ADR-037 is the direct precedent: it kept the `data.json` contract stable and changed only the source.
 
-Two further alignments motivate acting now rather than continuing to hand-maintain:
+Two further alignments motivated acting now rather than continuing to hand-maintain:
 
 - **The dogfood end-state (ADR-008, ADR-012).** After the dogfood migration, tracker activity is the app's `issue_events` audit log, derived, not hand-authored. A derived markdown-era activity feed is the analog of that end-state, so deriving now moves toward the eventual shape, not away from it.
 - **Commit discipline already exists (ADR-024).** Handoff artifacts and deliverables are committed with task-ID-tagged messages; the git history is already a high-fidelity, per-workspace-attributable activity record.
 
-The question this ADR frames is broader than just the activity fields: **which parts of `STATUS.md` should remain hand-authored, and which should become derived?** The operator's framing principle is "history is derived; intent is authored": backward-looking facts (timestamps, what-happened) are mechanically recoverable and should be derived; forward-looking intent (current focus, next step, what we are blocked on) is human judgement and stays authored.
-
-## Open dimensions
-
-To be resolved when the ADR is taken up. Each is framed with the operator's current leaning.
-
-1. **Scope split (the core principle).** Lean: `last_updated` and `recent_updates` become DERIVED; `## Current phase`, `## Next step`, and `## Blocked on` stay HAND-AUTHORED (forward intent). STATUS.md frontmatter shrinks to `schema_version` (+ `department`). Open: whether `## Current phase` should instead derive its factual half (the phase number/title, already derived to `data.json`) while keeping only the narrative.
-
-2. **Source for `recent_updates`.** The central fork:
-   - **git-by-path**: `git log -- <workspace-path>` (complete: catches task-less events like ADR edits and hygiene fixes; lower per-entry richness; makes commit-message quality a contract; needs git in the container).
-   - **task-activity-logs**: aggregate the newest activity-log lines across the workspace's task files (keeps curation; no container change; misses task-less events).
-   - **hybrid**: git as the spine, enriched by task-activity-log text where a commit maps to a task.
-   Lean: git-by-path (completeness wins; commit discipline is already strong and task-ID-tagged), revisited if the richness loss proves too costly.
-
-3. **Source for `last_updated`.** Lean: `git log -1 -- <workspace-path>` date (more accurate than `max(task updated:)` because it catches non-task changes). Low controversy.
-
-4. **Materialization and survey doctrine.** If the activity surface leaves STATUS.md, a surveying orchestrator can no longer read `recent_updates` from frontmatter. Lean: materialize the derived feed in the dashboard `data.json` (contract already has `recent_activity`), and change the survey doctrine so orchestrators consult `git log -- <workspace>` (or the dashboard) for recent activity. This is a doctrine cascade (see dimension 7).
-
-5. **ETL / container feasibility.** The dashboard serve image is `python:3.12-slim` (PyYAML + watchdog only); the compose bind-mount is the whole repo root read-only, so `/repo/.git` is present but no git binary is. git-by-path requires either `apt-get install git` + shelling out, or a pure-Python reader (dulwich), plus handling git's `safe.directory` ownership check under a read-only mount. task-activity-logs need no container change. Lean: acceptable cost (install git or add dulwich); confirm read-only-mount `git log` works in-container during implementation.
-
-6. **Commit-message discipline as contract.** If the source is git, commit subjects become the activity feed, so their quality/format is load-bearing. Lean: codify the already-de-facto convention (every commit subject leads with the task/ADR ID and a specific summary); decide whether to enforce it (a hook or checker) or leave it advisory.
-
-7. **Doctrine cascade (a consequence to scope, not a separate decision).** Deriving the activity surface removes the "universal STATUS hygiene" obligation from `EXECUTOR-ROLE.md`, `TEST-DESIGNER-ROLE.md`, `ORCHESTRATOR-ROLE.md` (the lifecycle + R6 convention), the three orchestrator commands, and the department command template. This is a simplifying cascade (it deletes a per-session chore and a drift class), filed as an implementation task when the ADR is accepted (analog of COR-T-046). It also resolves the cross-workspace-write hygiene gap structurally (no target-workspace edit is needed, because there is nothing hand-maintained to edit).
-
-8. **Relationship to the dogfood seam (ADR-008).** At dogfood, STATUS-as-tracked-markdown freezes and activity comes from `issue_events`. Deriving now should be designed so the derived feed is conceptually the same object the app will later serve from the events table, so the dogfood transition swaps the source again without reshaping the contract.
+The question was broader than just the activity fields: which parts of `STATUS.md` should remain hand-authored, and which should become derived? The resolving principle is **"history is derived; intent is authored"**: backward-looking facts (timestamps, what-happened) are mechanically recoverable and are derived; forward-looking intent (current focus, next step, what we are blocked on) is human judgement and stays authored.
 
 ## Alternatives considered
 
-> Stubs; expand on resolution.
+The decision had two coupled axes: how much of STATUS.md to derive (scope), and where the derived activity feed comes from (source).
 
-### Option A: Status quo (hand-author the whole STATUS surface)
+### Scope
 
-Keep `last_updated` + `recent_updates` hand-maintained. **Leaning: rejected** (it is the drift carrier this ADR exists to remove; the cross-workspace-write gap has no clean doctrine patch).
+**Option A: Status quo (hand-author the whole STATUS surface).** Keep `last_updated` + `recent_updates` hand-maintained. Rejected: it is the drift carrier this ADR exists to remove, and the cross-workspace-write gap has no clean doctrine patch (you cannot reliably ask every task to remember to hygiene every workspace it incidentally touched).
 
-### Option B: Derive `last_updated` only
+**Option B: Derive `last_updated` only.** Lowest-risk partial step. Rejected as insufficient: the flagged drift was in `recent_updates` content, not just the date.
 
-Lowest-risk partial step; leaves the `recent_updates` drift in place. **Leaning: insufficient** (the flagged drift was in `recent_updates` content, not just the date).
+**Option C: Derive the full activity surface; hand-author only forward intent.** `last_updated` + `recent_updates` derived; `## Current phase` / `## Next step` / `## Blocked on` stay authored. Selected: it removes the drift class entirely, structurally closes the cross-workspace-write gap (nothing hand-maintained means nothing to forget), and follows the proven ADR-037 source-only pattern.
 
-### Option C: Derive the full activity surface; hand-author only forward intent
+### Source for the derived feed
 
-`last_updated` + `recent_updates` derived (source per dimension 2); `## Current phase` / `## Next step` / `## Blocked on` stay authored. **Leaning: selected**, pending resolution of the source fork (dimension 2) and feasibility (dimension 5).
+**git-by-path.** Each workspace's feed is `git log -- <workspace-path>`. Selected: it is complete (it captures task-less events such as ADR edits and hygiene fixes, AND cross-workspace coordinator writes, which is the exact drift that motivated the ADR: the COR-T-044 commit touched `ai-infrastructure/database/` paths and so appears in the database feed for free). The accepted trade-offs are lower per-entry richness than the hand-curated paragraphs and making commit-message quality load-bearing.
+
+**task-activity-logs.** Aggregate the newest activity-log lines across a workspace's task files. Rejected as the primary source: it keeps curation and needs no container change, but it misses task-less events and coordinator cross-writes that create no task in that tree, so it would not have caught the motivating drift.
+
+**hybrid (git spine enriched by activity-log text).** Best fidelity, most moving parts. Rejected for v1 as unnecessary complexity; the git spine is sufficient and the hybrid remains a future enrichment if commit-subject richness proves too thin.
 
 ## Decision
 
-Pending.
+Adopt Option C with git-by-path. Specifically:
+
+1. **Scope (history derived, intent authored).** `last_updated` and `recent_updates` become derived and leave `STATUS.md` frontmatter, which reduces to `schema_version` (+ `department` on department STATUS). `## Current phase`, `## Next step`, and `## Blocked on` stay hand-authored as forward intent. (The factual phase number/title already derives to `data.json`; only the narrative stays authored.)
+
+2. **Source.** `recent_updates` / the per-workspace activity feed derives from `git log -- <workspace-path>`; `last_updated` derives from `git log -1 -- <workspace-path>`. The dashboard's existing `recent_activity` aggregate is the materialization, so the `data.json` contract shape is preserved (a source-only change, per ADR-037).
+
+3. **Survey doctrine.** Because the activity surface leaves `STATUS.md`, a surveying orchestrator consults `git log -- <workspace>` (or the dashboard) for recent activity rather than reading `recent_updates` from frontmatter.
+
+4. **ETL / container feasibility.** The dashboard serve image (`python:3.12-slim`) gains git so `etl.py` can read history; the compose bind-mount already includes `/repo/.git` read-only. The implementation handles git's `safe.directory` ownership check under the read-only mount. (dulwich, pure-Python, is the fallback if the git-binary route is problematic in-container.)
+
+5. **Commit-message discipline (owned-but-advisory).** With git as the source, commit subjects are the feed, so the de-facto convention is codified: every commit subject leads with the task/ADR ID plus a specific summary. This is owned-but-advisory, mirroring the ADR-035 citation-completeness precedent; enforcement (a `commit-msg` hook or a checker rule) is the recorded re-open path if feed quality erodes.
+
+6. **Doctrine cascade.** Deriving the activity surface removes the universal STATUS-hygiene obligation from `EXECUTOR-ROLE.md`, `TEST-DESIGNER-ROLE.md`, `ORCHESTRATOR-ROLE.md` (the lifecycle text and the R6 convention), the three orchestrator commands, and the department command template, and rewrites the survey doctrine per decision 3. Filed as implementation task COR-T-047. The cascade is sequenced: the derive-ETL and container change land and are render-verified FIRST, then the doctrine cascade and the frontmatter-field removal, so there is never a window where the activity surface is neither hand-maintained nor derived.
+
+7. **Dogfood alignment.** The git-derived feed is the markdown-era analog of the app's `issue_events` audit log (ADR-008, ADR-012); the dogfood transition re-points the source from git to the events table without reshaping the `data.json` contract.
 
 ## Consequences
 
-Pending. Anticipated when Option C is taken: the `data.json` contract shape is preserved (source-only change, per ADR-037); the dashboard container gains a git (or dulwich) dependency; a doctrine cascade removes universal STATUS hygiene across the role docs, commands, template, and R6 convention (filed as an implementation task); the cross-workspace-write drift gap is structurally closed; and the markdown-era activity feed is aligned with the ADR-008 `issue_events` end-state.
+- The `last_updated` + `recent_updates` drift class is eliminated, and the cross-workspace-write drift gap (ADR-027 write authority) is structurally closed: there is no hand-maintained activity field left to forget.
+- A per-session chore (universal STATUS hygiene) is deleted from every role doc, command, and the R6 convention. This is a net doctrine simplification; the implementation cascade (COR-T-047) is the cost.
+- Commit-message quality becomes load-bearing for the activity feed (decision 5). Accepted as advisory with a recorded enforcement re-open path.
+- The dashboard container gains a git (or dulwich) dependency and `safe.directory` handling; the `data.json` contract is unchanged (source-only, per ADR-037).
+- `STATUS.md` becomes a thin forward-intent document (`## Current phase` / `## Next step` / `## Blocked on`); the historical record lives in git and, post-dogfood, in `issue_events`.
+- Forward-pointer notes added to ADR-037 (this extends its derivation pattern to the activity surface), ADR-027 (this closes the cross-workspace-write drift gap its grant enabled), and ADR-008 (this pre-stages the `issue_events` activity end-state). related_adrs cross-links updated. COR-03 in `OBSERVATIONS.md` reaches its terminal derivation here (the last hand-maintained STATUS surface is derived); flip its note on resolution of COR-T-047.

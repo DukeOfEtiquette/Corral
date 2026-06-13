@@ -13,6 +13,8 @@ superseded_by: null
 
 > Accepted 2026-06-12. Decides how Phases and Epics are stored in the markdown era, a representation ADR-036 left unpinned. Resolved alongside ADR-038 (Phase as a first-class View), which the import targets defined here point at. The decomposition itself is a dispatched follow-on (COR-T-044), not performed by this ADR.
 
+> **Forward pointer (2026-06-13):** ADR-039 extends this source-only derivation pattern (contract preserved, source moved) from the roadmap to the STATUS activity surface: `last_updated` and `recent_updates` become derived (git-by-path) and leave STATUS.md frontmatter, the same churn-coupling resolution applied one level further. See ADR-039.
+
 ## Context
 
 ADR-036 pinned the work-item taxonomy and semantics (the five terms, strict containment, the `>= 2` cardinality conventions, status rollup, the dogfood import mapping) but did not decide *how each term is stored* in the markdown era. Its consequence 6 simply assumed the representation already in place: Tasks and ADRs are one markdown file each, while Phases and Epics are nested structures inside the `roadmap:` block of `ai-infrastructure/project-manager/STATUS.md` frontmatter. That representation is therefore an inherited implementation choice, never a reasoned decision.
