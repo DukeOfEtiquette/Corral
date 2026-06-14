@@ -2,11 +2,11 @@
 schema_version: 1
 id: COR-T-050
 title: "Derive the STATUS narrative body (current phase / next step / blocked); remove hand-authored body"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-13
-updated: 2026-06-13
+updated: 2026-06-14
 ---
 
 ## Description
@@ -30,3 +30,4 @@ Routes through the dispatched-worker flow (dashboard ETL change + a documentatio
 - 2026-06-13: Created in backlog. Implements ADR-040 (accepted 2026-06-13); analog of COR-T-047. Filed as the spawned implementation task at ADR-040 resolution. Unlabelled per ADR-031.
 - 2026-06-13: Picked up (in-progress). Routing through the dispatched-worker flow with the ADR-040 sequencing (phase 1: derive + verify the blocked surface; phase 2: remove narrative bodies + doctrine cascade). Orchestrator doing homework (dashboard structure, doctrine-cascade reference sites) before resolving anticipated decisions and drafting the phase-1 kickoff.
 - 2026-06-13: Homework surfaced that `status_deltas`/R6 become vestigial once the STATUS body is derived. Operator decision: fold the R6/status_deltas retirement into phase 2 (not a separate task, not an ADR-040 amendment). Scope updated above. Curated doctrine-cascade inventory (Explore sweep) held for the phase-2 kickoff.
+- 2026-06-14: Done. Three dispatches, all drafter+checker PASS / prelaunch W1 PASS / close W2 PASS, each verified against disk. Phase 1 (committed `8e35e9e`): etl.py derives the cross-workspace blocked set (id/title/workspace + reason from the last activity-log bullet) into a top-level `blocked` and per-workspace `workspace_details[slug].blocked`; new BlockedPanel (landing) + conditional Blocked card (workspace view); verified live (empty / populated-via-fixture / revert) and user visual-confirmed. Phase 2a (committed `b62db1d`): removed the `## Current phase` / `## Next step` / `## Blocked on` bodies from all four STATUS.md (3 live + template), reduced to frontmatter + derived-pointer; cascaded the STATUS description + survey doctrine through the CLAUDE.md tables, READMEs, and the three commands + template; verified the dashboard still derives current_phase=2 with the bodies gone. Phase 2b (committed `ab6e811`): retired `status_deltas` and tombstoned R6 (no renumber; R7/R8 intact) across the three role docs, four specs, four agent definitions, plus an ADR-023 forward-pointer. Related: a derived-roadmap false-"done" bug surfaced during phase-1 verify (Phase 2 read done because the Backend API epic was unfiled) was fixed by filing API-E-001 (`530b671`) and captured as OBSERVATIONS COR-08 / pending ADR-041. Pre-existing follow-up (not this task): an em-dash regex literal in KICKOFF-CHECKER-SPEC.md (the em-dash detector's own pattern).
