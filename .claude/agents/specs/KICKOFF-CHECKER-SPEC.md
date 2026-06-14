@@ -23,7 +23,7 @@ PASS means "this kickoff passes the structural rules"; it does NOT mean "the kic
 
 ## Agent Purpose
 
-- **Mechanical enforcement** of rules orchestrators demonstrably drift from under context pressure. R1-R3 are anti-deferral rules (the primary purpose: a kickoff must contain resolved decisions, never invitations for the worker to choose). R4-R8 round out the convention (no intermediate checkpoints, no em dashes, STATUS deltas named, no invocation framings in the body, related tasks and ADRs named).
+- **Mechanical enforcement** of rules orchestrators demonstrably drift from under context pressure. R1-R3 are anti-deferral rules (the primary purpose: a kickoff must contain resolved decisions, never invitations for the worker to choose). R4, R5, R7, R8 round out the convention (no intermediate checkpoints, no em dashes, no invocation framings in the body, related tasks and ADRs named). R6 is retired by ADR-040 / COR-T-050 and is skipped.
 - **Independent verdict.** The checker does not see the orchestrator's chat with the user or the drafter's reasoning. Its only inputs are the drafted file and the rule definitions; this independence catches drift the orchestrator and drafter would miss on self-review.
 - **Structured output.** The report schema is parsed by the orchestrator's dispatch loop; finding IDs and severity classifications are stable across iterations so the orchestrator can recognise unresolved findings across the loop.
 - **Read-only contract.** The checker never modifies the kickoff, the source, or any other file. Attempting to write or edit is a violation of the agent's core contract.
@@ -92,16 +92,9 @@ Scan for checkpoint patterns the convention forbids:
 
 Each hit is a FAIL: `R4, line L, evidence "...", recommendation "Remove the intermediate checkpoint; the task runs straight through to its final acceptance gate per ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention'. The worker may at its own discretion stop mid-flight if something feels wrong, but the kickoff must not invite or prescribe it"`.
 
-### Phase 5: R6 STATUS-deltas presence (structural)
+### Phase 5: R6 - retired (skip)
 
-Parse the kickoff body for either:
-
-- A section explicitly naming task-specific edits to the hand-authored STATUS sections (Current phase, Next step where present, Blocked on) the worker is expected to apply, OR
-- The explicit disclaimer `No task-specific STATUS deltas; none.` (or close paraphrase).
-
-If neither is present, emit FAIL: `R6, kickoff body, evidence "no STATUS deltas section or none-disclaimer found", recommendation "Name the task-specific STATUS section edits the task will apply to the hand-authored sections (Current phase, Next step where present, Blocked on), or state explicitly that there are none using the literal 'No task-specific STATUS deltas; none.' (per ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention')"`.
-
-The FAIL is binary on presence/absence of the section or disclaimer, not on per-field completeness.
+R6 is retired by ADR-040 / COR-T-050. The STATUS body sections (`## Current phase`, `## Next step`, `## Blocked on`) are fully derived on the dashboard; kickoffs no longer carry a `status_deltas` section and no worker reads or applies one. Skip this phase entirely; emit no finding for R6. (R7 and R8 are unchanged; their numbers are preserved to avoid breaking references across the repo.)
 
 ### Phase 6: R1 LLM-judgement (Option-A/B tradeoff lists)
 
@@ -148,7 +141,7 @@ Each hit is a FAIL: `R3, line L, evidence "...", recommendation "Resolve the par
 
 ### Phase 9: R8 Related-tasks-and-ADRs presence (structural)
 
-Enforces that every kickoff carries a curated list of related tasks and ADRs. The Orchestrator surveys `./ai-infrastructure/project-manager/tasks/` and `./ai-infrastructure/project-manager/decisions/` in its state survey; handing the executor a pre-triaged list inside the kickoff prevents the executor from scanning the trees and guessing relevance, which the Executor role forbids (`EXECUTOR-ROLE.md`, section "Not in scope"). R8 is presence-based, the same class as R6: it confirms the section exists and was consciously filled; it does NOT verify the list is complete (completeness is the Orchestrator's judgement during the survey, out of scope for the checker).
+Enforces that every kickoff carries a curated list of related tasks and ADRs. The Orchestrator surveys `./ai-infrastructure/project-manager/tasks/` and `./ai-infrastructure/project-manager/decisions/` in its state survey; handing the executor a pre-triaged list inside the kickoff prevents the executor from scanning the trees and guessing relevance, which the Executor role forbids (`EXECUTOR-ROLE.md`, section "Not in scope"). R8 is a structural presence check: it confirms the section exists and was consciously filled; it does NOT verify the list is complete (completeness is the Orchestrator's judgement during the survey, out of scope for the checker).
 
 1. Locate a section whose H2 or H3 heading is `Related tasks and ADRs`.
 2. **Missing section** (no such heading): emit FAIL: `R8, line (section expected), evidence "no 'Related tasks and ADRs' section present", recommendation "Add a 'Related tasks and ADRs' section listing each related item as COR-T-NNN or ADR-NNN plus a one-line relevance note, or the literal 'none' if there are none. The orchestrator curates this from its survey. See ORCHESTRATOR-ROLE.md, section 'Kickoff drafting convention', and ADR-023."`
@@ -161,7 +154,7 @@ LLM-judgement note: the entries do not need to be verified to exist as real task
 
 Aggregate all FAIL findings from Phases 2-9 (Phase 1 produces F-000 only on file-not-found and aborts). Compute summary counts. Emit the report per the Report Schema below.
 
-Order findings by phase number (R5 first, then R7, R4, R6, R1, R2, R3, R8). Within a rule, order by line number ascending. Assign IDs `F-001`, `F-002`, ... in emit order.
+Order findings by phase number (R5 first, then R7, R4, R1, R2, R3, R8). R6 is retired and emits no findings. Within a rule, order by line number ascending. Assign IDs `F-001`, `F-002`, ... in emit order.
 
 If zero FAIL findings exist, emit PASS. If zero FAIL findings and one or more cosmetic-only warnings exist, emit PASS_WITH_WARNINGS. WARNINGs in v1 are reserved for findings the checker recognises but does not block on (for example, a missing "Executor pointer" section: the convention recommends the kickoff body cite `EXECUTOR-ROLE.md` (and where useful the `executor`) by name; absence is a WARNING, not a FAIL. Likewise, presence of an explicit report-path override without rationale is a WARNING).
 
@@ -208,7 +201,7 @@ If the `Observed cleanly` list is empty (every rule fired something), omit the s
 
 ## Severity Rubric
 
-- **FAIL** (blocking): any R1, R2, R3, R4, R5, R7 violation. R6 missing-and-not-disclaimed. R8 missing-or-empty section.
+- **FAIL** (blocking): any R1, R2, R3, R4, R5, R7 violation. R8 missing-or-empty section. (R6 is retired by ADR-040/COR-T-050 and never fires.)
 - **WARNING** (non-blocking): cosmetic findings the checker recognises but does not block on. v1 examples: missing "Worker pointer" section; explicit report-path override without rationale.
 - **PASS**: zero findings.
 - **PASS_WITH_WARNINGS**: zero FAIL, one or more WARNING.
@@ -251,7 +244,7 @@ The checker does NOT:
 - R3 (no paradigm-choice delegations detected)
 - R4 (no intermediate checkpoints detected)
 - R5 (no em dashes detected)
-- R6 (STATUS deltas disclaimer present)
+- R6 (retired by ADR-040/COR-T-050 - skipped)
 - R7 (no invocation framings in body)
 - R8 (Related tasks and ADRs section present)
 ```
@@ -277,14 +270,14 @@ The checker does NOT:
 | F-002 | R3 | 88 | "decide which paradigm fits" | Resolve the paradigm choice in orchestrator-user chat. The worker executes the pinned choice |
 
 ### Observed cleanly
-- R2, R4, R5, R6, R7, R8
+- R2, R4, R5, R7, R8 (R6 retired by ADR-040/COR-T-050 - skipped)
 ```
 
 ---
 
 ## Design Rationale
 
-**Why Sonnet (not Opus).** R4, R5, R7 are mechanical scans; R6 and R8 are structural checks; R1-R3 are LLM-judgement but bounded by tight rule definitions. Sonnet handles this scope efficiently. The checker's failure mode is over-firing on judgement rules (false positives), which the observation-log calibration cadence tunes; under-firing on mechanical rules is unlikely.
+**Why Sonnet (not Opus).** R4, R5, R7 are mechanical scans; R8 is a structural presence check; R1-R3 are LLM-judgement but bounded by tight rule definitions. R6 is retired (skipped). Sonnet handles this scope efficiently. The checker's failure mode is over-firing on judgement rules (false positives), which the observation-log calibration cadence tunes; under-firing on mechanical rules is unlikely.
 
 **Why one agent for all the rules.** The rules are tightly coupled (a kickoff that violates R1 typically also violates R3; the violation surfaces in the same prose region). A single spec is cheaper than separate per-rule dispatches and produces one synthesised report the orchestrator parses once.
 

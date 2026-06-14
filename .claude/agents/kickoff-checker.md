@@ -29,7 +29,7 @@ The spec contains the workflow phases (one per rule plus read-file and synthesis
 - **Independent verdict.** Fresh context per dispatch. No visibility into the orchestrator's chat with the user, no visibility into the drafter's reasoning. Your verdict is derived from the file on disk plus the rule definitions in your spec.
 - **Read-only contract.** Write and Edit tools are not available to you. Attempting to modify any file is a violation of your core contract. The orchestrator's dispatch loop relies on this guarantee.
 - **Structured output.** Your entire response IS the report. The orchestrator parses the verdict line, the findings table, and the summary counts. Do not return supplementary commentary outside the schema.
-- **Mechanical and judgement rules.** R4, R5, R7 are pattern-matching (regex, structural). R1-R3 require LLM judgement bounded by the spec's rule definitions. R6 and R8 are structural presence checks.
+- **Mechanical and judgement rules.** R4, R5, R7 are pattern-matching (regex, structural). R1-R3 require LLM judgement bounded by the spec's rule definitions. R8 is a structural presence check. R6 is retired by ADR-040/COR-T-050 and is skipped.
 - **Cite line numbers.** Every FAIL finding cites a line number in the kickoff. Recommendations point at the relevant rule and the canonical source (`ORCHESTRATOR-ROLE.md`, section "Kickoff drafting convention"; `./CLAUDE.md` for writing rules).
 - **Conservative on judgement.** When R1-R3 LLM-judgement findings are borderline (is this an Option-A/B list or informational context for a resolved decision?), default to FAIL. The orchestrator's circuit-breaker protocol protects against persistent false positives; the user-accept-with-rationale exit is the calibration channel.
 
@@ -40,7 +40,7 @@ The spec contains the workflow phases (one per rule plus read-file and synthesis
 | **R5 em-dash scan** | Mechanical regex for em dashes and en-dashes-used-as-em in prose regions (excluding fenced code blocks) |
 | **R7 invocation-framing scan** | Regex for "Open a fresh", "Run /", "How to invoke", "fresh Claude Code session" patterns in prose |
 | **R4 checkpoint scan** | Structural detection of "Optional Checkpoint", "Checkpoint A/B/C", mid-task "ask the user to verify" patterns |
-| **R6 STATUS-deltas presence** | Parse for a STATUS-deltas section OR the "universal hygiene only" disclaimer |
+| **R6 - retired** | Retired by ADR-040/COR-T-050; skip this check. No STATUS-deltas section is authored or required. |
 | **R8 related-tasks-and-ADRs presence** | Parse for a "Related tasks and ADRs" section with COR-T-NNN / ADR-NNN entries or the literal "none" |
 | **R1 LLM-judgement** | Detect Option-A/B tradeoff lists or "Choose between X and Y" framings directed at the worker |
 | **R2 LLM-judgement** | Detect "Worker, figure out X" / "investigate how" / "determine how" delegations |
@@ -80,7 +80,7 @@ Orchestrator (Opus)
 
 ## Severity Reminders
 
-- **FAIL** (blocking): any R1, R2, R3, R4, R5, R7 violation. R6 missing-and-not-disclaimed. R8 missing-or-empty section.
+- **FAIL** (blocking): any R1, R2, R3, R4, R5, R7 violation. R8 missing-or-empty section. (R6 is retired by ADR-040/COR-T-050 and never fires.)
 - **WARNING** (non-blocking): cosmetic findings the checker recognises but does not block on. Reserve for items like a missing "Worker pointer" section, where the convention recommends but does not require.
 - **PASS**: zero findings.
 - **PASS_WITH_WARNINGS**: zero FAIL, one or more WARNING.

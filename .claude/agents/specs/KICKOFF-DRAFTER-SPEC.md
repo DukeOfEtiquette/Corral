@@ -59,7 +59,6 @@ The orchestrator passes these via the Task tool prompt. The drafter parses them 
 | `files_out_of_scope` | paths | Files the worker must NOT modify |
 | `references` | markdown list | Files or sections the worker reads while executing, each with a one-line purpose |
 | `related_tasks_and_adrs` | markdown list OR "none" | Curated `COR-T-NNN` / `ADR-NNN` entries with one-line relevance notes, from the orchestrator's survey |
-| `status_deltas` | markdown list OR `"none"` | Task-specific edits to the hand-authored STATUS sections (Current phase, Next step where present, Blocked on), or the literal `"none"` when there are none. The activity surface is git-derived (ADR-039) and never written. |
 | `iteration_number` | int | 1 on first dispatch; N+1 on re-dispatch after FAIL |
 | `prior_iteration_findings` | markdown | Findings from kickoff-checker iteration N-1; empty on iteration 1 |
 
@@ -102,7 +101,6 @@ Extract every input field from the dispatch prompt. Validate:
 - `domain` is `ai-infrastructure` or `web-app`.
 - `decisions_resolved` is parseable as a markdown bullet list (empty list is allowed only if `iteration_number > 1` and the prior iteration already had resolved decisions; otherwise empty decisions is an error).
 - `related_tasks_and_adrs` is present (a list or the literal "none").
-- `status_deltas` is present (a list or the literal `"none"`).
 - `iteration_number` is 1, 2, or 3.
 - `prior_iteration_findings` is present iff `iteration_number > 1`.
 
@@ -133,7 +131,7 @@ Before writing, scan the draft:
 3. **Paradigm-choice (R3)**: scan for "decide if pattern A or B", "pick the right pattern"; rewrite as pinned choice.
 4. **Intermediate checkpoints (R4)**: scan for "Optional Checkpoint", "Checkpoint A/B/C", mid-task "ask the user to verify" steps; remove or restructure to the single acceptance gate.
 5. **Em dashes (R5)**: grep for U+2014 and U+2013-as-em in prose; if found, rewrite per `./CLAUDE.md`.
-6. **STATUS deltas presence (R6)**: confirm a "STATUS deltas" section is present, OR the body explicitly states `No task-specific STATUS deltas; none.`
+6. **R6 - retired by ADR-040 / COR-T-050**: no STATUS deltas section is authored or required. The STATUS body is fully derived; kickoffs no longer carry a `status_deltas` section. Skip this check.
 7. **Invocation framing (R7)**: scan for "Open a fresh", "Run /", "How to invoke", "fresh Claude Code session"; remove (this content belongs in the orchestrator's chat reply).
 8. **Related tasks and ADRs presence (R8)**: confirm a "Related tasks and ADRs" section is present and either lists at least one `COR-T-NNN` or `ADR-NNN` entry or states the literal "none". If absent, render it from the `related_tasks_and_adrs` input.
 9. **Citation-completeness (advisory)**: for every repo-relative path or command the kickoff body directs the executor to cite or run, confirm that exact string appears verbatim in the kickoff's `references` / `files_in_scope` section or inline in the kickoff body. An executor asked to reconstruct a path from a naming convention (for example, `ADR-NNN-kebab-title`) will guess and often diverge from the real filename, shipping a broken link or failing command. If a path or command is directed but not carried, add it to the appropriate section. This is an advisory self-check, not a checker-enforced R-rule; it implements the citation-completeness convention in `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` ("Citation-completeness convention") per `./ai-infrastructure/project-manager/decisions/ADR-035-cited-reference-integrity-dispatched-work.md`.
@@ -201,10 +199,6 @@ A kickoff body has this universal scaffold:
 ## Related tasks and ADRs
 
 {Render the `related_tasks_and_adrs` input verbatim: a bulleted list, each item a COR-T-NNN or ADR-NNN reference plus a one-line relevance note. If the input is "none" or empty, render the literal text "none" (explicit-none discipline); do not omit the section.}
-
-## STATUS deltas
-
-{Either a bulleted list of task-specific edits to the hand-authored STATUS sections (Current phase, Next step where present, Blocked on) the executor is expected to apply, OR the literal text `No task-specific STATUS deltas; none.` The activity surface (`last_updated`, `recent_updates`) is git-derived per ADR-039 and is never hand-edited; do not enumerate it here.}
 
 ## Hard rules
 
@@ -283,7 +277,6 @@ Inputs:
 - related_tasks_and_adrs:
   - COR-T-002 (this task)
   - ADR-008 (defines the import this schema must absorb)
-- status_deltas: none
 - iteration_number: 1
 - prior_iteration_findings: (none)
 

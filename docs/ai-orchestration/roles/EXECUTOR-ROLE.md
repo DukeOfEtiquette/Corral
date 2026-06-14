@@ -130,13 +130,7 @@ Every Executor session writes the six-section report to two channels:
 
 ## Wrap-up STATUS deltas
 
-The activity surface (`last_updated`, `recent_updates`) is derived from git per ADR-039 and is never hand-edited. The Executor edits the workspace STATUS file only when the kickoff's `status_deltas` field names a task-specific edit to one of the hand-authored STATUS sections (Current phase, Next step where present, Blocked on).
-
-The target is the STATUS of the workspace the task belongs to: for a coordinator task that is `./ai-infrastructure/project-manager/STATUS.md`; for a department task (ADR-031, each department owns its own task tree) it is that department's `STATUS.md` (for example `./ai-infrastructure/database/STATUS.md`). The kickoff's STATUS-deltas section names the exact file.
-
-Apply exactly what the kickoff names; do not invent edits. If `status_deltas` is `"none"`, STATUS is not touched and does not appear in "Files touched".
-
-When a named delta is applied, update that STATUS file in the same edit pass that closes out the deliverables, and list it in the closing report's "Files touched" section so the Orchestrator's review pass can confirm the delta was applied. The completion signal is `RETURN: COMPLETED` plus the verified deliverables on disk; it is not conditioned on STATUS being touched.
+Retired by ADR-040 / COR-T-050. The STATUS body sections (`## Current phase`, `## Next step`, `## Blocked on`) are fully derived on the dashboard per ADR-040; there are no hand-authored STATUS sections remaining for a worker to edit. The `status_deltas` field and the worker behavior it drove are removed. The Executor never reads or edits any STATUS file. The current-state surface is derived on the dashboard per ADR-040; activity history (`last_updated`, `recent_updates`) is git-derived per ADR-039.
 
 ## Model-tier convention
 
@@ -158,7 +152,7 @@ The Orchestrator's kickoffs reference this role doc (and, where useful, the `exe
 
 ## Not in scope
 
-- **Surveying repo state.** Executors do not run state surveys, read STATUS files (except when `status_deltas` names a hand-authored section edit to apply), scan ADRs, enumerate scratch artifacts, or list tasks. That is the Orchestrator's job. The kickoff carries forward whatever survey context the Executor needs, including its "Related tasks and ADRs" section.
+- **Surveying repo state.** Executors do not run state surveys, read STATUS files, scan ADRs, enumerate scratch artifacts, or list tasks. That is the Orchestrator's job. The kickoff carries forward whatever survey context the Executor needs, including its "Related tasks and ADRs" section.
 - **Drafting new kickoffs.** Executors consume kickoffs; they do not produce them. If execution surfaces work that warrants a separate kickoff, it goes under "Follow-ups" in the report, not into a new artifact authored by the Executor.
 - **Running the Orchestrator command.** The Executor does not invoke the Orchestrator command (any `/<slug>-orchestrator`) to "load context"; that loads survey state and a conflicting role identity. The Executor's required reads are exactly the `explicit_reads` the Orchestrator names plus the kickoff.
 - **Pattern-mining and observation logging.** Patterns surfaced during execution go under "Follow-ups" so the Orchestrator can decide whether to log them. The Executor does not write to `./ai-infrastructure/project-manager/OBSERVATIONS.md` or propose ADRs.
@@ -183,6 +177,6 @@ The role is adopted by the `executor` subagent (`./.claude/agents/executor.md`),
 2. Reads its bootstrap pair (`./.claude/agents/specs/EXECUTOR-AGENT-SPEC.md` and this document) so it adopts the Executor role with the Identity deltas. Role name: "Executor Agent".
 3. Loads exactly the `explicit_reads` the Orchestrator named (plus the kickoff and, on re-dispatch, the resume anchor). Does NOT survey `./ai-infrastructure/project-manager/STATUS.md`, `./ai-infrastructure/project-manager/OBSERVATIONS.md`, ADRs, or task listings; the kickoff and explicit-reads carry the context.
 4. Reads the kickoff end-to-end, then executes (the Orchestrator already ran the prelaunch checker before dispatch).
-5. Applies any named STATUS deltas (on COMPLETED only, when `status_deltas` is not `"none"`) and performs the dual-channel report write, then returns the verdict-lined result. The Orchestrator runs the close checker after the return.
+5. Performs the dual-channel report write, then returns the verdict-lined result. The Orchestrator runs the close checker after the return.
 
 The full dispatch package, workflow phases, and return schemas live in `./.claude/agents/specs/EXECUTOR-AGENT-SPEC.md`.

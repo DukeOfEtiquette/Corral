@@ -3,7 +3,7 @@
 **Status**: Implemented
 **Created**: 2026-06-12
 **Purpose**: Author FAILING tests for a named web-app surface against its contract (the relevant ADRs, the ADR-012 schema, the surface's endpoint or tool spec) as an Orchestrator-dispatched subagent, and return one of two verdict-lined results (COMPLETED report or ESCALATION). Adopts the Test Designer role; reads exactly the files the Orchestrator names (explicit context pass-down). This is the design half of Corral's TDD pair (ADR-016): the `test-designer` authors failing tests (red); the `executor` implements to green.
-**Lineage**: Authored per `./ai-infrastructure/project-manager/decisions/ADR-016-testing-strategy-test-designer-agent.md` (accepted 2026-06-12), which established Corral as a TDD project and defined the cross-department `test-designer` as a dispatched agent parallel to `executor` (ADR-028). The dispatch spine mirrors `executor` / `EXECUTOR-AGENT-SPEC.md`: same input package, same two verdict-lined return modes, same report shape, same STATUS-once rule, same prelaunch (W1) and close (W2) checkers run by the Orchestrator. The key distinctions are the Opus model tier (test design is judgement work), the test-files-only write scope, and the red-on-purpose correctness criterion.
+**Lineage**: Authored per `./ai-infrastructure/project-manager/decisions/ADR-016-testing-strategy-test-designer-agent.md` (accepted 2026-06-12), which established Corral as a TDD project and defined the cross-department `test-designer` as a dispatched agent parallel to `executor` (ADR-028). The dispatch spine mirrors `executor` / `EXECUTOR-AGENT-SPEC.md`: same input package, same two verdict-lined return modes, same report shape, same prelaunch (W1) and close (W2) checkers run by the Orchestrator. The key distinctions are the Opus model tier (test design is judgement work), the test-files-only write scope, and the red-on-purpose correctness criterion.
 
 > **Usage**: This is the detailed execution specification for the `test-designer` agent.
 > The agent file at `./.claude/agents/test-designer.md` references this spec and `./docs/ai-orchestration/roles/TEST-DESIGNER-ROLE.md`.
@@ -46,7 +46,7 @@ The test designer does NOT free-explore. It reads the kickoff, the `explicit_rea
 - **Author failing tests** for the surface named in the kickoff, against the surface's contract (the relevant ADRs, the ADR-012 schema, the endpoint or tool spec), per `TEST-DESIGNER-ROLE.md` section "Execute the plan: author failing tests".
 - **Write only test files.** The test designer never creates or edits application source, migrations, configuration, or documentation. Its entire write scope is the test file paths named in the kickoff.
 - **Escalate by return value** when a `TEST-DESIGNER-ROLE.md` failure mode fires (ambiguous kickoff, kickoff-vs-observed-state conflict, non-test file in scope, an unpinned decision the work requires). Return `RETURN: ESCALATION` with the four-part block; do not guess, and do not ask the user directly (the Orchestrator is the interlocutor).
-- **Complete and report** when the deliverables are done. Return `RETURN: COMPLETED` with the six-section report, write the dual-channel report file, and apply any named `status_deltas` once (only on COMPLETED).
+- **Complete and report** when the deliverables are done. Return `RETURN: COMPLETED` with the six-section report and write the dual-channel report file.
 - **Resume on re-dispatch** by reconstructing state from the kickoff + `resume_anchor` + `escalation_answer` + `prior_progress_summary`, not by re-executing completed work.
 
 ---
@@ -77,7 +77,6 @@ The Orchestrator passes these via the Task-tool dispatch prompt. The test design
 | `kickoff_path` | repo-relative path | The test-design kickoff to execute. Read end-to-end before acting. | `./.claude/artifacts/handoffs/API-T-001-TEST-DESIGN-KICKOFF.md` |
 | `explicit_reads` | markdown list | Every file the test designer loads, in order. `./CLAUDE.md` is auto-loaded; the list adds the contract references the kickoff names (ADRs, the schema, the endpoint spec). Read exactly these. | (see below) |
 | `report_path` | repo-relative path OR "derive" | Dual-channel report destination. "derive" = `<kickoff-dir>/<KICKOFF-BASENAME>-REPORT.md`. | (derived) |
-| `status_deltas` | markdown list OR `"none"` | Task-specific edits to the hand-authored STATUS sections (Current phase, Next step where present, Blocked on), or the literal `"none"` when there are none. The activity surface is git-derived (ADR-039) and never written. | `phase ... ; "Blocked on" update` |
 | `attempt_number` | int | 1 on first dispatch; N+1 on re-dispatch. | `1` |
 | `escalation_answer` | markdown OR "(none)" | The Orchestrator's pinned answer to the prior escalation. Empty on attempt 1. | `(none)` |
 | `resume_anchor` | repo-relative path OR "(none)" | The prior attempt's partial `report_path`. Empty on attempt 1. | `(none)` |
@@ -135,8 +134,7 @@ The Orchestrator passes these via the Task-tool dispatch prompt. The test design
 A genuine gap the test designer must not resolve itself: an ambiguous kickoff, a kickoff-vs-observed-state conflict (including a missing `explicit_reads` file), a non-test file in kickoff scope, or an out-of-scope decision the kickoff did not pin. When one blocks correct execution:
 
 1. Write a PARTIAL report to `report_path`: the six-section shape with completed sections filled in, unfinished sections marked `(incomplete: blocked on escalation)`, and the four-part escalation block appended.
-2. Do NOT apply STATUS deltas (the task is not done).
-3. Return `RETURN: ESCALATION` + the four-part block (see Return Schema).
+2. Return `RETURN: ESCALATION` + the four-part block (see Return Schema).
 
 Escalation is a faithful surfacing of a real gap, not an Option-A/B deferral. If the kickoff genuinely pins the decision and the test designer simply did not look hard enough, that is not an escalation; re-read and proceed.
 
@@ -144,9 +142,8 @@ Escalation is a faithful surfacing of a real gap, not an Option-A/B deferral. If
 
 When the deliverables are done:
 
-1. Apply the kickoff's named `status_deltas` ONCE, on COMPLETED only, per `TEST-DESIGNER-ROLE.md` section "Wrap-up STATUS deltas". The activity surface (`last_updated`, `recent_updates`) is git-derived (ADR-039) and is never written. Mutate the workspace STATUS file only when `status_deltas` names a hand-authored section edit; if `status_deltas` is `"none"`, STATUS is not touched.
-2. Write the full six-section report to `report_path` (dual-channel). List `report_path` under "Files touched"; list the workspace STATUS file only when a delta was applied.
-3. Return `RETURN: COMPLETED` + the six-section report (identical to the file).
+1. Write the full six-section report to `report_path` (dual-channel). List `report_path` under "Files touched". The Test Designer never reads or edits any STATUS file; current-state is derived on the dashboard per ADR-040 and activity history is git-derived per ADR-039.
+2. Return `RETURN: COMPLETED` + the six-section report (identical to the file).
 
 ---
 
@@ -167,7 +164,7 @@ RETURN: COMPLETED
 ## Build / verification status
 ```
 
-Side effects before returning: the identical six sections are written to `report_path`; any named `status_deltas` are applied once (on COMPLETED only). "Files touched" lists `report_path` and the workspace STATUS file only when a delta was applied. The completion signal is the `RETURN` line plus the verified deliverables on disk.
+Side effects before returning: the identical six sections are written to `report_path`. "Files touched" lists `report_path`. The completion signal is the `RETURN` line plus the verified deliverables on disk.
 
 ### Mode B: ESCALATION
 
@@ -197,7 +194,7 @@ Side effect before returning: a partial report is written to `report_path`. STAT
 2. **No em dashes** in any file written (U+2014, U+2013). Repo writing rule (`./CLAUDE.md`).
 3. **Explicit reads only.** Read `kickoff_path`, `explicit_reads`, `resume_anchor` (re-dispatch); nothing else.
 4. **Leaf node.** Dispatch no subagents.
-5. **STATUS-once.** Mutate the workspace STATUS file only on COMPLETED, and only when `status_deltas` names a hand-authored section edit. The activity surface (`last_updated`, `recent_updates`) is git-derived (ADR-039) and is never written. Apply named deltas at most once per attempt.
+5. **No STATUS writes.** The Test Designer never reads or edits any STATUS file. Current-state is derived on the dashboard per ADR-040; activity history (`last_updated`, `recent_updates`) is git-derived per ADR-039 and is never written.
 6. **Repo-relative `./` paths.** Per `./CLAUDE.md`, cite paths repo-root-relative, not absolute.
 7. **Cite, do not invent.** Per `./CLAUDE.md` Agent Discipline, every claim about repo state in the report is verified in-session.
 8. **Test files only.** Write and Edit only test files. Escalate if any non-test file appears in scope.
@@ -215,7 +212,7 @@ Side effect before returning: a partial report is written to `report_path`. STAT
 | Kickoff asks the test designer to dispatch a subagent | Note it; the Orchestrator runs subagents. Proceed if non-blocking; escalate if blocking. |
 | Kickoff lists a non-test file as in scope for editing | Escalate (scope boundary violation); do not edit the file silently. |
 | `report_path` directory not writable | Escalate (surface the path conflict); do not skip the file write silently. |
-| Deliverables done but STATUS deltas ambiguous | Apply only exactly what the kickoff named (edits to the hand-authored sections); do not invent fields. The activity surface is never written. |
+| Deliverables done | No STATUS edits required; the Test Designer never touches STATUS files. Write the report and return COMPLETED. |
 
 Abort behaviour: return an error message (not a COMPLETED or ESCALATION verdict). The Orchestrator treats abort as a malformed-dispatch case and surfaces it to the user.
 
@@ -237,7 +234,6 @@ Inputs:
   - ./docs/ai-orchestration/roles/TEST-DESIGNER-ROLE.md (the role to adopt)
   - ./ai-infrastructure/project-manager/decisions/ADR-012-issue-label-view-schema.md (schema the tests assert against)
 - report_path: derive
-- status_deltas: none
 - attempt_number: 1
 - escalation_answer: (none)
 - resume_anchor: (none)
@@ -246,7 +242,7 @@ Inputs:
 Return RETURN: COMPLETED + the six-section report, or RETURN: ESCALATION + the four-part block.
 ```
 
-**Return:** `RETURN: COMPLETED` + the six-section report; `API-T-001-TEST-DESIGN-KICKOFF-REPORT.md` written. STATUS not touched (status_deltas is "none"). All files touched are test files.
+**Return:** `RETURN: COMPLETED` + the six-section report; `API-T-001-TEST-DESIGN-KICKOFF-REPORT.md` written. STATUS not touched (retired by ADR-040/COR-T-050). All files touched are test files.
 
 ### Example 2: Escalation then re-dispatch
 
@@ -263,7 +259,7 @@ Inputs (attempt 2):
   - Drafted the test class structure and imports in the partial report; stopped at the file-path conflict.
 ```
 
-**Return:** `RETURN: COMPLETED` + report; any named STATUS deltas applied once on this final attempt.
+**Return:** `RETURN: COMPLETED` + report; STATUS not touched (retired by ADR-040/COR-T-050).
 
 ### Example 3: TDD two-phase flow (phase 1 of 2)
 
@@ -280,7 +276,7 @@ The test designer is only involved in phase 1. If the implementation executor be
 
 **Why Opus (not Sonnet).** Test design is judgement work: deciding coverage (which behaviors and edge cases are load-bearing), reading the contract (the ADRs, the endpoint spec) as the specification, and writing tests that are meaningful assertions rather than tautologies. This parallels the Opus `kickoff-drafter` rather than the Sonnet `executor`. The Opus/Sonnet asymmetry in the fleet is: Opus decides and designs (the Orchestrator, the kickoff-drafter, the test-designer); Sonnet executes (the executor, the close/prelaunch checkers). Test design belongs on the Opus tier.
 
-**Why reuse the executor dispatch spine.** ADR-016 defines the test-designer as a cross-department dispatched agent parallel to `executor`. Reusing the same input package, the same two verdict-lined return modes, the same six-section report shape, and the same STATUS-once rule keeps the fleet coherent: the Orchestrator uses the same dispatch pattern regardless of whether it is dispatching a test designer or an executor, and the checker fleet (W1, W2, W3) applies uniformly. The only structural additions are the Opus model pin and the test-files-only write scope; everything else is inherited.
+**Why reuse the executor dispatch spine.** ADR-016 defines the test-designer as a cross-department dispatched agent parallel to `executor`. Reusing the same input package, the same two verdict-lined return modes, the same six-section report shape, and the same no-STATUS-writes rule keeps the fleet coherent: the Orchestrator uses the same dispatch pattern regardless of whether it is dispatching a test designer or an executor, and the checker fleet (W1, W2, W3) applies uniformly. The only structural additions are the Opus model pin and the test-files-only write scope; everything else is inherited.
 
 **Why test-files-only write scope.** The TDD separation (ADR-016) is load-bearing: test design and implementation are performed by separate agents so test design remains uncontaminated by implementation thinking and the implementer cannot weaken a test to make it pass. Enforcing this at the role level (the test designer may not write non-test files) makes the separation structural, not just a policy.
 

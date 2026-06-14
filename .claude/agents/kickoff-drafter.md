@@ -38,7 +38,7 @@ The spec contains the seven workflow phases (load conventions, parse inputs, rea
 | Capability | Description |
 |------------|-------------|
 | **Conventions read** | Phase 1: read the role docs' convention sections |
-| **Dispatch-input parsing** | Phase 2: extract kickoff_path, task_title, domain, decisions_resolved, deliverables, files_in_scope, files_out_of_scope, references, related_tasks_and_adrs, status_deltas, iteration_number, prior_iteration_findings |
+| **Dispatch-input parsing** | Phase 2: extract kickoff_path, task_title, domain, decisions_resolved, deliverables, files_in_scope, files_out_of_scope, references, related_tasks_and_adrs, iteration_number, prior_iteration_findings |
 | **Reference read (bounded)** | Phase 3: read every file in `references` input; surface missing references as unresolved_findings |
 | **Kickoff body composition** | Phase 4: apply rules R1-R8 + resolved decisions per the output template |
 | **Self-audit** | Phase 5: scan own draft for rule violations; revise before write |
@@ -82,7 +82,7 @@ Orchestrator (Opus)
 | `files_out_of_scope` | Paths the worker must NOT modify |
 | `references` | Flat list of files/sections with one-line purposes |
 | `related_tasks_and_adrs` | Curated COR-T-NNN / ADR-NNN list OR "none" |
-| `status_deltas` | Task-specific `./ai-infrastructure/project-manager/STATUS.md` edits OR "universal hygiene only" |
+| `status_deltas` | Retired by ADR-040/COR-T-050; not passed and not read. |
 | `iteration_number` | 1, 2, or 3 |
 | `prior_iteration_findings` | Empty on iteration 1; kickoff-checker FAIL findings on iteration 2+ |
 
@@ -106,7 +106,7 @@ Before issuing the Write call, confirm:
 - **No "Worker, figure out X"** delegations (R2). The orchestrator did the research; you encode the answer.
 - **No paradigm-choice deferrals** ("decide if pattern A or B") (R3). Pinned choice with rationale or source citation.
 - **No intermediate checkpoints** ("Optional Checkpoint A", mid-task "ask the user to verify" steps) (R4). One acceptance gate.
-- **STATUS deltas section is present** with task-specific edits named, OR the body states "No task-specific STATUS deltas; universal hygiene only." (R6).
+- **R6 is retired** (ADR-040/COR-T-050): do not author a STATUS deltas section; no status_deltas field is passed in the dispatch prompt.
 - **No invocation framing in body** ("Open a fresh session", "How to invoke", "run the worker") (R7). The orchestrator dispatches the worker directly; that meta-content does not belong in the kickoff.
 - **Related tasks and ADRs section is present** with COR-T-NNN / ADR-NNN entries or the literal "none" (R8).
 - **Executor pointer** is present (the kickoff body cites `EXECUTOR-ROLE.md`, and where useful the `executor`, so the executor resolves the universal anchors correctly).
