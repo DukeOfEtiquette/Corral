@@ -15,7 +15,7 @@ Navigation index for Corral documentation. All `.md` files live in sanctioned lo
 | Doc | Purpose |
 |---|---|
 | `../ai-infrastructure/project-manager/docs/architecture/OVERVIEW.md` | One-page runtime shape: services, data flow, the MCP seam |
-| `../ai-infrastructure/project-manager/STATUS.md` | Current phase and progress (single source of truth) |
+| `../ai-infrastructure/project-manager/STATUS.md` | Thin pointer to the derived dashboard surface (ADR-040); current phase, next step, and blocked are on the dashboard |
 | `../ai-infrastructure/project-manager/OBSERVATIONS.md` | Append-only pattern log (`COR-NN` IDs) |
 | `../ai-infrastructure/project-manager/decisions/` | ADRs: every binding choice and every queued open question |
 | `../ai-infrastructure/project-manager/tasks/README.md` | Bootstrap task convention (canonical for the markdown era) |

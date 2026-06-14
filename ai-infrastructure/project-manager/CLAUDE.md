@@ -34,7 +34,7 @@ docker compose is the only supported run path once code exists (`./decisions/ADR
 | File | What it is |
 |---|---|
 | `README.md` | Human orientation, roadmap (repo root) |
-| `./STATUS.md` | Current phase, single source of truth; update at end of any session that makes progress |
+| `./STATUS.md` | Thin pointer to the derived dashboard surface (ADR-040); current phase, next step, and blocked are shown on the dashboard and its `data.json`, not authored here |
 | `./OBSERVATIONS.md` | Append-only pattern log, `COR-NN` IDs |
 | `./decisions/` | All ADRs, accepted and pending |
 | `docs/README.md` | Docs navigation (repo root) |

@@ -15,7 +15,7 @@ This command scopes the Orchestrator role to the `{{DEPT_NAME}}` department work
 Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 
 1. `ai-infrastructure/{{DEPT_SLUG}}/README.md` (department charter)
-2. `ai-infrastructure/{{DEPT_SLUG}}/STATUS.md` (current department phase, single source of truth)
+2. `ai-infrastructure/{{DEPT_SLUG}}/STATUS.md` (thin pointer to the derived dashboard surface; read current phase, next step, and blocked from the dashboard or `data.json` per ADR-040, or offline from the roadmap `epics/`/`phases/` files and `tasks/blocked/` trees)
 3. `ai-infrastructure/{{DEPT_SLUG}}/OBSERVATIONS.md` (append-only pattern log, `{{DEPT_OBS_PREFIX}}-NN` IDs)
 4. `ai-infrastructure/{{DEPT_SLUG}}/decisions/` (list the directory; read individual ADRs on demand, prioritising pending ones)
 5. `ai-infrastructure/project-manager/STATUS.md` (coordinator status; context for cross-department coordination)
@@ -32,7 +32,7 @@ Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 
 Report in a structured shape:
 
-- **Status**: current department phase and next step per `ai-infrastructure/{{DEPT_SLUG}}/STATUS.md`.
+- **Status**: current phase, next step, and blocked from the dashboard or `data.json` (ADR-040); offline, derive from the roadmap `epics/`/`phases/` files and `tasks/blocked/` trees.
 - **Tasks**: in-progress and blocked with one-line characterisations; backlog as id + title (from the department's own `./tasks/` tree).
 - **Handoff and scratch artifacts**: each with a one-line characterisation; flag active vs settled or stale.
 - **Observations and decisions**: brief synthesis of recent entries and any pending department ADRs ready to resolve.
@@ -61,5 +61,5 @@ Do NOT proactively act on any surveyed item. Orchestrator sessions are response-
 - Scratch artifacts in `.claude/artifacts/tmp/` are safe to delete once consumed, but do not delete unless the user explicitly asks. Handoff artifacts in `.claude/artifacts/handoffs/` are tracked history and are not deleted (ADR-024).
 - If you notice a pattern that looks like a new observation candidate, flag it to the user rather than silently logging it. Promotion is a user-aware decision, not a silent side effect.
 - Tasks live in markdown per `ai-infrastructure/project-manager/tasks/README.md` until the dogfood milestone (ADR-008); after migration, task operations move to the MCP server (ADR-004) and this command gets updated.
-- `ai-infrastructure/{{DEPT_SLUG}}/STATUS.md` holds only hand-authored forward intent (`Current phase` / `Next step` / `Blocked on`); update those when intent changes. The activity history (`last_updated`, `recent_updates`) is derived from git per ADR-039 and is not hand-maintained.
+- `ai-infrastructure/{{DEPT_SLUG}}/STATUS.md` is a thin pointer to the derived dashboard surface (ADR-040); it holds no hand-authored forward intent. Current phase, next step, and blocked are derived and shown on the dashboard. The activity history is derived from git per ADR-039.
 - Tasks are tracked in `ai-infrastructure/{{DEPT_SLUG}}/tasks/` (ADR-031). The `dept:{{DEPT_SLUG}}` label is applied at the dogfood import (ADR-008), derived from the tree; do not hand-apply it to task files in the markdown era.

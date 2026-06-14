@@ -10,7 +10,7 @@ A defining trait: this is an **AI-first project**. The AI infrastructure that bu
 
 ## Status
 
-**Phase 1: AI infrastructure.** Orchestration roles, agents, and commands exist; no application code yet. Current progress always lives in `./ai-infrastructure/project-manager/STATUS.md`.
+**Phase 1: AI infrastructure.** Orchestration roles, agents, and commands exist; no application code yet. Current progress is shown on the project-manager dashboard; `./ai-infrastructure/project-manager/STATUS.md` is a pointer to the derived surface (ADR-040).
 
 ## Architecture at a glance
 
@@ -40,7 +40,7 @@ Rationale: `./ai-infrastructure/project-manager/decisions/ADR-002-tech-stack.md`
 |---|---|
 | `./CLAUDE.md` | Global operating rules for AI agents (Agent Discipline, writing style, two domains) |
 | `./END-GOAL.md` | The project's final destination: the portable project-manager plugin end state |
-| `./ai-infrastructure/project-manager/STATUS.md` | Current phase (single source of truth) |
+| `./ai-infrastructure/project-manager/STATUS.md` | Thin pointer to the derived dashboard surface (ADR-040); current phase, next step, and blocked are on the dashboard |
 | `./ai-infrastructure/project-manager/OBSERVATIONS.md` | Append-only pattern log |
 | `./ai-infrastructure/project-manager/decisions/` | ADRs: accepted decisions and queued open questions |
 | `./docs/` | Architecture overview and AI-orchestration role docs |
@@ -49,7 +49,7 @@ Rationale: `./ai-infrastructure/project-manager/decisions/ADR-002-tech-stack.md`
 
 ## Roadmap
 
-Live phase and epic status: `./ai-infrastructure/project-manager/STATUS.md`. Rendered live roadmap: `./ai-infrastructure/project-manager/dashboard/`. The destination these phases point at: `./END-GOAL.md`.
+Rendered live roadmap (phase and epic status): `./ai-infrastructure/project-manager/dashboard/`. `./ai-infrastructure/project-manager/STATUS.md` is a thin pointer to the dashboard (ADR-040). The destination these phases point at: `./END-GOAL.md`.
 
 | Phase | Intent |
 |---|---|

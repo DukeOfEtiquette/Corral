@@ -14,7 +14,7 @@ The coordinator workspace for Corral's AI-infrastructure. This workspace holds t
 | Path | What it is |
 |---|---|
 | `./CLAUDE.md` | Operating rules for AI agents in this workspace |
-| `./STATUS.md` | Current phase and next step (single source of truth) |
+| `./STATUS.md` | Thin pointer to the derived dashboard surface (ADR-040); current phase, next step, and blocked are on the dashboard |
 | `./OBSERVATIONS.md` | Append-only pattern log, `COR-NN` IDs |
 | `./decisions/` | All ADRs: accepted decisions and queued open questions |
 | `./tasks/` | Project task pool, markdown convention (see `./tasks/README.md`) |

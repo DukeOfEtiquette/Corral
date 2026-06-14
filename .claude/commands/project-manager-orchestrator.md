@@ -13,7 +13,7 @@ Read `./docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and adopt the Orchestr
 Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 
 1. `./README.md` (orientation, roadmap)
-2. `./ai-infrastructure/project-manager/STATUS.md` (current phase, single source of truth)
+2. `./ai-infrastructure/project-manager/STATUS.md` (thin pointer to the derived dashboard surface; read current phase, next step, and blocked from the dashboard or `data.json` per ADR-040, or offline from the roadmap `epics/`/`phases/` files and `tasks/blocked/` trees)
 3. `./ai-infrastructure/project-manager/OBSERVATIONS.md` (append-only pattern log, `COR-NN` IDs)
 4. `./ai-infrastructure/project-manager/decisions/` (list the directory; read individual ADRs on demand, prioritising pending ones)
 5. `./docs/README.md` (docs navigation)
@@ -29,7 +29,7 @@ Required reads, in order (`./CLAUDE.md` is auto-loaded; do not re-read it):
 
 Report in a structured shape:
 
-- **Status**: current phase and next step per `./ai-infrastructure/project-manager/STATUS.md`.
+- **Status**: current phase, next step, and blocked from the dashboard or `data.json` (ADR-040); offline, derive from the roadmap `epics/`/`phases/` files and `tasks/blocked/` trees.
 - **Tasks**: in-progress and blocked with one-line characterisations; backlog as id + title.
 - **Epics and phases**: coordinator epics listed with id, title, phase, and rolled-up task count; coordinator-owned phases listed with id, title, and order. Omit if the trees do not exist yet.
 - **Handoff and scratch artifacts**: each with a one-line characterisation; flag active vs settled or stale.
@@ -59,4 +59,4 @@ Do NOT proactively act on any surveyed item. Orchestrator sessions are response-
 - Scratch artifacts in `./.claude/artifacts/tmp/` are safe to delete once consumed, but do not delete unless the user explicitly asks. Handoff artifacts in `./.claude/artifacts/handoffs/` are tracked history and are not deleted (ADR-024).
 - If you notice a pattern that looks like a new observation candidate, flag it to the user rather than silently logging it. Promotion is a user-aware decision, not a silent side effect.
 - Tasks live in markdown per `./ai-infrastructure/project-manager/tasks/README.md` until the dogfood milestone (ADR-008); after migration, task operations move to the MCP server (ADR-004) and this command gets updated.
-- `./ai-infrastructure/project-manager/STATUS.md` holds only hand-authored forward intent (`Current phase` / `Blocked on`); update those when intent changes. The activity history (`last_updated`, `recent_updates`) is derived from git per ADR-039 and is not hand-maintained.
+- `./ai-infrastructure/project-manager/STATUS.md` is a thin pointer to the derived dashboard surface (ADR-040); it holds no hand-authored forward intent. Current phase, next step, and blocked are derived and shown on the dashboard. The activity history is derived from git per ADR-039.

@@ -44,7 +44,7 @@ docker compose is the only supported run path once code exists (`ai-infrastructu
 | File | What it is |
 |---|---|
 | `./README.md` | Department charter for humans |
-| `./STATUS.md` | Current phase and next step for this department |
+| `./STATUS.md` | Thin pointer to the derived dashboard surface (ADR-040); current phase, next step, and blocked are shown on the dashboard and its `data.json`, not authored here |
 | `./OBSERVATIONS.md` | Append-only pattern log, `DB-NN` IDs |
 | `./decisions/` | Department-local ADRs |
 | `./tasks/` | Department task tree (`DB-T-NNN` IDs, own `.next-task-id`) |
