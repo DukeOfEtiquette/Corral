@@ -6,14 +6,15 @@ description: Stamp out a new department workspace from the template baseline and
 
 ## Inputs
 
-This command takes four arguments:
+This command takes five arguments:
 
 - `<slug>`: the department slug in kebab-case (e.g. `test-design`). Must be a blessed entry in the ADR-021 menu.
 - `<Display Name>`: the human-readable department name (e.g. `Test Design`).
 - `<OBS-PREFIX>`: the uppercase observation ID prefix for the department (e.g. `TST`). Operator-supplied; not auto-derived from the slug.
 - `<TASK-PREFIX>`: the uppercase task ID prefix for the department (e.g. `TST`). Operator-supplied; not auto-derived from the slug. Independent of `<OBS-PREFIX>`; they may be the same value (e.g. both `DB` for the `database` department) or different.
+- `<phase>`: the integer roadmap phase the department's forming epic belongs to (e.g. `2`). The newly stamped department files a forming epic under this phase at creation time (ADR-041).
 
-Example invocation: `/create-department test-design "Test Design" TST TST`
+Example invocation: `/create-department test-design "Test Design" TST TST 2`
 
 ## Precondition: blessed ADR-021 menu entry
 
@@ -36,6 +37,8 @@ When invoked with a valid blessed-menu slug, this command drives the orchestrato
    - `ai-infrastructure/<slug>/tasks/in-progress/.gitkeep`
    - `ai-infrastructure/<slug>/tasks/blocked/.gitkeep`
    - `ai-infrastructure/<slug>/tasks/done/.gitkeep`
+   - `ai-infrastructure/<slug>/epics/.next-epic-id` (seeded to `2`)
+   - `ai-infrastructure/<slug>/epics/<TASK-PREFIX>-E-001-<slug>.yml` (forming epic for phase `<phase>`, zero tasks, status `planned` per ADR-036)
 2. A stamped orchestrator command at `.claude/commands/<slug>-orchestrator.md`.
 
 The template source is `ai-infrastructure/project-manager/templates/department/`. The scaffold contract is `ai-infrastructure/project-manager/decisions/ADR-030-department-scaffold-contract-create-department-recipe.md`.
@@ -51,6 +54,7 @@ Substitute these tokens throughout all template files:
 | `{{DEPT_OBS_PREFIX}}` | The `<OBS-PREFIX>` argument |
 | `{{DEPT_TASK_PREFIX}}` | The `<TASK-PREFIX>` argument |
 | `{{DEPT_SCOPE}}` | The "Would own" line for this slug from the ADR-021 menu |
+| `{{DEPT_PHASE}}` | The `<phase>` argument (integer roadmap phase for the forming epic) |
 | `{{DATE}}` | Today's date in `YYYY-MM-DD` format |
 
 
@@ -74,7 +78,10 @@ Dispatch `worker-prelaunch-checker` via the Task tool with the kickoff path. On 
 
 **Step 4: Dispatch the executor.**
 
-Dispatch the `executor` (Sonnet, foreground) via the Task tool with the explicit-context-pass-down package. The executor stamps all template files with tokens substituted and writes the report dual-channel.
+Dispatch the `executor` (Sonnet, foreground) via the Task tool with the explicit-context-pass-down package. The executor stamps all template files with tokens substituted and writes the report dual-channel. The executor also creates the `epics/` tree:
+
+- `ai-infrastructure/<slug>/epics/.next-epic-id` seeded to `2`.
+- `ai-infrastructure/<slug>/epics/<TASK-PREFIX>-E-001-<slug>.yml`: the forming epic, with fields `schema_version: 1`, `id: <TASK-PREFIX>-E-001`, `title: "<Display Name>"`, `dept: <slug>`, `phase: <phase>`, and a one-line `description` describing the department's forming work. Zero tasks is correct; a forming epic with no tasks is `planned` per ADR-036. The forming epic is generated inline from the inputs; no template file is used (ADR-041 decision 1).
 
 Interactive back-and-forth at creation time is expected and acceptable: escalation round-trips (if the executor surfaces an ambiguity) or Plan Mode for a genuinely unanticipated decision. Re-dispatch with the escalation answer folded in per the standard dispatched-executor escalation protocol (ADR-028, ceiling: 2 round-trips before mandatory user-surface).
 
@@ -84,7 +91,7 @@ Dispatch `worker-close-checker` via the Task tool with the report path. On FAIL,
 
 **Step 6: Verify against disk.**
 
-Independently confirm that all seven target files exist on disk with tokens substituted (no literal `{{DEPT_SLUG}}` or other token strings remaining). Confirm `ai-infrastructure/project-manager/STATUS.md` appears in the report's "Files touched" (the worker applies STATUS hygiene once).
+Independently confirm that all target files exist on disk with tokens substituted (no literal `{{DEPT_SLUG}}` or other token strings remaining). This includes the seven workspace and orchestrator files listed above plus the `epics/` tree: `ai-infrastructure/<slug>/epics/.next-epic-id` (seeded to `2`) and `ai-infrastructure/<slug>/epics/<TASK-PREFIX>-E-001-<slug>.yml` (the forming epic with the correct `dept`, `phase`, `title`, and `description` fields). Confirm `ai-infrastructure/project-manager/STATUS.md` appears in the report's "Files touched" (the worker applies STATUS hygiene once).
 
 **Step 7: Apply STATUS hygiene (orchestrator-direct, after worker COMPLETED).**
 

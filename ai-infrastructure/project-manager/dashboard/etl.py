@@ -1253,6 +1253,18 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
             "last_updated": git_last_updated(repo_root, [f"ai-infrastructure/{slug}/"]),
         }
 
+    def dept_epic_count(slug: str) -> int:
+        """
+        Count epic YAML files in ai-infrastructure/<slug>/epics/*.yml.
+        Excludes dotfiles (e.g. .next-epic-id). Returns 0 if the directory
+        does not exist. Does NOT use collect_roadmap_from_files, which omits
+        standalone (phase-less) epics and would undercount (ADR-041).
+        """
+        epics_dir = repo_root / "ai-infrastructure" / slug / "epics"
+        if not epics_dir.is_dir():
+            return 0
+        return sum(1 for f in epics_dir.glob("*.yml") if not f.name.startswith("."))
+
     departments = []
     for entry in DEPARTMENTS_ROSTER:
         slug = entry["slug"]
@@ -1262,6 +1274,14 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         # tasks/ tree, not from label-filtering the shared pool.
         dept_tree_tasks = per_workspace_tasks.get(slug, [])
         task_counts = compute_task_counts(dept_tree_tasks)
+        # ADR-041: warn when a department exists but has no epic file.
+        # Warn-only; does not alter any derived phase/epic/department status.
+        epic_count = dept_epic_count(slug)
+        no_epic_warning = (
+            "Department exists but has no epic; its work is unrepresented in the roadmap (ADR-041)."
+            if exists and epic_count == 0
+            else None
+        )
         departments.append({
             "slug": slug,
             "domain": entry["domain"],
@@ -1270,6 +1290,7 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
             "label": label,
             "status": dept_status(slug),
             "task_counts": task_counts,
+            "no_epic_warning": no_epic_warning,
         })
 
     # -- Coordinator struct --------------------------------------------------

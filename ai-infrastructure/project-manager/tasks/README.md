@@ -87,7 +87,7 @@ Both fields mirror the app's `parent_id` direction (child names its parent), mak
 
 ### Lazy creation
 
-Per ADR-021 and ADR-031: create an `epics/` tree for a workspace only when that workspace's first epic is ready to file (the `>= 2`-task convention from ADR-036). Do not create placeholder trees.
+Per ADR-021, ADR-031, and ADR-041: a department files at least one forming epic for its active or next phase when it is stood up, so no active phase reads done while a member department is unrepresented in the derived roadmap. The `epics/` tree is created then (alongside the workspace scaffold, per the ADR-030 create-department recipe). A forming epic carries real content (`dept`, `phase`, `title`, `description`) and zero tasks, which is `planned` per ADR-036's intended-shape allowance; it is not an empty placeholder. Do not create an `epics/` tree for a workspace that has no epic to file yet (planned departments not yet stood up).
 
 ## Layout
 

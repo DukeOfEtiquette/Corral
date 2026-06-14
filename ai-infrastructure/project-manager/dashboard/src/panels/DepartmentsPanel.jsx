@@ -18,16 +18,24 @@ export default function DepartmentsPanel({ departments, title }) {
         <tbody>
           {departments.map((dept) => {
             const isOrphaned = dept.exists && !dept.orchestrator_command;
+            const isNoEpic = !!dept.no_epic_warning;
             const rowClass = !dept.exists
               ? 'dept-planned'
               : isOrphaned
               ? 'dept-orphaned'
+              : isNoEpic
+              ? 'dept-no-epic'
               : '';
+            const rowTitle = isOrphaned
+              ? '⚠ Department exists, orchestrator missing ⚠'
+              : isNoEpic
+              ? dept.no_epic_warning
+              : undefined;
             return (
               <tr
                 key={dept.slug}
                 className={rowClass}
-                title={isOrphaned ? '⚠ Department exists, orchestrator missing ⚠' : undefined}
+                title={rowTitle}
               >
                 <td>
                   <a
