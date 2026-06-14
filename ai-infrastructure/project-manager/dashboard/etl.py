@@ -84,7 +84,7 @@ JSON contract shape (data.json):
                     {last_updated} only (no phase: departments have no phase field).
   coordinator:     {slug, phase, phase_title, last_updated}
   workspace_details: { <slug>: {header, recent_updates, adrs,
-                                observations_count, task_counts} }
+                                observations_count, task_counts, blocked} }
                     department headers carry {slug, display_name, domain, role,
                     exists, planned, last_updated} - no phase key.
                     coordinator header carries phase (the derived current_phase).
@@ -98,6 +98,11 @@ JSON contract shape (data.json):
                     contract shapes are unchanged.
   recent_activity: [ {workspace, date, text} ] newest-first, capped 30.
                     DERIVED from git history per ADR-039; contract shape unchanged.
+  blocked:         [ {workspace, id, title, reason} ] sorted by workspace then id.
+                    Derived from each workspace's tasks/blocked/ tree (ADR-040).
+                    Empty list when nothing is blocked. reason is the last bullet
+                    under ## Activity log in the task file, stripped of its leading
+                    '- ' prefix; empty string when no activity log exists.
   agents:          [ {name, model, kind, purpose} ] name-sorted.
                     name: frontmatter `name`; model: frontmatter `model`;
                     kind: frontmatter `kind` (executor | dispatch);
@@ -618,6 +623,113 @@ def compute_task_counts(tasks: list, label_prefix: str | None = None) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Blocked-task derivation (ADR-040)
+# ---------------------------------------------------------------------------
+
+def _extract_activity_log_reason(path: Path) -> str:
+    """
+    Return the last bullet under the ## Activity log heading in the given
+    task file. Strips the leading '- ' prefix and any leading date prefix
+    of the form 'YYYY-MM-DD: ' when trivially separable; otherwise keeps
+    the whole line text. Returns '' when no activity log or no bullet exists.
+
+    This is a bounded best-effort parse: it does not invent a new frontmatter
+    field and does not change the task schema (ADR-040 decision 2).
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    # Find ## Activity log heading (any level of ##)
+    in_log = False
+    last_bullet = ""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if re.match(r"^##\s+Activity log", stripped, re.IGNORECASE):
+            in_log = True
+            continue
+        if in_log:
+            # Stop at the next heading
+            if re.match(r"^#", stripped):
+                break
+            if stripped.startswith("- "):
+                last_bullet = stripped[2:].strip()
+    if not last_bullet:
+        return ""
+    # Strip a leading date prefix of the form 'YYYY-MM-DD: ' if present
+    date_prefix = re.match(r"^\d{4}-\d{2}-\d{2}:\s*", last_bullet)
+    if date_prefix:
+        last_bullet = last_bullet[date_prefix.end():]
+    return last_bullet
+
+
+def collect_blocked_tasks_for_workspace(workspace_slug: str, tasks_root: Path) -> list:
+    """
+    Walk the tasks/blocked/ directory for one workspace and return a list of
+    {workspace, id, title, reason} entries (ADR-040 decision 2).
+
+    - workspace: the slug passed in
+    - id / title: from frontmatter (tolerant; empty string on missing)
+    - reason: last activity-log bullet in the file (_extract_activity_log_reason)
+    - .gitkeep and files with no parseable frontmatter are skipped
+
+    Results are returned in filename-sorted order; the caller is responsible
+    for the final cross-workspace sort by (workspace, id).
+    """
+    blocked_dir = tasks_root / "blocked"
+    if not blocked_dir.is_dir():
+        return []
+    entries = []
+    for md_file in sorted(blocked_dir.glob("*.md")):
+        if md_file.name == ".gitkeep":
+            continue
+        fm = parse_frontmatter(md_file)
+        if not fm:
+            continue
+        task_id = str(fm.get("id", ""))
+        title = str(fm.get("title", ""))
+        reason = _extract_activity_log_reason(md_file)
+        entries.append({
+            "workspace": workspace_slug,
+            "id": task_id,
+            "title": title,
+            "reason": reason,
+        })
+    return entries
+
+
+def collect_all_blocked_tasks(repo_root: Path) -> tuple[list, dict]:
+    """
+    Collect blocked tasks from every workspace tree (coordinator + each existing
+    department). Returns:
+      - all_blocked: list of {workspace, id, title, reason} sorted by
+        (workspace, id), the top-level data.json 'blocked' key (ADR-040 M2).
+      - per_workspace_blocked: dict mapping slug -> that workspace's blocked list
+        (same entry shape; used to populate workspace_details[slug]['blocked']).
+    """
+    pm_tasks_root = repo_root / "ai-infrastructure" / "project-manager" / "tasks"
+    per_workspace: dict[str, list] = {}
+    per_workspace[COORDINATOR_SLUG] = collect_blocked_tasks_for_workspace(
+        COORDINATOR_SLUG, pm_tasks_root
+    )
+
+    for entry in DEPARTMENTS_ROSTER:
+        slug = entry["slug"]
+        dept_tasks_root = repo_root / "ai-infrastructure" / slug / "tasks"
+        if dept_tasks_root.is_dir():
+            per_workspace[slug] = collect_blocked_tasks_for_workspace(slug, dept_tasks_root)
+        else:
+            per_workspace[slug] = []
+
+    all_blocked = []
+    for entries in per_workspace.values():
+        all_blocked.extend(entries)
+    all_blocked.sort(key=lambda e: (e["workspace"], e["id"]))
+
+    return all_blocked, per_workspace
+
+
+# ---------------------------------------------------------------------------
 # ADR parsing
 # ---------------------------------------------------------------------------
 
@@ -979,6 +1091,11 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     all_tasks, per_workspace_tasks = collect_all_tasks(repo_root)
     overall_task_counts = compute_task_counts(all_tasks)
 
+    # -- Blocked-task derivation (ADR-040) -----------------------------------
+    # Derived from each workspace's tasks/blocked/ tree. Never writes back
+    # into the repo (preserves the ADR-039 no-repo-write invariant).
+    all_blocked, per_workspace_blocked = collect_all_blocked_tasks(repo_root)
+
     # -- (e) ADRs ------------------------------------------------------------
     # Collected here (before roadmap assembly) for the same reason.
     adrs = collect_adrs(decisions_dir)
@@ -1186,6 +1303,8 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         "task_counts": compute_task_counts(
             per_workspace_tasks.get(COORDINATOR_SLUG, [])
         ),
+        # Blocked tasks for this workspace (ADR-040).
+        "blocked": per_workspace_blocked.get(COORDINATOR_SLUG, []),
     }
 
     # Department details
@@ -1212,6 +1331,8 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
                 "adrs": None,
                 "observations_count": None,
                 "task_counts": task_counts,
+                # Blocked tasks for this workspace (ADR-040).
+                "blocked": per_workspace_blocked.get(slug, []),
             }
         else:
             dept_status_dir = repo_root / "ai-infrastructure" / slug
@@ -1238,6 +1359,8 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
                 "adrs": dept_adrs,
                 "observations_count": dept_obs,
                 "task_counts": task_counts,
+                # Blocked tasks for this workspace (ADR-040).
+                "blocked": per_workspace_blocked.get(slug, []),
             }
 
     # -- recent_activity (aggregate all workspace recent_updates, newest-first)
@@ -1273,6 +1396,9 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         "workspace_details": workspace_details,
         "recent_activity": recent_activity,
         "agents": agents,
+        # Blocked tasks across all workspaces (ADR-040 M2).
+        # Sorted by (workspace, id); empty list when nothing is blocked.
+        "blocked": all_blocked,
     }
 
     served_dir.mkdir(parents=True, exist_ok=True)

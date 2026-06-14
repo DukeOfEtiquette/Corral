@@ -618,6 +618,40 @@ a:hover { text-decoration: underline; }
 .muted { color: var(--color-muted); }
 code { font-family: monospace; background: var(--color-surface-raised); color: var(--color-text); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.85em; }
 
+/* Blocked work panel (ADR-040) */
+.blocked-item {
+  display: grid;
+  grid-template-columns: 6rem 7rem 1fr;
+  gap: 0.4rem 0.6rem;
+  align-items: baseline;
+  font-size: 0.85rem;
+}
+
+.blocked-id {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-danger);
+  white-space: nowrap;
+}
+
+.blocked-workspace {
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blocked-title {
+  font-weight: 500;
+}
+
+.blocked-reason {
+  grid-column: 3;
+  font-size: 0.80rem;
+  line-height: 1.4;
+}
+
 /* Agent Fleet panel */
 .agent-group {
   margin-bottom: 1.25rem;

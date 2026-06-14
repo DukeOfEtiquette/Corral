@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-050
 title: "Derive the STATUS narrative body (current phase / next step / blocked); remove hand-authored body"
-status: backlog
+status: in-progress
 labels: []
 priority: P2
 created: 2026-06-13
@@ -21,9 +21,12 @@ Read ADR-040 (`ai-infrastructure/project-manager/decisions/ADR-040-status-narrat
 - **Doctrine cascade.** Update the `STATUS.md` description (from "current phase and next step" to "pointer to the derived dashboard surface") and the survey doctrine across the role docs (`docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` and the worker/test-designer role docs where they reference STATUS sections), the three `*-orchestrator` commands, and the department command template. The COR-T-049 STATUS-narrative cleanup and the ADR-039 hygiene-removal cascade are the precedents for the doc sweep.
 - **Sequencing (load-bearing, per ADR-040 decision 7).** Land and render-verify the derived `## Blocked on` surface on the dashboard FIRST; only then remove the narrative bodies and run the doctrine cascade, so there is never a window where a section is neither authored nor derived.
 - **No transitional lint** (ADR-040 decision 6): the narrative is removed, not guarded.
+- **Scope expansion (folded in 2026-06-13, orchestrator homework).** Removing the hand-authored STATUS body also makes the `status_deltas` kickoff field and the **R6 kickoff rule** vestigial: they exist only to let a dispatched worker edit those sections. Phase 2 therefore also retires `status_deltas` / R6 across the dispatch toolchain: `ORCHESTRATOR-ROLE.md` (R6 convention + pending-ADR playbook step 6), `EXECUTOR-ROLE.md` and `TEST-DESIGNER-ROLE.md` (wrap-up STATUS-deltas + not-in-scope), `EXECUTOR-AGENT-SPEC.md` and `TEST-DESIGNER-AGENT-SPEC.md` (field def + STATUS-once rule), `KICKOFF-DRAFTER-SPEC.md` (field + template), `KICKOFF-CHECKER-SPEC.md` (R6 enforcement). Retiring R6 vacates a kickoff rule number (tombstone, do not renumber R1-R5/R7-R8). ADR-040 decision 7 enumerated the role-doc/command/template cascade but not this toolchain retirement; folded in here per operator decision (2026-06-13) rather than amending ADR-040.
 
-Routes through the dispatched-worker flow (dashboard ETL change + a documentation cascade). Likely splits into at least two dispatches mirroring the ADR-039/COR-T-047 sequencing (derive-and-verify, then remove-and-cascade); the orchestrator decides the split at kickoff time.
+Routes through the dispatched-worker flow (dashboard ETL change + a documentation cascade). Splits into two dispatches mirroring the ADR-039/COR-T-047 sequencing: phase 1 (derive blocked + render-verify the dashboard surface), then phase 2 (remove the four STATUS bodies + reduce to pointer + the full doctrine cascade including the R6/status_deltas retirement).
 
 ## Activity log
 
 - 2026-06-13: Created in backlog. Implements ADR-040 (accepted 2026-06-13); analog of COR-T-047. Filed as the spawned implementation task at ADR-040 resolution. Unlabelled per ADR-031.
+- 2026-06-13: Picked up (in-progress). Routing through the dispatched-worker flow with the ADR-040 sequencing (phase 1: derive + verify the blocked surface; phase 2: remove narrative bodies + doctrine cascade). Orchestrator doing homework (dashboard structure, doctrine-cascade reference sites) before resolving anticipated decisions and drafting the phase-1 kickoff.
+- 2026-06-13: Homework surfaced that `status_deltas`/R6 become vestigial once the STATUS body is derived. Operator decision: fold the R6/status_deltas retirement into phase 2 (not a separate task, not an ADR-040 amendment). Scope updated above. Curated doctrine-cascade inventory (Explore sweep) held for the phase-2 kickoff.

@@ -139,6 +139,23 @@ function WorkspaceDetailFull({ detail }) {
         </div>
       )}
 
+      {detail.blocked && detail.blocked.length > 0 && (
+        <div className="card">
+          <h3>Blocked ({detail.blocked.length})</h3>
+          <ol className="activity-list">
+            {detail.blocked.map((entry, i) => (
+              <li key={i} className="activity-item blocked-item">
+                <span className="blocked-id">{entry.id}</span>
+                <span className="blocked-title activity-text">{entry.title}</span>
+                {entry.reason && (
+                  <span className="blocked-reason muted">{entry.reason}</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
       {detail.adrs && detail.adrs.length > 0 && (
         <div className="card">
           <h3>Decision records ({detail.adrs.length})</h3>
