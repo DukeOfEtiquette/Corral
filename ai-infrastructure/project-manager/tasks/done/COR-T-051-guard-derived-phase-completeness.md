@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-051
 title: "Guard derived phase-completeness: eager forming-epic recipe step + dashboard no-epic check"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-14
@@ -26,3 +26,5 @@ Routes through the dispatched-worker flow (etl code + dashboard render + recipe/
 ## Activity log
 
 - 2026-06-14: Created in backlog. Implements ADR-041 (accepted 2026-06-14); promotes COR-08. Filed as the spawned implementation task at ADR-041 resolution. Unlabelled per ADR-031.
+- 2026-06-14: Picked up (in-progress). Routing through the dispatched-worker flow. Orchestrator doing homework (etl departments assembly + DepartmentsPanel render, the create-department recipe location, the tasks/README "Epics and phases" section) before resolving anticipated decisions and drafting the kickoff. Visual surface (the new warning) means a render/visual gate per COR-07.
+- 2026-06-14: Done (committed `aa5da58`). One dispatch. Drafter+checker reached PASS on iteration 2: iteration 1 FAILed R1 (the epic-count source was left as an open option for the worker); the orchestrator resolved it by pinning the direct epic-file count (collect_roadmap_from_files omits phase-less epics and would undercount). Prelaunch W1 PASS. Close W2 PASS with one accepted nit: the executor misfiled a verification note ("Render gate") under Follow-ups with no coordination anchor; accepted-with-rationale because the real follow-up (a CSS hover-selector cleanup) is anchored and no follow-up is lost. Independently verified against disk: the etl `no_epic_warning` is additive (null for all in the clean state; current_phase=2/next_step/blocked byte-for-byte unchanged), fires correctly via a reverted fixture (backend-api with API-E-001 removed), and headless-renders the warning styling with no table regression; the create-department `<phase>`/forming-epic step and the tasks/README convention amendment match the kickoff. Guards COR-08 / ADR-041 against recurrence.
