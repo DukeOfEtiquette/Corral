@@ -63,7 +63,7 @@ PASS means "this kickoff passes the structural rules"; it does NOT mean "the kic
 
 Grep for em dashes (U+2014) and en dashes used as em (U+2013) in prose regions. Every hit is a FAIL.
 
-Regex: `[–—]` outside code blocks.
+Regex: a character class matching U+2013 (en dash) and U+2014 (em dash), applied outside code blocks.
 
 For each hit emit `F-NNN, R5, line L, evidence "...{context}...", recommendation "Replace em dash with regular dash or restructure sentence per the writing rule in ./CLAUDE.md"`.
 
