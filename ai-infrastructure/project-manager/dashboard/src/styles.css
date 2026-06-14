@@ -351,11 +351,16 @@ a:hover { text-decoration: underline; }
 }
 .dept-table tr:last-child td { border-bottom: none; }
 .dept-table tr.dept-planned td { opacity: 0.6; }
+/* Default row hover. Warning-row hover rules below share this selector's
+   specificity and follow it in source order, so each warning class overrides
+   this default without needing to be excluded here. Add any new warning-row
+   hover rule AFTER this line (and exclude only dept-planned, which has no
+   hover style of its own). */
+.dept-table tr:not(.dept-planned):hover td { background: var(--color-surface-raised); }
 .dept-table tr.dept-orphaned td { background: rgba(232, 160, 66, 0.12); }
 .dept-table tr.dept-orphaned:hover td { background: rgba(232, 160, 66, 0.22); }
 .dept-table tr.dept-no-epic td { background: rgba(240, 106, 106, 0.10); }
 .dept-table tr.dept-no-epic:hover td { background: rgba(240, 106, 106, 0.20); }
-.dept-table tr:not(.dept-planned):not(.dept-orphaned):not(.dept-no-epic):hover td { background: var(--color-surface-raised); }
 
 .dept-link { font-weight: 500; }
 
