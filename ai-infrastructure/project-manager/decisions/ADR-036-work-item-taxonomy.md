@@ -11,6 +11,8 @@ superseded_by: null
 
 # ADR-036: Work-item taxonomy: roadmap, phase, epic, task, ADR
 
+> **Forward pointer (2026-06-14):** ADR-041 adds a department-level consistency check to this ADR's check family (alongside the cardinality and cross-department checks): an existing department with zero epics is flagged, because the fully-derived roadmap (ADR-037) otherwise reads a phase as done when a member department's epic is simply unfiled. The rollup semantics defined here are unchanged; the check is owned-but-advisory. See ADR-041.
+
 ## Context
 
 The dashboard roadmap work (COR-T-040) added deterministically-resolved task/ADR reference badges to the roadmap and derived each roadmap entry's status from its references. Building it surfaced that the project's planning vocabulary was informal and conflated. The terms `phase`, `milestone`, `task`, and `ADR` were used across `STATUS.md`, the dashboard, and the role docs without pinned definitions, relationships, or cardinality, and "milestone" overlapped with the Corral app's native `epic` (ADR-025) without anyone having decided whether they were the same thing.
