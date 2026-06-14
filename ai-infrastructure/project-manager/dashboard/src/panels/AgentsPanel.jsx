@@ -18,26 +18,28 @@ function AgentGroup({ title, agents }) {
   return (
     <div className="agent-group">
       <div className="agent-group-heading">{title}</div>
-      <table className="agent-table">
-        <thead>
-          <tr>
-            <th>Agent</th>
-            <th>Model</th>
-            <th>Purpose</th>
-          </tr>
-        </thead>
-        <tbody>
-          {agents.map(agent => (
-            <tr key={agent.name}>
-              <td className="agent-name">{agent.name}</td>
-              <td>
-                <span className={`badge badge-model-${agent.model}`}>{agent.model}</span>
-              </td>
-              <td className="agent-purpose">{agent.purpose}</td>
+      <div className="table-scroll">
+        <table className="agent-table">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Model</th>
+              <th>Purpose</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {agents.map(agent => (
+              <tr key={agent.name}>
+                <td className="agent-name">{agent.name}</td>
+                <td>
+                  <span className={`badge badge-model-${agent.model}`}>{agent.model}</span>
+                </td>
+                <td className="agent-purpose">{agent.purpose}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -159,38 +159,40 @@ function WorkspaceDetailFull({ detail }) {
       {detail.adrs && detail.adrs.length > 0 && (
         <div className="card">
           <h3>Decision records ({detail.adrs.length})</h3>
-          <table className="adrs-table">
-            <thead>
-              <tr>
-                <th>ADR</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {detail.adrs.map((adr) => (
-                <tr key={adr.adr}>
-                  <td className="adr-num">ADR-{String(adr.adr).padStart(3, '0')}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="adr-title-btn"
-                      onClick={() => setSelectedAdr(adr)}
-                    >
-                      {adr.title}
-                    </button>
-                  </td>
-                  <td>
-                    <span className={`badge badge-adr-${adr.status}`}>
-                      {adr.status}
-                    </span>
-                  </td>
-                  <td className="muted">{adr.date}</td>
+          <div className="table-scroll">
+            <table className="adrs-table">
+              <thead>
+                <tr>
+                  <th>ADR</th>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {detail.adrs.map((adr) => (
+                  <tr key={adr.adr}>
+                    <td className="adr-num">ADR-{String(adr.adr).padStart(3, '0')}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="adr-title-btn"
+                        onClick={() => setSelectedAdr(adr)}
+                      >
+                        {adr.title}
+                      </button>
+                    </td>
+                    <td>
+                      <span className={`badge badge-adr-${adr.status}`}>
+                        {adr.status}
+                      </span>
+                    </td>
+                    <td className="muted">{adr.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
