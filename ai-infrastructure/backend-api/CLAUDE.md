@@ -25,7 +25,7 @@ This workspace owns its own `./tasks/` tree (ADR-031), allocating `API-T-NNN` ID
 
 ## Epics
 
-This workspace has no `epics/` tree yet. One will be created at `ai-infrastructure/backend-api/epics/` when this department's first epic is ready to file (lazy creation per ADR-021 and ADR-031). At that point it will allocate `API-E-NNN` IDs from `./epics/.next-epic-id`. Tasks will link to their epic via the `epic:` frontmatter field (bottom-up linkage, ADR-037). See `ai-infrastructure/project-manager/tasks/README.md` section "Epics and phases" for the full convention.
+This workspace has an `./epics/` tree at `ai-infrastructure/backend-api/epics/`, allocating `API-E-NNN` IDs from `./epics/.next-epic-id`. Epic files are pure YAML; tasks link to their epic via the `epic:` frontmatter field (bottom-up linkage, ADR-037). The coordinator-owned `phases/` tree is at `ai-infrastructure/project-manager/phases/` and is not duplicated here. See `ai-infrastructure/project-manager/tasks/README.md` section "Epics and phases" for the full convention.
 
 ## Decisions
 

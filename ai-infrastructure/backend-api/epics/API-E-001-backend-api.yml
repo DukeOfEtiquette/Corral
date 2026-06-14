@@ -1,0 +1,7 @@
+schema_version: 1
+id: API-E-001
+title: "Backend API"
+dept: backend-api
+phase: 2
+description: "FastAPI endpoints with house rules, auth/sessions and invite tokens, and admin seeding, built against the v1 schema. Forming epic (no tasks filed yet); the first surface (API-T-001, FastAPI endpoints) runs as a test-design dispatch followed by an implementation dispatch (ADR-016)."
+adrs: [10, 11, 13]
