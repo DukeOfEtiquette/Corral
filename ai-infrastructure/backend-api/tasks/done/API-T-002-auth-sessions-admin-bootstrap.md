@@ -2,7 +2,7 @@
 schema_version: 1
 id: API-T-002
 title: "Auth, sessions, and admin-user bootstrap for the api service (ADR-011, ADR-006)"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-15
@@ -47,3 +47,4 @@ References:
 
 - 2026-06-15: Created in backlog. Second task of epic API-E-001, picking up the auth/sessions (ADR-011) and admin-seeding (ADR-006) concerns fenced out of API-T-001; invites (ADR-007) left to a future sibling. Filed unlabelled per ADR-031. Clears the transient 1-task cardinality advisory on API-E-001 (the epic now holds 2 tasks).
 - 2026-06-15: Picked up; moved to in-progress (Backend API Orchestrator). Routes through the TDD two-phase flow per ADR-016. Two of the three recorded open questions are resolved from the API-T-001 homework: (1) sequencing -- this task is built FIRST, before API-T-001, per the user's auth-first decision; (2) the schema dependency is resolved -- the full v1 schema is already migrated in `app/db/alembic/versions/0001_baseline_schema.py` (users with `email`/`password_hash`/`kind`, `sessions`, `invites`, `agent_credentials`), so NO database-department migration is needed. Remaining anticipated decision for the kickoff: the machine/agent auth scope -- ADR-026 gates per-agent API keys to Phase 3 (built with the MCP server), so this task likely covers human session auth (ADR-011) + admin seed (ADR-006) only, with agent-key verification deferred. Confirming that boundary with the user before drafting the kickoff.
+- 2026-06-15: Done. Both TDD phases complete (ADR-016): test-design (red, 4 failing pytest files under app/api/tests/) committed at 20bb782; implementation (green) committed at a40cf3d. The executor stood up the FastAPI `api` service (app/api/: main, auth, sessions, admin_seed, db, settings) plus the `api` runtime and `api-test` one-shot compose services; the four protected phase-1 tests pass green (19/19) via `docker compose -f app/docker-compose.yml run --rm api-test`, re-verified independently by the orchestrator. Scope landed as planned: human session auth (argon2id, server-side sessions hashed at rest, HTTP-only SameSite cookie) + admin seed from the env hash; agent-key auth deferred to Phase 3 (ADR-026). Close-checker W2+W3 PASS; no protected test file touched (git diff HEAD -- app/api/tests/ empty); app/db untouched. Two follow-ups filed: API-T-004 (api healthcheck), API-T-005 (session-scoped test fixture). Rolls API-E-001 to in-progress (1 of its 3 tasks done).
