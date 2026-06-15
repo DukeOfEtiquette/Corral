@@ -1,0 +1,25 @@
+---
+schema_version: 1
+id: API-T-004
+title: "Add a healthcheck to the api compose service (enable depends_on: service_healthy)"
+status: backlog
+labels: []
+priority: P3
+created: 2026-06-15
+updated: 2026-06-15
+---
+
+## Description
+
+Follow-up surfaced by the API-T-002 implementation (committed `a40cf3d`). The `api` runtime service added to `app/docker-compose.yml` exposes port 8000 but has no healthcheck, so downstream services cannot gate on it via `depends_on: { api: { condition: service_healthy } }`. Add a healthcheck mirroring the `postgres` service's pattern (a `CMD-SHELL` probe), so future services (the `mcp` service in Phase 3, or a cross-service end-to-end test harness) can wait for the api to be ready.
+
+Anticipated decision for the kickoff: the probe should hit a cheap, un-authenticated endpoint rather than an auth-gated route; that likely means adding a lightweight liveness route (e.g. `GET /healthz`) to `app/api/main.py`. Decide whether to add that route or probe an existing cheap path. Routes through the dispatched-worker flow (compose + possibly a one-line api route). Standalone task: compose/infra polish, not part of the API-E-001 auth-and-endpoints capability. P3.
+
+References:
+- `app/docker-compose.yml` (the `api` service to add the healthcheck to; the `postgres` service's healthcheck is the pattern to mirror)
+- `app/api/main.py` (where a `/healthz` liveness route would live, if added)
+- `ai-infrastructure/project-manager/decisions/ADR-003-docker-compose-runtime.md` (compose-only run path)
+
+## Activity log
+
+- 2026-06-15: Created in backlog by the Backend API Orchestrator. Surfaced as a follow-up in the API-T-002 implementation report (`a40cf3d`): the `api` service has no healthcheck, blocking `depends_on: service_healthy` for downstream services. P3, standalone. Unlabelled per ADR-031.
