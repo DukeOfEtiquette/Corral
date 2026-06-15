@@ -1,0 +1,6 @@
+pytest
+httpx
+psycopg2-binary==2.9.10
+argon2-cffi
+pytest-asyncio
+anyio[trio]

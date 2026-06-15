@@ -1,0 +1,15 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt requirements-test.txt ./
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-test.txt
+
+# Copy the api source into app/api/ so `import app.api.*` resolves from /app.
+# This places the package at /app/app/api/__init__.py, making `app.api` importable.
+COPY . ./app/api/
+
+# Ensure /app is on PYTHONPATH so `import app.api.*` resolves.
+ENV PYTHONPATH=/app
+
+CMD ["pytest", "-v", "app/api/tests/"]

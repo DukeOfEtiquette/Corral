@@ -43,3 +43,30 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+
+  api:
+    build:
+      context: ./api
+    environment:
+      DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  api-test:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.test
+    environment:
+      DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
