@@ -2,7 +2,7 @@
 schema_version: 1
 id: API-T-002
 title: "Auth, sessions, and admin-user bootstrap for the api service (ADR-011, ADR-006)"
-status: backlog
+status: in-progress
 labels: []
 priority: P2
 created: 2026-06-15
@@ -46,3 +46,4 @@ References:
 ## Activity log
 
 - 2026-06-15: Created in backlog. Second task of epic API-E-001, picking up the auth/sessions (ADR-011) and admin-seeding (ADR-006) concerns fenced out of API-T-001; invites (ADR-007) left to a future sibling. Filed unlabelled per ADR-031. Clears the transient 1-task cardinality advisory on API-E-001 (the epic now holds 2 tasks).
+- 2026-06-15: Picked up; moved to in-progress (Backend API Orchestrator). Routes through the TDD two-phase flow per ADR-016. Two of the three recorded open questions are resolved from the API-T-001 homework: (1) sequencing -- this task is built FIRST, before API-T-001, per the user's auth-first decision; (2) the schema dependency is resolved -- the full v1 schema is already migrated in `app/db/alembic/versions/0001_baseline_schema.py` (users with `email`/`password_hash`/`kind`, `sessions`, `invites`, `agent_credentials`), so NO database-department migration is needed. Remaining anticipated decision for the kickoff: the machine/agent auth scope -- ADR-026 gates per-agent API keys to Phase 3 (built with the MCP server), so this task likely covers human session auth (ADR-011) + admin seed (ADR-006) only, with agent-key verification deferred. Confirming that boundary with the user before drafting the kickoff.
