@@ -11,4 +11,4 @@ COPY . ./app/api/
 # Ensure /app is on PYTHONPATH so `import app.api.*` works
 ENV PYTHONPATH=/app
 
-CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8123"]
