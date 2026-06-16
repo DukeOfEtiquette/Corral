@@ -2,7 +2,7 @@
 schema_version: 1
 id: API-T-007
 title: "Move the api service off port 8000 onto 8123 (host conflict with another local project)"
-status: in-progress
+status: done
 labels: []
 priority: P3
 created: 2026-06-16
@@ -31,5 +31,4 @@ References:
 
 - 2026-06-16: Created in backlog by the Backend API Orchestrator. Surfaced by the user: host port 8000 conflicts with another local project. Decided with the user: move to 8123, full move (container-internal port too). Linked to API-E-001 to match the API-T-004 precedent (api-service compose/infra polish under the epic). P3.
 - 2026-06-16: Picked up; moved to in-progress. Decisions fully pinned (8123, full move); proceeding straight to the dispatched-worker flow (single executor, no TDD two-phase).
-</content>
-</invoke>
+- 2026-06-16: Done. Executor made the three pinned edits; orchestrator independently re-ran compose to verify: api reaches `(healthy)`, `0.0.0.0:8123->8123`, `curl localhost:8123/healthz` returns `{"status": "ok"}`, host 8000 refuses. Deliverable + handoff pair committed in `1495591`. Moved to done. (Also removed stray closing tags accidentally left in this file at creation.)
