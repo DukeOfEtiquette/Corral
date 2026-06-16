@@ -77,6 +77,12 @@ def logout(request: Request, response: Response):
     return {"ok": True}
 
 
+@app.get("/healthz")
+def healthz():
+    """Liveness probe: returns 200 with {"status": "ok"}, no auth, no DB access."""
+    return {"status": "ok"}
+
+
 @app.get("/api/v1/me")
 def me(request: Request):
     """Return the authenticated user's identity, or 401."""
