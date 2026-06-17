@@ -1,0 +1,8 @@
+.env
+.env.example
+__pycache__/
+*.pyc
+.pytest_cache/
+gen-admin-hash.sh
+Dockerfile
+Dockerfile.test

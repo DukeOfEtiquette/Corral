@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the api source into app/api/ so `import app.api.*` resolves from /app
-COPY . ./app/api/
+COPY *.py ./app/api/
 
 # Ensure /app is on PYTHONPATH so `import app.api.*` works
 ENV PYTHONPATH=/app
