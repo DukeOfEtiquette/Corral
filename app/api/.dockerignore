@@ -5,4 +5,3 @@ __pycache__/
 .pytest_cache/
 gen-admin-hash.sh
 Dockerfile
-Dockerfile.test

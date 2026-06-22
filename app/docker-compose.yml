@@ -47,6 +47,7 @@ services:
   api:
     build:
       context: ./api
+      target: runtime
     environment:
       DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
       ADMIN_EMAIL: ${ADMIN_EMAIL}
@@ -67,7 +68,7 @@ services:
   api-test:
     build:
       context: ./api
-      dockerfile: Dockerfile.test
+      target: test
     environment:
       DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
     depends_on:
