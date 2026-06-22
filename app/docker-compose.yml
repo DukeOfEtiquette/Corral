@@ -14,6 +14,7 @@ services:
   migrate:
     build:
       context: ./db
+      target: runtime
     working_dir: /app/db
     command: alembic upgrade head
     environment:
@@ -25,7 +26,7 @@ services:
   test:
     build:
       context: ./db
-      dockerfile: Dockerfile.test
+      target: test
     environment:
       DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
     depends_on:
@@ -35,7 +36,7 @@ services:
   test-roundtrip:
     build:
       context: ./db
-      dockerfile: Dockerfile.test-roundtrip
+      target: test-roundtrip
     environment:
       DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
     depends_on:
