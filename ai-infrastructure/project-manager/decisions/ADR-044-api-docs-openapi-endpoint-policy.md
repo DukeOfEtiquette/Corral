@@ -2,16 +2,14 @@
 schema_version: 1
 adr: 44
 title: "API docs/OpenAPI endpoint exposure policy (Swagger UI, ReDoc, openapi.json)"
-status: "pending"
+status: "accepted"
 date: "2026-06-22"
-related_adrs: [3, 6, 10]
+related_adrs: [3, 6, 10, 45]
 supersedes: []
 superseded_by: null
 ---
 
 # ADR-044: API docs/OpenAPI endpoint exposure policy (Swagger UI, ReDoc, openapi.json)
-
-> Pending: frames the open question for whether and how the `api` service exposes interactive API docs and the OpenAPI schema. No decision is taken yet. Alternatives carry leanings (clearly marked) to support deliberation; Decision and Consequences stay pending until taken up. Do not implement before this ADR is accepted.
 
 ## Context
 
@@ -46,8 +44,16 @@ Lock the api down: no Swagger UI, no ReDoc; optionally keep `/openapi.json` for 
 
 ## Decision
 
-Pending.
+Option B. The `api` service configures the three FastAPI documentation endpoints explicitly rather than inheriting the framework default, and gates their exposure by environment.
+
+- **Placement: keep at root.** Swagger UI stays at `/docs`, ReDoc at `/redoc`, and the OpenAPI schema at `/openapi.json`. They are deliberately NOT relocated under `/api/v1`: FastAPI's conventional root placement matches developer expectation and keeps the change minimal (only the exposure gate needs wiring, not a placement override). The path-root difference from the application's `/api/v1` routes is accepted as a conscious choice, no longer an accident.
+- **Exposure: a single environment-driven gate.** All three endpoints are controlled by one setting. They are enabled in local/dev (preserving the live interactive docs that are genuinely useful for developing against the v1 surface, API-T-001) and fully disabled in remote deployment (Phase 6, ADR-003), where the api becomes reachable off-host. "Disabled" means all three are off together (`docs_url=None`, `redoc_url=None`, `openapi_url=None`); there is no behind-auth variant for remote at this stage.
+- **Mechanism is implementation-phase detail.** The exact settings accessor, environment variable name, default value, and how `app/api/main.py` reads the flag at app construction are left to the executing task, consistent with ADR-010's "implementation-phase decisions, not ADR content" carve-out. The natural shape mirrors the existing `app/api/settings.py` env-accessor pattern (for example the `get_cookie_secure()` boolean parse), with the flag defaulting to enabled so local/dev keeps docs on with no `.env` change and the remote environment sets it off.
 
 ## Consequences
 
-Pending. (On acceptance, expect: a recorded policy for the three FastAPI doc endpoints, their path placement, and their per-environment exposure; an implementation task against `app/api/main.py` + `app/api/settings.py`; and a defined value for the api's docs endpoint in the ADR-045 service inventory.)
+1. **Implementation task.** A follow-up task implements this against `app/api/main.py` (pass `docs_url`/`redoc_url`/`openapi_url` conditioned on the gate) and `app/api/settings.py` (a new env-read accessor mirroring `get_cookie_secure()`). It routes through the dispatched-worker flow when picked up.
+2. **Default flips from implicit-always-on to explicit-gated.** The current behaviour (all three endpoints always on at root, undocumented, per FastAPI's default with no override at `app/api/main.py:37`) becomes a recorded, env-controlled policy. Local behaviour is unchanged in practice (docs stay on); remote gains an explicit off switch before Phase 6.
+3. **Defined inventory value (ADR-045 / COR-T-055).** The api's docs-endpoint entry in the service inventory records `/docs`, `/redoc`, and `/openapi.json` at root, kind docs/openapi, enabled in local/dev and disabled in remote. COR-T-055 records this asserted value instead of its "per ADR-044 (pending)" fallback.
+4. **Remote exposure posture closed before Phase 6.** The off-host exposure question (near the ADR-006 do-not-over-expose ethos, though docs are not secrets) is decided now: no interactive docs or schema in remote. Behind-auth remote docs remain a future revisit if a need arises, not built now.
+5. **A settings flag to maintain.** The trade-off accepted under Option B: a small amount of env-conditional wiring and one settings flag whose remote value lives in deployment environment rather than code.
