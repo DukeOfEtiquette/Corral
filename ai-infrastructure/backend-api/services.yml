@@ -1,0 +1,18 @@
+schema_version: 1
+services:
+  - id: api
+    name: Corral API
+    domain: 1
+    status: running
+    runtime: api
+    host: localhost
+    ports: [8123]
+    base_url: http://localhost:8123
+    workspace: backend-api
+    adrs: [10, 44]
+    endpoints:
+      - {path: /api/v1, kind: api}
+      - {path: /healthz, kind: health}
+      - {path: /docs, kind: docs, note: "enabled in local/dev, disabled in remote (ADR-044)"}
+      - {path: /redoc, kind: docs, note: "enabled in local/dev, disabled in remote (ADR-044)"}
+      - {path: /openapi.json, kind: openapi, note: "enabled in local/dev, disabled in remote (ADR-044)"}

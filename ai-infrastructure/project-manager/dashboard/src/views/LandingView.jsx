@@ -5,6 +5,7 @@ import RoadmapPanel from '../panels/RoadmapPanel.jsx';
 import DepartmentsPanel from '../panels/DepartmentsPanel.jsx';
 import ActivityPanel from '../panels/ActivityPanel.jsx';
 import AgentsPanel from '../panels/AgentsPanel.jsx';
+import ServicesPanel from '../panels/ServicesPanel.jsx';
 
 export default function LandingView({ data }) {
   // The project-manager coordinator is not in data.departments (which is the
@@ -41,6 +42,7 @@ export default function LandingView({ data }) {
           <DepartmentsPanel departments={aiDepts} title="AI Roster" />
           <DepartmentsPanel departments={webDepts} title="Web App Roster" />
         </div>
+        <ServicesPanel services={data.services} />
         <AgentsPanel agents={data.agents} />
         <RoadmapPanel roadmap={data.roadmap} />
         <ActivityPanel activity={data.recent_activity} />

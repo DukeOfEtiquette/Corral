@@ -44,6 +44,11 @@ Sources:
       binary installed in the container. The entrypoint marks /repo as a
       safe.directory to clear git's dubious-ownership check on the read-only
       bind-mount.
+  (i) Service/endpoint inventory (ADR-045): per-workspace services.yml files in
+      every /repo/ai-infrastructure/<workspace>/ tree, discovered generically.
+      Each file holds a `services:` list; entries are aggregated, drift-checked
+      against app/docker-compose.yml host ports (ADR-045 decision 5, ADR-041
+      warning family), and emitted as the top-level `services` key in data.json.
 
 JSON contract shape (data.json):
   meta:            generated_at, source, project, current_phase (DERIVED from
@@ -109,6 +114,15 @@ JSON contract shape (data.json):
                     purpose: first sentence of frontmatter `description`
                     (text up to and including the first period-then-whitespace;
                     whole description when no such match exists).
+  services:        [ {id, name, domain, status, runtime, host, ports, base_url,
+                      workspace, adrs, endpoints, warning} ]
+                    Aggregated from all ai-infrastructure/*/services.yml files
+                    (ADR-045). Sorted: running before planned, then by workspace,
+                    then by id. warning: string when the declared port does not
+                    match the host-side port in app/docker-compose.yml (ADR-045
+                    decision 5, ADR-041 warning family); null otherwise. Only
+                    services whose runtime matches a compose service that publishes
+                    a host port are checked; others get warning: null by design.
 """
 
 import argparse
@@ -1028,6 +1042,170 @@ def _collect_tasks_by_epic(repo_root: Path) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Service/endpoint inventory (ADR-045)
+# ---------------------------------------------------------------------------
+
+def parse_compose_host_ports(compose_path: Path) -> dict:
+    """
+    Parse published host ports from app/docker-compose.yml.
+
+    For each compose service that has a `ports:` list, extract the host-side
+    port from each mapping. Accepted forms:
+      - "HOST:CONTAINER"  -> host port is the part left of the colon
+      - "PORT"            -> bare port counts as both host and container
+
+    Returns a dict mapping compose service name -> set of host port integers.
+    Only services that publish at least one host port appear in the result.
+    Tolerant: skips unreadable or malformed files without raising.
+    """
+    result: dict[str, set[int]] = {}
+    try:
+        raw = yaml.safe_load(compose_path.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        return result
+    services = raw.get("services") or {}
+    if not isinstance(services, dict):
+        return result
+    for svc_name, svc_cfg in services.items():
+        if not isinstance(svc_cfg, dict):
+            continue
+        ports_list = svc_cfg.get("ports") or []
+        if not isinstance(ports_list, list):
+            continue
+        host_ports: set[int] = set()
+        for entry in ports_list:
+            entry_str = str(entry).strip()
+            if ":" in entry_str:
+                host_part = entry_str.split(":")[0]
+            else:
+                host_part = entry_str
+            try:
+                host_ports.add(int(host_part))
+            except (ValueError, TypeError):
+                pass
+        if host_ports:
+            result[svc_name] = host_ports
+    return result
+
+
+def collect_services(repo_root: Path) -> list:
+    """
+    Discover every ai-infrastructure/*/services.yml file generically, parse
+    the `services:` list from each, apply the drift-guard check (ADR-045
+    decision 5, ADR-041 warning family), and return a sorted flat list of
+    service objects.
+
+    Discovery pattern mirrors collect_roadmap_from_files: iterate the
+    ai-infrastructure/ subdirectories and look for a services.yml file.
+
+    Tolerant parsing: skips unreadable or malformed files and files whose
+    top-level value lacks a `services:` list.
+
+    Each emitted object passes through all source fields from the YAML entry
+    (id, name, domain, status, runtime, host, ports, base_url, workspace,
+    adrs, endpoints) plus a derived `warning` field (string when the drift
+    check fires, else null).
+
+    Drift guard (warn-only, ADR-041 posture):
+      Parse published host ports from app/docker-compose.yml. For each service
+      entry whose `runtime` matches a compose service that publishes a host port:
+      if the entry's declared `ports` list does not include that published host
+      port, set `warning` to a message naming the declared vs compose value.
+      Services whose runtime is not in the compose file, or whose matched
+      compose service publishes no host port, receive warning: null. This is
+      intentional (postgres has no published host port; dashboard is in a
+      different compose file; planned services have no runtime match).
+
+    Sort order: running services before planned, then by workspace, then by id.
+    """
+    ai_infra_root = repo_root / "ai-infrastructure"
+    compose_path = repo_root / "app" / "docker-compose.yml"
+    compose_host_ports = parse_compose_host_ports(compose_path)
+
+    all_services: list = []
+    if ai_infra_root.is_dir():
+        for workspace_dir in sorted(ai_infra_root.iterdir()):
+            if not workspace_dir.is_dir():
+                continue
+            svc_file = workspace_dir / "services.yml"
+            if not svc_file.is_file():
+                continue
+            try:
+                raw = yaml.safe_load(svc_file.read_text(encoding="utf-8")) or {}
+            except (OSError, yaml.YAMLError):
+                continue
+            entries = raw.get("services")
+            if not isinstance(entries, list):
+                continue
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                svc_id = str(entry.get("id", ""))
+                runtime = str(entry.get("runtime", ""))
+                declared_ports = entry.get("ports") or []
+                if not isinstance(declared_ports, list):
+                    declared_ports = []
+                declared_port_ints: set[int] = set()
+                for p in declared_ports:
+                    try:
+                        declared_port_ints.add(int(p))
+                    except (ValueError, TypeError):
+                        pass
+
+                # Drift-guard check (ADR-045 decision 5, ADR-041 warn-only).
+                # Only fires when the service's runtime matches a compose service
+                # that publishes a host port.
+                warning = None
+                if runtime and runtime in compose_host_ports:
+                    compose_ports = compose_host_ports[runtime]
+                    for cp in compose_ports:
+                        if cp not in declared_port_ints:
+                            declared_display = (
+                                str(sorted(declared_port_ints)) if declared_port_ints else "[]"
+                            )
+                            warning = (
+                                f"Port drift: service '{svc_id}' declares ports "
+                                f"{declared_display} but compose publishes host "
+                                f"port {cp} (ADR-045)."
+                            )
+                            break
+
+                # Normalise endpoints list
+                endpoints = entry.get("endpoints") or []
+                if not isinstance(endpoints, list):
+                    endpoints = []
+
+                # Normalise adrs list
+                adrs = entry.get("adrs") or []
+                if not isinstance(adrs, list):
+                    adrs = []
+
+                all_services.append({
+                    "id": svc_id,
+                    "name": str(entry.get("name", "")),
+                    "domain": entry.get("domain"),
+                    "status": str(entry.get("status", "")),
+                    "runtime": runtime,
+                    "host": entry.get("host"),
+                    "ports": [int(p) for p in declared_ports if str(p).isdigit() or (isinstance(p, int))],
+                    "base_url": entry.get("base_url"),
+                    "workspace": str(entry.get("workspace", "")),
+                    "adrs": adrs,
+                    "endpoints": endpoints,
+                    "warning": warning,
+                })
+
+    # Sort: running before planned, then workspace, then id
+    status_order = {"running": 0, "planned": 1}
+    all_services.sort(key=lambda s: (
+        status_order.get(s.get("status", ""), 99),
+        s.get("workspace", ""),
+        s.get("id", ""),
+    ))
+    return all_services
+
+
+# ---------------------------------------------------------------------------
 # Main ETL
 # ---------------------------------------------------------------------------
 
@@ -1237,6 +1415,9 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
     # -- (g) Cross-department agents -----------------------------------------
     agents = collect_agents(agents_dir)
 
+    # -- (i) Service/endpoint inventory (ADR-045) ----------------------------
+    services = collect_services(repo_root)
+
     # -- (c) Department roster + existence check ----------------------------
     def dept_exists(slug: str) -> bool:
         return (repo_root / "ai-infrastructure" / slug / "STATUS.md").exists()
@@ -1420,6 +1601,10 @@ def run_etl(repo_root: Path, served_dir: Path) -> None:
         # Blocked tasks across all workspaces (ADR-040 M2).
         # Sorted by (workspace, id); empty list when nothing is blocked.
         "blocked": all_blocked,
+        # Service/endpoint inventory (ADR-045): aggregated from all
+        # ai-infrastructure/*/services.yml files, sorted running-first,
+        # with a drift-guard warning field (ADR-041 warning family).
+        "services": services,
     }
 
     served_dir.mkdir(parents=True, exist_ok=True)

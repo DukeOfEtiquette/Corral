@@ -1,0 +1,36 @@
+schema_version: 1
+services:
+  - id: dashboard
+    name: Project-Manager Dashboard
+    domain: 2
+    status: running
+    runtime: dashboard
+    host: localhost
+    ports: [8420]
+    base_url: http://localhost:8420
+    workspace: project-manager
+    adrs: [27, 37, 39, 40]
+    endpoints:
+      - {path: /data.json, kind: api}
+  - id: mcp
+    name: Corral MCP Server (FastMCP)
+    domain: 1
+    status: planned
+    runtime: mcp
+    host: null
+    ports: []
+    base_url: null
+    workspace: mcp-server
+    adrs: [4, 10]
+    endpoints: []
+  - id: frontend
+    name: Corral Kanban UI (React)
+    domain: 1
+    status: planned
+    runtime: frontend
+    host: null
+    ports: []
+    base_url: null
+    workspace: frontend-ui
+    adrs: [1]
+    endpoints: []

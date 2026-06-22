@@ -1,0 +1,13 @@
+schema_version: 1
+services:
+  - id: postgres
+    name: Postgres
+    domain: 1
+    status: running
+    runtime: postgres
+    host: localhost
+    ports: [5432]
+    base_url: null
+    workspace: database
+    adrs: [2, 12]
+    endpoints: []
