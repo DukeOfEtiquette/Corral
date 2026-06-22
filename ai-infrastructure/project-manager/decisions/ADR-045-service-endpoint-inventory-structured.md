@@ -2,16 +2,14 @@
 schema_version: 1
 adr: 45
 title: "Service/endpoint inventory as structured, dashboard-consumed data"
-status: "pending"
+status: "accepted"
 date: "2026-06-22"
-related_adrs: [5, 37, 39, 40, 44]
+related_adrs: [5, 21, 31, 37, 39, 40, 41, 44]
 supersedes: []
 superseded_by: null
 ---
 
 # ADR-045: Service/endpoint inventory as structured, dashboard-consumed data
-
-> Pending: frames the open question for how the project records its running and planned servers (ports, base URLs, endpoints including docs endpoints) as a structured artifact the dashboard can consume. No decision is taken yet. Alternatives carry leanings (clearly marked) to support deliberation; Decision and Consequences stay pending until taken up. Do not implement before this ADR is accepted. The authoring of the inventory itself is tracked as COR-T-055, gated on this ADR.
 
 ## Context
 
@@ -57,8 +55,34 @@ Generate the inventory automatically rather than hand-authoring it.
 
 ## Decision
 
-Pending.
+**Option B selected, with per-workspace ownership and generic discovery.**
+
+1. **Format: pure YAML, one `services.yml` per workspace.** The inventory is structured-data-as-files, consistent with ADR-037's epics/phases file-type choice (YAML over JSON; JSON would be the lone exception in the work-item-and-structured-data family for no gain). A workspace owns few services, so a single `services.yml` per workspace is the right granularity, not a per-service tree.
+
+2. **Location and ownership: per-workspace, generically discovered.** Each workspace that runs or plans a service owns a `services.yml` in its own tree (`ai-infrastructure/<workspace>/services.yml`), discovered by the dashboard ETL across all `ai-infrastructure/*/` workspaces, the same generic discovery the ETL already performs for `epics/` trees (`collect_roadmap_from_files` in `etl.py`). A new department adds its own `services.yml` and the dashboard picks it up with **no coordinator edit**. Planned services whose owning department does not exist yet (mcp, frontend, per the ADR-021 lazy-creation rule) are declared in the coordinator's `ai-infrastructure/project-manager/services.yml` until that department is stood up, then migrate to it. An explicit `workspace`/owner field decouples *where* a service is declared from *which* department owns it, so a coordinator-held planned entry still renders as owned by its eventual department.
+
+3. **Schema (each file holds a list of service entries).** Each entry carries: `schema_version`; `id`; `name`; `domain` (1 web-app / 2 ai-infra); `status` (running / planned); `runtime` (compose service name or process); `host`; `port(s)`; `base_url`; `endpoints` (a list of `{path, kind}` where `kind` is one of api / docs / openapi / health / ui); `workspace` (owning department or coordinator slug); and `adrs` (governing ADR numbers). The api's docs/openapi endpoint entries record the values ADR-044 (accepted) pins: `/docs`, `/redoc`, `/openapi.json` at root, enabled in local/dev and disabled in remote.
+
+4. **Dashboard consumption.** The ETL reads every `ai-infrastructure/*/services.yml`, aggregates the entries into `data.json`, and the dashboard renders a services panel listing each service with its ports and endpoints, consistent with the ADR-039/040 derived-surface model. The rendered panel is the consolidated read; the source files stay per-workspace.
+
+5. **Drift guard built now (owned-but-advisory).** A consistency check joins the ADR-041 ETL warning family: it flags when a service's declared port does not match `app/docker-compose.yml`. Warn-only, like the existing `phase_warning`/`epic_warning`/`no_epic_warning` checks; it does not alter or suppress rendering. Built as part of the authoring task rather than deferred, while the context is fresh.
+
+6. **Authoring is COR-T-055.** Writing the inventory files (covering api, postgres, dashboard, mcp, frontend), extending the ETL discovery and adding the services panel, and adding the drift-guard check is the dispatched follow-on COR-T-055, now unblocked. This ADR is the spec it executes against; the implementation routes through the dispatched-worker flow.
 
 ## Consequences
 
-Pending. (On acceptance, expect: a structured inventory format and location decided; the dashboard ETL extended to consume and render it; COR-T-055 unblocked to author the inventory covering api, postgres, dashboard, mcp, and frontend; and the dashboard server finally captured in a standing structured surface rather than only in handoff reports.)
+1. **Reuses the epics discovery pattern; near-zero new machinery.** The ETL already walks `ai-infrastructure/*/` for `epics/` trees and `yaml.safe_load`s them; the services reader is the same loop over `services.yml`. This extends ADR-037's generic-discovery model to a new file family; a forward-pointer note is added to ADR-037.
+
+2. **A new per-workspace file family (amends ADR-031).** Each workspace gains an optional `services.yml` alongside its `tasks/` and (where present) `epics/` trees. No ID counter is needed: services are not ID-allocated the way tasks and epics are. A forward-pointer note is added to ADR-031.
+
+3. **No coordinator chokepoint.** Adding a department service needs no coordinator edit; the new department's `services.yml` is discovered automatically. The single-file alternative (one coordinator-owned `services.yml`) was rejected for exactly this chokepoint.
+
+4. **Planned services handled before their department exists.** mcp and frontend are declared in the coordinator file until their departments are stood up, then migrate; the explicit owner field keeps their rendered ownership correct throughout. This mirrors the forming-epic handling (ADR-041).
+
+5. **The dashboard server gets a standing structured surface.** The dashboard (host 8420), previously recorded only in a COR-T-031 handoff report, is captured in the coordinator's `services.yml`.
+
+6. **Drift guard joins the ADR-041 lineage (extends ADR-041).** The declared-port-vs-compose check is one more owned-but-advisory warning in the existing ETL warning family; a forward-pointer note is added to ADR-041. It does not gate or alter any derived status.
+
+7. **OVERVIEW.md unchanged.** The domain-1 runtime-shape narrative in `ai-infrastructure/project-manager/docs/architecture/OVERVIEW.md` stays as prose; the inventory is its structured, machine-consumed companion, not a replacement.
+
+8. **Full derivation (Option C) remains a future layer.** Auto-deriving ports and routes from compose plus FastAPI introspection is deliberately not done now; the drift guard is the first step toward "derive what is derivable, declare the rest."

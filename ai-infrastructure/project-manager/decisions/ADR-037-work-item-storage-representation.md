@@ -15,6 +15,8 @@ superseded_by: null
 
 > **Forward pointer (2026-06-13):** ADR-039 extends this source-only derivation pattern (contract preserved, source moved) from the roadmap to the STATUS activity surface: `last_updated` and `recent_updates` become derived (git-by-path) and leave STATUS.md frontmatter, the same churn-coupling resolution applied one level further. See ADR-039. ADR-040 extends the same pattern one further hop, deriving the `STATUS.md` narrative body (`## Current phase` / `## Next step` / `## Blocked on`) so no hand-authored content remains in `STATUS.md`. See ADR-040.
 
+> **Forward pointer (2026-06-22):** ADR-045 reuses this ADR's generic per-workspace YAML discovery (the `epics/` walk in `collect_roadmap_from_files`) for a new structured file family: a per-workspace `services.yml` service/endpoint inventory, discovered the same way and rendered as a dashboard panel per the ADR-039/040 derived-surface model. Same structured-data-as-files discipline, applied to a new surface. See ADR-045.
+
 ## Context
 
 ADR-036 pinned the work-item taxonomy and semantics (the five terms, strict containment, the `>= 2` cardinality conventions, status rollup, the dogfood import mapping) but did not decide *how each term is stored* in the markdown era. Its consequence 6 simply assumed the representation already in place: Tasks and ADRs are one markdown file each, while Phases and Epics are nested structures inside the `roadmap:` block of `ai-infrastructure/project-manager/STATUS.md` frontmatter. That representation is therefore an inherited implementation choice, never a reasoned decision.

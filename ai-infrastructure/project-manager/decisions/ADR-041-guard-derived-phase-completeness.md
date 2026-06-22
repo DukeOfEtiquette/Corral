@@ -13,6 +13,8 @@ superseded_by: null
 
 > Accepted 2026-06-14. Promotes observation COR-08. Adopts the eager-forming-epic discipline plus a dashboard consistency check (Option D), the same convention-plus-check model ADR-036 uses for its cardinality minimums. Does not change ADR-036's rollup semantics.
 
+> **Forward pointer (2026-06-22):** ADR-045 adds another owned-but-advisory check to this ETL warning family: a service's declared port in its `services.yml` versus the value in `app/docker-compose.yml`. Same warn-only, does-not-alter-derived-status model as the checks here. See ADR-045.
+
 ## Context
 
 ADR-037 made the roadmap a derived view: the dashboard ETL reconstructs the phase -> epic -> task structure from the `epics/` and `phases/` files and rolls status up per ADR-036 (a phase is done when all its epics are done; an epic is done when it has at least one task and all are done). ADR-040 extended the same derive-everything direction to the STATUS narrative.
