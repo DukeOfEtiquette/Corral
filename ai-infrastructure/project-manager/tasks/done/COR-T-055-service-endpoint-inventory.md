@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-055
 title: "Author the service/endpoint inventory (structured, dashboard-consumed) and wire the dashboard to render it"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-22
@@ -58,3 +58,5 @@ References:
 
 - 2026-06-22: Created in backlog by the Project Manager Orchestrator, at user direction. Surfaced by a "where are the servers and their docs endpoints documented?" question that found no inventory exists (OVERVIEW lists web-app services by role only, no ports/endpoints; the dashboard server is in no standing doc; the api serves Swagger by FastAPI default, undocumented). Filed P2, standalone, GATED on ADR-045 (structured-format decision) and informed by ADR-044 (api docs-endpoint policy). Unlabelled per ADR-031.
 - 2026-06-22: Gate cleared. ADR-044 and ADR-045 both accepted by the Project Manager Orchestrator. Baked the pinned decisions into Scope and Acceptance tests (per-workspace `services.yml` + generic ETL discovery; coordinator holds planned mcp/frontend; YAML schema; drift-guard check built in this task per the ADR-041 lineage; api docs endpoint at root, local-on/remote-off per ADR-044). Task is execution-ready; routes through the dispatched-worker flow when picked up.
+- 2026-06-22: Picked up by the Project Manager Orchestrator; moved to in-progress. Routing as a sequential two-dispatch flow: dispatch 1 authors the per-workspace `services.yml` files (coordinator structured-data work); dispatch 2 wires the ETL discovery + services panel + drift-guard check (dashboard / COR-E-004 work) against the files from dispatch 1.
+- 2026-06-22: Done. Delivered across four dispatched-worker runs (inventory authoring; ETL discovery + panel + drift-guard; new-tab address links; drop the Status column) plus two orchestrator-direct refinements at user direction during the visual-check gate (dropped the redundant dashboard `/` ui endpoint). Per-workspace `services.yml` for api/postgres/dashboard, with planned mcp/frontend declared in the coordinator file; ETL discovers `ai-infrastructure/*/services.yml` generically and emits a `services` key; ServicesPanel renders ports/endpoints as new-tab links with the port drift-guard warning. User confirmed the running dashboard renders correctly (api links live once `app/docker-compose.yml` is up). Deliverables + kickoff/report pairs committed in 3fe8fce. Acceptance tests (a)-(e) met. Follow-ups already captured: ADR-044 impl is COR-T-056; Option C full port-derivation is recorded in ADR-045 consequence 8.
