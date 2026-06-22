@@ -2,7 +2,7 @@
 schema_version: 1
 id: API-T-008
 title: "Restructure app/api to one multi-stage Dockerfile with runtime + test targets (ADR-043)"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-22
@@ -93,4 +93,6 @@ References:
 
 ## Activity log
 
-- 2026-06-22: Created in backlog by the Project Manager Orchestrator under coordinator write authority (ADR-027), at user direction, so the Backend API Orchestrator can pick it up with full context. Filed standalone, P2. Implements the api half of accepted ADR-043 (Option B multi-stage); the `.dockerignore` + selective-runtime-COPY slice already landed under COR-T-054. Pairs with DB-T-004 (they share `app/docker-compose.yml`; run sequentially). Unlabelled per ADR-031.
+- 2026-06-22: Created in backlog by the Project Manager Orchestrator under coordinator write authority (ADR-027), at user direction, so the Backend API Orchestrator can pick it up with full context. Filed standalone, P2. Implements the api half of accepted ADR-043 (Option B multi-stage); the `.dockerignore` + selective-runtime-COPY slice already landed under COR-T-054. Pairs with DB-T-004 (they share `app/docker-compose.yml`; run sequentially). Unlabelled per ADR-031. Filing committed as 4dbe7ba.
+- 2026-06-22: Picked up by the Backend API Orchestrator at user direction; moved to in-progress. Routes through the dispatched-worker flow (domain-1 web-app build deliverable; not a TDD surface).
+- 2026-06-22: Done. Dispatched-worker flow ran clean (kickoff-checker PASS, prelaunch PASS, executor RETURN: COMPLETED, close-checker PASS). Deliverable committed as 6e50dfe: `app/api/Dockerfile` collapsed to base/runtime/test stages, `app/api/Dockerfile.test` deleted, `app/docker-compose.yml` api+api-test blocks switched to `build.target`, stale `Dockerfile.test` entry pruned from `app/api/.dockerignore`. Orchestrator independently re-ran all acceptance gates (a)-(e) against disk: compose build green for all services, runtime image imports `app.api.main` and excludes tests/gen-admin-hash.sh/.env.example, api-test suite 22 passed. Compose edit disjoint from DB-T-004's db blocks (untouched). Kickoff/report pair committed with the deliverable (ADR-024).
