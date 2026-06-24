@@ -47,7 +47,7 @@ The MCP server (ADR-004, ADR-013) is an ordinary authenticated API client: it ca
 
 2. **Single enforcement seam.** ADR-013's house rules live in the API layer only. The MCP server stays thin: it calls the API, which enforces the rules. The web client and LLM agents share the same enforcement path. No house-rule logic is duplicated in the MCP server.
 
-3. **MCP-to-API service credentials.** The MCP server holds service credentials to authenticate to the API. The token shape and session model are deferred to ADR-011 (pending).
+3. **MCP-to-API service credentials.** The MCP server holds service credentials to authenticate to the API. The token shape and session model are deferred to ADR-011 (pending). **Forward pointer (COR-T-053, 2026-06-24):** ADR-011 has since been accepted (2026-06-08); read "ADR-011 (pending)" above as accepted. See `./ADR-011-auth-session-mechanism.md`.
 
 4. **ADR-002 shared-package clarification.** ADR-002 anticipated a shared Python package for "models and house-rules validation." Under this decision, house-rules enforcement consolidates in the API layer and is not duplicated in the MCP server. The shared package carries models and types only; enforcement is not its responsibility. ADR-002 itself is not edited.
 

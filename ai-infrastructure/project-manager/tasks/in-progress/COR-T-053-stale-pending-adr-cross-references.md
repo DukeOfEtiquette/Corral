@@ -2,11 +2,11 @@
 schema_version: 1
 id: COR-T-053
 title: "Sweep stale 'pending' ADR cross-references in accepted ADRs (decision-hygiene drift)"
-status: backlog
+status: in-progress
 labels: []
 priority: P3
 created: 2026-06-15
-updated: 2026-06-15
+updated: 2026-06-24
 ---
 
 ## Description
@@ -33,4 +33,6 @@ References:
 
 ## Activity log
 
+- 2026-06-24: Executed orchestrator-direct (the ADR forward-pointer edits fall in the orchestrator-direct carve-out / the Pending-ADR playbook's own forward-pointer sweep; user-confirmed routing, overriding the task body's "dispatch" note). Added 11 dated forward-pointer notes (append-only, ADR-024 mechanism, never editing "(pending)" text in place): ADR-010 (->011), ADR-011 x2 (->026, the "future pending ADR" edge case), ADR-012 x3 (->011 x2, ->018), ADR-013 x2 (->018/021, the trigger), ADR-028 (->COR-T-012 done, task-ref edge case), ADR-030 x2 (->018). Refs to genuinely-pending ADR-017/019/020 left accurate as written. Prevention scoped in: augmented ORCHESTRATOR-ROLE.md Pending-ADR resolution playbook step 5 with a mechanical tree-wide `grep` sweep for cite-as-pending references at acceptance time. Verified against disk: all cited paths resolve, original "(pending)" text preserved, completeness re-grep clean. Committed via the ADR-046 worktree workflow (branch cor-t-053-stale-pending-refs, integrated with bin/git-integrate).
+- 2026-06-24: Picked up; moved to in-progress. Mechanical sweep (`grep -niE pending` over accepted ADRs, cross-referenced against each named ADR's `status:`) confirmed the stale-ref set: ADR-010 (->ADR-011), ADR-012 (->ADR-011), ADR-013 (->ADR-018/021), ADR-030 (->ADR-018). Two edge cases surfaced for scope decision: ADR-011's "future pending ADR" mentions (now ADR-026) and ADR-028's stale COR-T-012 task ref. Routing through the dispatched-worker flow.
 - 2026-06-15: Created in backlog by the Backend API Orchestrator (cross-workspace into the coordinator tree, at user direction). Surfaced during API-T-001 planning when ADR-013's stale "ADR-018 (pending)" cross-reference produced a wrong premise, caught by verifying ADR-018's own accepted status. Filed P3 (eventual cleanup) and standalone (decision-hygiene work fits no current epic). Unlabelled per ADR-031.
