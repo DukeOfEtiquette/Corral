@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# .githooks/pre-merge-commit - Enforce that merges into master run through bin/git-integrate.
+#
+# Fires on every merge commit (git merge --no-ff always forms a commit).
+# Refuses to proceed if CORRAL_SANCTIONED_MERGE is not set, which means
+# the merge was not initiated by bin/git-integrate.
+
+set -euo pipefail
+
+TARGET_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+if [[ "$TARGET_BRANCH" == "master" ]]; then
+  if [[ "${CORRAL_SANCTIONED_MERGE:-}" != "1" ]]; then
+    echo "ERROR: Direct merge into master is not allowed." >&2
+    echo "" >&2
+    echo "  All merges into master must run through the sanctioned wrapper:" >&2
+    echo "    bin/git-integrate <feature-branch>" >&2
+    echo "" >&2
+    echo "  The wrapper acquires the merge lock and exports CORRAL_SANCTIONED_MERGE=1" >&2
+    echo "  so this hook passes." >&2
+    exit 1
+  fi
+fi
+
+exit 0

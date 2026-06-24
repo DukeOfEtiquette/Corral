@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# .githooks/pre-commit - Enforce that commits onto master from a conflicted-then-resolved
+# merge also run through bin/git-integrate.
+#
+# Covers the path: git merge produces conflicts, user resolves them manually,
+# then runs "git commit". In that case pre-merge-commit does not fire again,
+# so this hook catches the resulting commit on master.
+
+set -euo pipefail
+
+TARGET_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+# Only enforce on master when this is a merge commit (MERGE_HEAD exists).
+if [[ "$TARGET_BRANCH" == "master" ]] && [[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ]]; then
+  if [[ "${CORRAL_SANCTIONED_MERGE:-}" != "1" ]]; then
+    echo "ERROR: Committing a resolved merge onto master is not allowed outside the sanctioned wrapper." >&2
+    echo "" >&2
+    echo "  All merges into master must run through the sanctioned wrapper:" >&2
+    echo "    bin/git-integrate <feature-branch>" >&2
+    echo "" >&2
+    echo "  The wrapper acquires the merge lock and exports CORRAL_SANCTIONED_MERGE=1" >&2
+    echo "  so this hook passes." >&2
+    exit 1
+  fi
+fi
+
+exit 0

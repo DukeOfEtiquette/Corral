@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# bin/git-integrate - Sanctioned wrapper for merging a feature branch into master.
+#
+# Usage: bin/git-integrate <feature-branch>
+#
+# Acquires an exclusive flock on .claude/artifacts/tmp/merge.lock, merges the
+# named feature branch into master with --no-ff, runs a fast post-merge sanity
+# check, then releases the lock. On lock contention, exits non-zero immediately
+# with a user-readable escalation message.
+#
+# Must be run from the main checkout (not from a feature worktree).
+
+set -euo pipefail
+
+FEATURE_BRANCH="${1:-}"
+LOCK_FILE="${CLAUDE_PROJECT_DIR:-.}/.claude/artifacts/tmp/merge.lock"
+LOCK_FD=9
+
+if [[ -z "$FEATURE_BRANCH" ]]; then
+  echo "Usage: bin/git-integrate <feature-branch>" >&2
+  exit 1
+fi
+
+# Verify we are in the main checkout on master.
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [[ "$CURRENT_BRANCH" != "master" ]]; then
+  echo "ERROR: bin/git-integrate must be run from the main checkout on master." >&2
+  echo "       Current branch: $CURRENT_BRANCH" >&2
+  exit 1
+fi
+
+# Verify the feature branch exists.
+if ! git rev-parse --verify "refs/heads/$FEATURE_BRANCH" > /dev/null 2>&1; then
+  echo "ERROR: Feature branch '$FEATURE_BRANCH' not found." >&2
+  exit 1
+fi
+
+# Ensure the lock directory exists.
+mkdir -p "$(dirname "$LOCK_FILE")"
+
+# Open the lock file descriptor.
+eval "exec $LOCK_FD>\"$LOCK_FILE\""
+
+# Attempt a non-blocking exclusive lock.
+if ! flock -n "$LOCK_FD"; then
+  echo "CONTENTION: The merge lock is currently held by another session." >&2
+  echo "" >&2
+  echo "  Another integration is in progress. Do not attempt a manual merge into master." >&2
+  echo "  Wait for the in-flight merge to complete, then re-run:" >&2
+  echo "    bin/git-integrate $FEATURE_BRANCH" >&2
+  exit 1
+fi
+
+echo "Lock acquired. Merging '$FEATURE_BRANCH' into master..."
+
+# Export the sanctioned-merge marker so the enforcement hooks pass.
+export CORRAL_SANCTIONED_MERGE=1
+
+# Perform the --no-ff merge.
+git merge --no-ff "$FEATURE_BRANCH" -m "Merge branch '$FEATURE_BRANCH' into master"
+
+# Fast post-merge sanity check (seconds, not a test-suite run).
+echo "Sanity check..."
+
+# Confirm a merge commit was formed (HEAD has more than one parent).
+PARENT_COUNT="$(git cat-file -p HEAD | grep -c '^parent' || true)"
+if [[ "$PARENT_COUNT" -lt 2 ]]; then
+  echo "ERROR: Merge did not form a merge commit. Master may be in an unexpected state." >&2
+  echo "       Investigate before proceeding." >&2
+  exit 1
+fi
+
+# Confirm the working tree and index are clean.
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "ERROR: Working tree or index is not clean after merge." >&2
+  echo "       Investigate before proceeding." >&2
+  exit 1
+fi
+
+# Confirm no conflict markers remain.
+if git diff --name-only --diff-filter=U | grep -q .; then
+  echo "ERROR: Conflict markers found in the working tree. Resolve conflicts before proceeding." >&2
+  exit 1
+fi
+
+echo "Merge complete. '$FEATURE_BRANCH' integrated into master."
+echo "Next steps: delete the feature branch and remove its worktree."
+
+# The lock is released automatically when this script exits (flock on fd $LOCK_FD).

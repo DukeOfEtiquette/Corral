@@ -7,6 +7,9 @@
 # Kickoffs and worker reports are tracked in .claude/artifacts/handoffs/ (ADR-024).
 .claude/artifacts/tmp/
 
+# Worktrees: per-session isolated git worktrees (ADR-046).
+.claude/worktrees/
+
 # Python
 __pycache__/
 *.pyc

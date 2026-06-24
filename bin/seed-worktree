@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# bin/seed-worktree - Seeds a freshly created worktree.
+#
+# Called by the WorktreeCreate hook in .claude/settings.json.
+# Reads the worktree name from stdin (JSON with a .name field).
+# Outputs the seeded worktree directory path to stdout.
+# Diagnostics go to stderr.
+#
+# Performs:
+#   1. Seeds the worktree's app/.env from the main checkout's app/.env
+#      (copied so per-worktree additions do not pollute the source; skip if absent).
+#   2. Assigns a distinct API_HOST_PORT and appends it to the worktree's app/.env.
+#   3. Runs docker compose build in the worktree.
+#   4. Sets git config core.hooksPath .githooks in the worktree.
+#
+# Environment provided by the harness:
+#   CLAUDE_PROJECT_DIR - the main checkout root.
+
+set -euo pipefail
+
+# Read the worktree name from stdin.
+INPUT="$(cat)"
+WORKTREE_NAME="$(echo "$INPUT" | jq -r .name)"
+
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+WORKTREE_DIR="$PROJECT_DIR/.claude/worktrees/$WORKTREE_NAME"
+MAIN_ENV="$PROJECT_DIR/app/.env"
+WORKTREE_ENV="$WORKTREE_DIR/app/.env"
+
+echo "Seeding worktree: $WORKTREE_DIR" >&2
+
+# Defensive: ensure the worktree's app/ directory exists before seeding env into it.
+# The harness creates the worktree dir before this hook runs, and app/ is tracked so
+# it is normally present; this guard hardens against either being absent.
+mkdir -p "$WORKTREE_DIR/app"
+
+# 1. Seed app/.env from the main checkout (copy so per-worktree additions are isolated).
+#    Secrets never leave gitignored .env files (ADR-006).
+if [[ -e "$MAIN_ENV" ]]; then
+  if [[ ! -e "$WORKTREE_ENV" ]]; then
+    cp "$MAIN_ENV" "$WORKTREE_ENV"
+    echo "  Seeded $WORKTREE_ENV from $MAIN_ENV" >&2
+  else
+    echo "  $WORKTREE_ENV already exists, skipping seed." >&2
+  fi
+else
+  echo "  NOTE: $MAIN_ENV not found; skipping .env seed." >&2
+  echo "  Set up app/.env in the main checkout before running compose services." >&2
+fi
+
+# 2. Assign a distinct API_HOST_PORT based on the worktree name.
+# Hash the name to an offset in the range 8200-8299 to avoid colliding with
+# the default 8123 and with other worktrees.
+HASH="$(echo -n "$WORKTREE_NAME" | cksum | awk '{print $1}')"
+API_HOST_PORT="$((8200 + HASH % 100))"
+
+# Append API_HOST_PORT to the worktree's app/.env.
+echo "API_HOST_PORT=$API_HOST_PORT" >> "$WORKTREE_ENV"
+echo "  API_HOST_PORT=$API_HOST_PORT appended to $WORKTREE_ENV" >&2
+
+# 3. Run docker compose build in the worktree.
+echo "  Running docker compose build..." >&2
+(cd "$WORKTREE_DIR/app" && docker compose build) >&2
+
+# 4. Set git config core.hooksPath in the worktree.
+(cd "$WORKTREE_DIR" && git config core.hooksPath .githooks)
+echo "  core.hooksPath set to .githooks in $WORKTREE_DIR" >&2
+
+echo "Seeding complete." >&2
+
+# Output the worktree directory path to stdout (required by the hook I/O contract).
+echo "$WORKTREE_DIR"

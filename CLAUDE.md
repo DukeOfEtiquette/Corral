@@ -32,7 +32,7 @@ Per `./ai-infrastructure/project-manager/decisions/ADR-006-admin-bootstrap-env-h
 
 ### Documentation placement
 
-All `.md` files go in sanctioned locations: the repo-root files (`CLAUDE.md`, `README.md`, `END-GOAL.md`), `./ai-infrastructure/project-manager/` (the AI-infrastructure workspace, its `CLAUDE.md`, `STATUS.md`, `OBSERVATIONS.md`, `decisions/`, `tasks/`, and `docs/architecture/`), `./docs/` (the shared AI-orchestration role docs and the navigation index), and sibling AI-infrastructure department workspaces created later under `./ai-infrastructure/`. Never scatter `.md` files into source directories. Navigation index: `./docs/README.md`. Exception per the ADRs on handoffs: `./.claude/` holds AI-infrastructure artifacts (slash commands, agent definitions, agent specs), git-tracked handoff artifacts (kickoffs, worker reports) in `./.claude/artifacts/handoffs/`, and gitignored scratch in `./.claude/artifacts/tmp/`; these are domain-2 working files, not documentation.
+All `.md` files go in sanctioned locations: the repo-root files (`CLAUDE.md`, `README.md`, `END-GOAL.md`, `GIT_WORKFLOW.md`), `./ai-infrastructure/project-manager/` (the AI-infrastructure workspace, its `CLAUDE.md`, `STATUS.md`, `OBSERVATIONS.md`, `decisions/`, `tasks/`, and `docs/architecture/`), `./docs/` (the shared AI-orchestration role docs and the navigation index), and sibling AI-infrastructure department workspaces created later under `./ai-infrastructure/`. Never scatter `.md` files into source directories. Navigation index: `./docs/README.md`. Exception per the ADRs on handoffs: `./.claude/` holds AI-infrastructure artifacts (slash commands, agent definitions, agent specs), git-tracked handoff artifacts (kickoffs, worker reports) in `./.claude/artifacts/handoffs/`, and gitignored scratch in `./.claude/artifacts/tmp/`; these are domain-2 working files, not documentation.
 
 ### Writing style
 
@@ -41,6 +41,10 @@ No em dashes in files. Use a regular hyphen, comma, colon, or rephrase. Em dashe
 ### Commit messages
 
 Every commit subject leads with the task or ADR ID it advances (e.g. `COR-T-047:` or `ADR-039:`), followed by a specific one-line summary of what changed. This is owned-but-advisory (per ADR-035): it feeds the git-derived activity dashboard (ADR-039) and is the primary signal for `git log`-based recent-activity reads. If message quality erodes, the recorded re-open path is a commit-msg hook or checker subagent.
+
+### Git workflow
+
+Concurrent Claude sessions operate under a worktree-per-session workflow described in `./GIT_WORKFLOW.md`. Read that file before making any edit. Research happens in the main checkout; switch to a worktree before the first change; test via compose in the worktree; integrate via `bin/git-integrate`. Un-wrapped merges into `master` are refused by the hooks in `.githooks/`.
 
 ## Workspace orientation
 
