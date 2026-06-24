@@ -27,7 +27,7 @@ The rest of Fork D stands and is enriched here. A new department is a **fully-wi
 
 This ADR is a partial amendment of ADR-027 Fork D, in the same spirit ADR-029 partially amended ADR-027's `docs/` placement. Per the append-only convention (ADR-024 precedent, reaffirmed by ADR-029), ADR-027's `supersedes` / `superseded_by` fields are left untouched; ADR-027 gains a forward-pointer note and is listed in `related_adrs`.
 
-ADR-018 (department label taxonomy) is still pending. This ADR does not block on it: ADR-021 blesses `dept:<slug>` labels "running ahead of workspace creation," and the naming is already in use across the task pool. The recipe documents the `dept:<slug>` naming and defers label registry, enforcement, and color/metadata to ADR-018, which lands as real labels at the dogfood milestone (ADR-008).
+ADR-018 (department label taxonomy) is still pending. This ADR does not block on it: ADR-021 blesses `dept:<slug>` labels "running ahead of workspace creation," and the naming is already in use across the task pool. The recipe documents the `dept:<slug>` naming and defers label registry, enforcement, and color/metadata to ADR-018, which lands as real labels at the dogfood milestone (ADR-008). **Forward pointer (COR-T-053, 2026-06-24):** ADR-018 has since been accepted (2026-06-10); read "still pending" above as accepted. See `./ADR-018-department-label-taxonomy.md`.
 
 ## Alternatives considered
 
@@ -94,7 +94,7 @@ When invoked, the command drives the orchestrator through the dispatched-worker 
 
 ### 5. `dept:<slug>` label reservation in the markdown era
 
-"Reserve a `dept:<slug>` label" today means: use the established `dept:<slug>` naming (ADR-021) and ensure the slug is a blessed ADR-021 menu entry. There is no label registry to mutate in the markdown era; labels become real records at the dogfood milestone (ADR-008), and taxonomy, enforcement (for example at most one `dept:*` per task), and color/metadata are owned by ADR-018 (pending). The recipe documents the naming and defers the rest to ADR-018.
+"Reserve a `dept:<slug>` label" today means: use the established `dept:<slug>` naming (ADR-021) and ensure the slug is a blessed ADR-021 menu entry. There is no label registry to mutate in the markdown era; labels become real records at the dogfood milestone (ADR-008), and taxonomy, enforcement (for example at most one `dept:*` per task), and color/metadata are owned by ADR-018 (pending). The recipe documents the naming and defers the rest to ADR-018. **Forward pointer (COR-T-053, 2026-06-24):** ADR-018 has since been accepted (2026-06-10); read "ADR-018 (pending)" above as accepted. See `./ADR-018-department-label-taxonomy.md`.
 
 ### 6. Department-scoped checker slot
 

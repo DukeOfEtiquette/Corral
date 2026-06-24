@@ -135,7 +135,7 @@ Implementation is tracked as **COR-T-015** (port the `worker-agent` agent and sp
 `§Dispatched-worker flow` to `ORCHESTRATOR-ROLE.md`, add the Identity-delta note to
 `WORKER-ROLE.md`, wire `/corral-orchestrator`, and delete `/corral-worker`). Per the COR-T-012
 restructure (still pending), these files land at their current paths now and the restructure carries
-them to their final home.
+them to their final home. **Forward pointer (COR-T-053, 2026-06-24):** the COR-T-012 restructure is now done; the workspace moved to `ai-infrastructure/project-manager/`, so read "still pending" above as complete.
 
 ## Consequences
 

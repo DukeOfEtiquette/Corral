@@ -41,7 +41,7 @@ Eight tables constitute the v1 schema. All `id` columns are `bigserial` primary 
 
 ### users (minimal reference)
 
-Carries only the identity fields needed for FK integrity in this schema. The full auth schema (password hash, invite tokens, session management) is owned by ADR-011 (pending). See Consequences item 3.
+Carries only the identity fields needed for FK integrity in this schema. The full auth schema (password hash, invite tokens, session management) is owned by ADR-011 (pending). See Consequences item 3. **Forward pointer (COR-T-053, 2026-06-24):** ADR-011 has since been accepted (2026-06-08); read "ADR-011 (pending)" above as accepted. See `./ADR-011-auth-session-mechanism.md`.
 
 ```sql
 users (
@@ -74,7 +74,7 @@ issues (
 
 ### labels
 
-Label taxonomy, reserved families, and creation permissions are owned by ADR-018 (pending). This table defines only the storage shape.
+Label taxonomy, reserved families, and creation permissions are owned by ADR-018 (pending). This table defines only the storage shape. **Forward pointer (COR-T-053, 2026-06-24):** ADR-018 has since been accepted (2026-06-10); read "ADR-018 (pending)" above as accepted. See `./ADR-018-department-label-taxonomy.md`.
 
 ```sql
 labels (
@@ -153,7 +153,7 @@ issue_events (
 
 2. **ADR-008 import-mapping reconciliation.** The migration mapping in `./tasks/README.md` maps activity-log lines to issue comments. That mapping remains valid as written: imported activity-log lines are unstructured dated text and land in `issue_comments`. `issue_events` records structured, app-generated events going forward only and plays no role in the import path.
 
-3. **ADR-011 scope boundary.** ADR-012 defines only the minimal `users` table needed for FK integrity: `id` plus `display_name`. Auth fields (password hash, invite tokens, session management) are owned by ADR-011 (pending). The `assignee_id` FK on `issues` is the seam between this schema and ADR-011.
+3. **ADR-011 scope boundary.** ADR-012 defines only the minimal `users` table needed for FK integrity: `id` plus `display_name`. Auth fields (password hash, invite tokens, session management) are owned by ADR-011 (pending). The `assignee_id` FK on `issues` is the seam between this schema and ADR-011. **Forward pointer (COR-T-053, 2026-06-24):** ADR-011 has since been accepted (2026-06-08); read "ADR-011 (pending)" above as accepted. See `./ADR-011-auth-session-mechanism.md`.
 
 4. **ADR-017 view-shape alignment.** The `views` row carries no per-view column configuration, consistent with ADR-017's fixed-global-columns leaning. ADR-017 (pending) owns the final decision on whether columns are fixed globally or configurable per view; ADR-012 does not preempt that choice.
 
