@@ -2,11 +2,11 @@
 schema_version: 1
 id: COR-T-056
 title: "Implement ADR-044 api docs/OpenAPI endpoint gating (explicit URLs, env-gated off for remote)"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-22
-updated: 2026-06-22
+updated: 2026-06-24
 ---
 
 ## Description
@@ -38,3 +38,4 @@ References:
 ## Activity log
 
 - 2026-06-22: Created in backlog by the Project Manager Orchestrator at the ADR-044 acceptance close. Filed as the implementation follow-up that ADR-044 Consequence 1 anticipates. P2, standalone, web-app domain, unlabelled per ADR-031.
+- 2026-06-24: Picked up and implemented (at user direction, orchestrator-direct rather than the ADR-016 TDD two-phase dispatch). Added `settings.get_docs_enabled()` (defaults enabled; remote sets `API_DOCS_ENABLED=false`) and a `create_app()` factory in `app/api/main.py` passing `docs_url`/`redoc_url`/`openapi_url=None` when gated off; docs stay at root. New `app/api/tests/test_docs_gating.py` covers ADR-044 acceptance (a)-(d). Verified via `docker compose run --rm --build api-test` in worktree `cor-t-056-docs-gating`: 28 passed (6 new + 22 pre-existing, no regression). Deliverable committed 698bb05, integrated into master via `bin/git-integrate` as merge 572bf10. Surfaced a seed-worktree hook bug as COR-T-058. Done.
