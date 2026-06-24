@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-058
 title: "Fix seed-worktree hook: docker compose build runs before worktree files are checked out"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-24
@@ -48,3 +48,5 @@ References:
 ## Activity log
 
 - 2026-06-24: Created in backlog by the Project Manager Orchestrator. Filed from a live failure observed while picking up COR-T-056 (the seed hook's `docker compose build` ran against a not-yet-checked-out worktree). P2, standalone, AI-infrastructure domain, unlabelled per ADR-031.
+- 2026-06-24: Picked up; moved to in-progress. Verified the true root cause against the harness contract (`code.claude.com/docs/en/worktrees`): a `WorktreeCreate` hook REPLACES git's default worktree logic, so the hook itself must run `git worktree add` (the old script never did, leaving an unpopulated tree). Fix done directly on `master` per user direction (the worktree workflow itself is what is broken).
+- 2026-06-24: Done. Rewrote `bin/seed-worktree` to run `git worktree add <dir> -b <name> master` itself, then seed env/port/build/hooksPath as best-effort (warn, never abort), with stale-leftover cleanup so re-creation is never blocked (commit `f708917`, which also logged OBSERVATIONS COR-10). Verified by driving the hook via its documented stdin/stdout contract: happy path (worktree registered, files checked out, `.env`+`API_HOST_PORT` seeded, `core.hooksPath=.githooks`, branch off master HEAD, exit 0 with path on stdout); real `docker compose config` resolves in the worktree (the original "no configuration file provided" failure is gone); stale-leftover dir auto-cleaned and re-creation succeeds; a live registered worktree is never clobbered on same-name re-run (fails gracefully). All three acceptance criteria met. Not validated through a real `EnterWorktree` harness invocation (contract-level verification only).
