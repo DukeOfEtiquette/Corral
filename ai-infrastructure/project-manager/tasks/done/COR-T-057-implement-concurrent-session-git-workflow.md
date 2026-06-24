@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-057
 title: "Implement ADR-046 concurrent-session git workflow (worktrees, trunk-based, enforced flock merge lock)"
-status: backlog
+status: done
 labels: []
 priority: P2
 created: 2026-06-24
@@ -46,3 +46,5 @@ References:
 ## Activity log
 
 - 2026-06-24: Created in backlog at the ADR-046 acceptance close. Filed as the implementation follow-up that ADR-046 Decision item 11 anticipates. P2, standalone, AI-infrastructure domain, unlabelled per ADR-031.
+- 2026-06-24: Picked up; moved to in-progress. Decisions resolved with operator: wrapper at new top-level `bin/git-integrate`; seeding built concrete against the real `app/docker-compose.yml` stack (corrected from a stale "no app yet" premise); `app/docker-compose.yml` published port parameterized to `${API_HOST_PORT:-8123}:8123` to make per-worktree unique ports real; marker = env var the wrapper exports and the hooks check; lock file at `.claude/artifacts/tmp/merge.lock`; `.claude/worktrees/` to be gitignored. Routing through the dispatched-worker flow.
+- 2026-06-24: Done. Dispatched-worker flow executed: kickoff drafted/checked (3 iterations: W1 deferral framing on iter 2, R2 WorktreeCreate-literal pinning on iter 3, both cleared), prelaunch W1 PASS, executor RETURN: COMPLETED, close-checker W2 PASS, orchestrator re-derived all six acceptance tests (a-f) against disk with `master` left unmutated. All 7 deliverables shipped (GIT_WORKFLOW.md, bin/git-integrate, bin/seed-worktree, .githooks/pre-merge-commit, .githooks/pre-commit, .claude/settings.json, app/docker-compose.yml port, CLAUDE.md, .gitignore). Accepted one executor deviation: seeding copies (not symlinks) app/.env per worktree, reconciling the kickoff's mutually-incompatible symlink-plus-write-port pins, ADR-006-safe (worktree app/.env is gitignored). Operator added the defensive `mkdir -p` guard request and ran the main-checkout `git config core.hooksPath .githooks` bootstrap. Deliverable + kickoff/report pair committed in 70fc7de (ADR-024).
