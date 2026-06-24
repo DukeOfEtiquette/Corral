@@ -34,65 +34,96 @@ async def lifespan(application: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
-
-
 class LoginRequest(BaseModel):
     email: str
     password: str
 
 
-@app.post("/api/v1/auth/login")
-def login(body: LoginRequest, response: Response):
-    """Verify credentials, create a session row, set the session cookie."""
-    user = get_user_by_email(body.email)
-    if user is None:
-        return JSONResponse(status_code=401, content={"detail": "Invalid credentials"})
+def create_app() -> FastAPI:
+    """Construct the FastAPI application.
 
-    if not verify_password(body.password, user["password_hash"]):
-        return JSONResponse(status_code=401, content={"detail": "Invalid credentials"})
+    The three documentation endpoints (/docs Swagger UI, /redoc ReDoc,
+    /openapi.json schema) are gated by settings.get_docs_enabled() (ADR-044):
+    served at the root in local/dev (the default), and fully disabled in remote
+    deployment (all three off via docs_url=None / redoc_url=None /
+    openapi_url=None). The gate is read here at construction time, mirroring how
+    the other settings accessors are read at the point of use.
+    """
+    if settings.get_docs_enabled():
+        application = FastAPI(lifespan=lifespan)
+    else:
+        application = FastAPI(
+            lifespan=lifespan,
+            docs_url=None,
+            redoc_url=None,
+            openapi_url=None,
+        )
 
-    raw_session_id = create_session(user["id"])
+    @application.post("/api/v1/auth/login")
+    def login(body: LoginRequest, response: Response):
+        """Verify credentials, create a session row, set the session cookie."""
+        user = get_user_by_email(body.email)
+        if user is None:
+            return JSONResponse(
+                status_code=401, content={"detail": "Invalid credentials"}
+            )
 
-    cookie_name = settings.get_cookie_name()
-    cookie_secure = settings.get_cookie_secure()
+        if not verify_password(body.password, user["password_hash"]):
+            return JSONResponse(
+                status_code=401, content={"detail": "Invalid credentials"}
+            )
 
-    response.set_cookie(
-        key=cookie_name,
-        value=raw_session_id,
-        httponly=True,
-        samesite="lax",
-        secure=cookie_secure,
-    )
-    return {"ok": True}
+        raw_session_id = create_session(user["id"])
+
+        cookie_name = settings.get_cookie_name()
+        cookie_secure = settings.get_cookie_secure()
+
+        response.set_cookie(
+            key=cookie_name,
+            value=raw_session_id,
+            httponly=True,
+            samesite="lax",
+            secure=cookie_secure,
+        )
+        return {"ok": True}
+
+    @application.post("/api/v1/auth/logout")
+    def logout(request: Request, response: Response):
+        """Delete the session row and return 200."""
+        cookie_name = settings.get_cookie_name()
+        raw_cookie = request.cookies.get(cookie_name)
+        if raw_cookie:
+            delete_session(raw_cookie)
+        return {"ok": True}
+
+    @application.get("/healthz")
+    def healthz():
+        """Liveness probe: 200 with {"status": "ok"}, no auth, no DB access."""
+        return {"status": "ok"}
+
+    @application.get("/api/v1/me")
+    def me(request: Request):
+        """Return the authenticated user's identity, or 401."""
+        cookie_name = settings.get_cookie_name()
+        raw_cookie = request.cookies.get(cookie_name)
+        if not raw_cookie:
+            return JSONResponse(
+                status_code=401, content={"detail": "Not authenticated"}
+            )
+
+        user = lookup_session(raw_cookie)
+        if user is None:
+            return JSONResponse(
+                status_code=401, content={"detail": "Not authenticated"}
+            )
+
+        return {
+            "id": user["id"],
+            "email": user["email"],
+            "display_name": user["display_name"],
+        }
+
+    return application
 
 
-@app.post("/api/v1/auth/logout")
-def logout(request: Request, response: Response):
-    """Delete the session row and return 200."""
-    cookie_name = settings.get_cookie_name()
-    raw_cookie = request.cookies.get(cookie_name)
-    if raw_cookie:
-        delete_session(raw_cookie)
-    return {"ok": True}
-
-
-@app.get("/healthz")
-def healthz():
-    """Liveness probe: returns 200 with {"status": "ok"}, no auth, no DB access."""
-    return {"status": "ok"}
-
-
-@app.get("/api/v1/me")
-def me(request: Request):
-    """Return the authenticated user's identity, or 401."""
-    cookie_name = settings.get_cookie_name()
-    raw_cookie = request.cookies.get(cookie_name)
-    if not raw_cookie:
-        return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
-
-    user = lookup_session(raw_cookie)
-    if user is None:
-        return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
-
-    return {"id": user["id"], "email": user["email"], "display_name": user["display_name"]}
+app = create_app()

@@ -38,3 +38,13 @@ def get_session_lifetime_seconds() -> int:
 
 def get_cookie_secure() -> bool:
     return os.environ.get("SESSION_COOKIE_SECURE", "false").lower() == "true"
+
+
+def get_docs_enabled() -> bool:
+    """Whether the FastAPI documentation endpoints (/docs, /redoc, /openapi.json)
+    are served (ADR-044). Defaults to enabled so local/dev keeps docs on with no
+    .env change; remote deployment sets API_DOCS_ENABLED=false to disable all
+    three together. Only an explicit "false" disables; any other value (including
+    unset) leaves docs enabled.
+    """
+    return os.environ.get("API_DOCS_ENABLED", "true").lower() != "false"
