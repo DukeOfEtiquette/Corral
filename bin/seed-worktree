@@ -1,17 +1,34 @@
 #!/usr/bin/env bash
-# bin/seed-worktree - Seeds a freshly created worktree.
+# bin/seed-worktree - Creates and seeds a worktree for the WorktreeCreate hook.
 #
-# Called by the WorktreeCreate hook in .claude/settings.json.
-# Reads the worktree name from stdin (JSON with a .name field).
-# Outputs the seeded worktree directory path to stdout.
-# Diagnostics go to stderr.
+# Wired as the WorktreeCreate hook in .claude/settings.json. Per the Claude Code
+# worktree contract (https://code.claude.com/docs/en/worktrees), a WorktreeCreate
+# hook REPLACES git's default `git worktree` logic entirely: the hook itself must
+# create AND populate the worktree, then print its directory path to stdout for
+# Claude Code to use as the session working directory. A non-zero exit aborts
+# worktree creation. (The original COR-T-057 script assumed the harness had
+# already populated the tree and only seeded into it; it never ran
+# `git worktree add`, so tracked files were absent and the compose build aborted
+# creation. COR-T-058 corrects this.)
+#
+# I/O contract:
+#   stdin : JSON with a .name field (the worktree slug).
+#   stdout: the worktree directory path (printed only on success).
+#   stderr: all diagnostics.
+#   exit  : 0 on success. Only `git worktree add` is fatal; the seeding
+#           convenience steps degrade to a warning and never gate creation.
 #
 # Performs:
-#   1. Seeds the worktree's app/.env from the main checkout's app/.env
-#      (copied so per-worktree additions do not pollute the source; skip if absent).
-#   2. Assigns a distinct API_HOST_PORT and appends it to the worktree's app/.env.
-#   3. Runs docker compose build in the worktree.
-#   4. Sets git config core.hooksPath .githooks in the worktree.
+#   1. git worktree add: create the worktree on a new branch off local master
+#      HEAD (per GIT_WORKFLOW.md) and check out tracked files, so the populated
+#      app/ (including app/docker-compose.yml) is present for the steps below.
+#   2. Seed the worktree's app/.env from the main checkout's app/.env (copied so
+#      per-worktree additions do not pollute the source; skip if absent).
+#      .worktreeinclude is NOT processed when a WorktreeCreate hook is configured,
+#      so the copy is performed here.
+#   3. Assign a distinct API_HOST_PORT and append it to the worktree's app/.env.
+#   4. Run docker compose build in the worktree (best-effort; never fatal).
+#   5. Set git config core.hooksPath .githooks in the worktree (enforcement hooks).
 #
 # Environment provided by the harness:
 #   CLAUDE_PROJECT_DIR - the main checkout root.
@@ -22,49 +39,96 @@ set -euo pipefail
 INPUT="$(cat)"
 WORKTREE_NAME="$(echo "$INPUT" | jq -r .name)"
 
+if [[ -z "$WORKTREE_NAME" || "$WORKTREE_NAME" == "null" ]]; then
+  echo "ERROR: WorktreeCreate hook received no .name on stdin." >&2
+  exit 1
+fi
+
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
 WORKTREE_DIR="$PROJECT_DIR/.claude/worktrees/$WORKTREE_NAME"
+BRANCH="$WORKTREE_NAME"
 MAIN_ENV="$PROJECT_DIR/app/.env"
 WORKTREE_ENV="$WORKTREE_DIR/app/.env"
 
 echo "Seeding worktree: $WORKTREE_DIR" >&2
 
-# Defensive: ensure the worktree's app/ directory exists before seeding env into it.
-# The harness creates the worktree dir before this hook runs, and app/ is tracked so
-# it is normally present; this guard hardens against either being absent.
-mkdir -p "$WORKTREE_DIR/app"
+# --- Step 1: create and populate the worktree (the only fatal step) ----------
+# The hook owns worktree creation (it replaces git's default logic), so we run
+# `git worktree add` ourselves. Branch from local master HEAD per GIT_WORKFLOW.md.
 
-# 1. Seed app/.env from the main checkout (copy so per-worktree additions are isolated).
-#    Secrets never leave gitignored .env files (ADR-006).
+# Drop dangling worktree admin entries for directories that no longer exist
+# (safe: prune only affects already-missing working dirs).
+git -C "$PROJECT_DIR" worktree prune
+
+# A leftover directory from a prior failed seed (no .git inside) would block
+# `git worktree add`. Remove it so re-creation of the same name is not blocked.
+# A live registered worktree always has a .git file, so this never touches one.
+if [[ -e "$WORKTREE_DIR" && ! -e "$WORKTREE_DIR/.git" ]]; then
+  echo "  Removing stale (non-worktree) leftover at $WORKTREE_DIR." >&2
+  rm -rf "$WORKTREE_DIR"
+fi
+
+if ! git -C "$PROJECT_DIR" worktree add "$WORKTREE_DIR" -b "$BRANCH" master >&2; then
+  echo "ERROR: git worktree add failed for $WORKTREE_DIR (branch '$BRANCH')." >&2
+  # Clean up any partial, non-worktree directory so a retry of the same name is
+  # not blocked, then drop the matching dangling admin entry.
+  if [[ -e "$WORKTREE_DIR" && ! -e "$WORKTREE_DIR/.git" ]]; then
+    rm -rf "$WORKTREE_DIR"
+  fi
+  git -C "$PROJECT_DIR" worktree prune
+  exit 1
+fi
+echo "  Created worktree on branch '$BRANCH' from master HEAD." >&2
+
+# --- Seeding steps below are best-effort: a failure warns but never aborts ----
+# worktree creation. set -e stays on, so each fallible step is guarded.
+
+# Step 2: seed app/.env from the main checkout (copy so additions are isolated).
+# Secrets never leave gitignored .env files (ADR-006).
 if [[ -e "$MAIN_ENV" ]]; then
-  if [[ ! -e "$WORKTREE_ENV" ]]; then
-    cp "$MAIN_ENV" "$WORKTREE_ENV"
+  if cp "$MAIN_ENV" "$WORKTREE_ENV"; then
     echo "  Seeded $WORKTREE_ENV from $MAIN_ENV" >&2
   else
-    echo "  $WORKTREE_ENV already exists, skipping seed." >&2
+    echo "  WARN: failed to seed $WORKTREE_ENV from $MAIN_ENV." >&2
   fi
 else
   echo "  NOTE: $MAIN_ENV not found; skipping .env seed." >&2
   echo "  Set up app/.env in the main checkout before running compose services." >&2
 fi
 
-# 2. Assign a distinct API_HOST_PORT based on the worktree name.
-# Hash the name to an offset in the range 8200-8299 to avoid colliding with
-# the default 8123 and with other worktrees.
-HASH="$(echo -n "$WORKTREE_NAME" | cksum | awk '{print $1}')"
-API_HOST_PORT="$((8200 + HASH % 100))"
+# Step 3: assign a distinct API_HOST_PORT based on the worktree name.
+# Hash the name to an offset in 8200-8299 to avoid colliding with the default
+# 8123 and with other worktrees. Append only if the worktree .env exists.
+if [[ -e "$WORKTREE_ENV" ]]; then
+  HASH="$(echo -n "$WORKTREE_NAME" | cksum | awk '{print $1}')"
+  API_HOST_PORT="$((8200 + HASH % 100))"
+  echo "API_HOST_PORT=$API_HOST_PORT" >> "$WORKTREE_ENV"
+  echo "  API_HOST_PORT=$API_HOST_PORT appended to $WORKTREE_ENV" >&2
+else
+  echo "  NOTE: $WORKTREE_ENV absent; skipping API_HOST_PORT assignment." >&2
+fi
 
-# Append API_HOST_PORT to the worktree's app/.env.
-echo "API_HOST_PORT=$API_HOST_PORT" >> "$WORKTREE_ENV"
-echo "  API_HOST_PORT=$API_HOST_PORT appended to $WORKTREE_ENV" >&2
+# Step 4: build the compose stack (best-effort). A missing or unbuildable compose
+# config degrades to a warning and never gates worktree creation.
+if [[ -f "$WORKTREE_DIR/app/docker-compose.yml" ]]; then
+  echo "  Running docker compose build..." >&2
+  if ( cd "$WORKTREE_DIR/app" && docker compose build ) >&2; then
+    echo "  docker compose build complete." >&2
+  else
+    echo "  WARN: docker compose build failed; the worktree was still created." >&2
+    echo "        Build on demand: (cd '$WORKTREE_DIR/app' && docker compose build)" >&2
+  fi
+else
+  echo "  NOTE: $WORKTREE_DIR/app/docker-compose.yml not found; skipping compose build." >&2
+fi
 
-# 3. Run docker compose build in the worktree.
-echo "  Running docker compose build..." >&2
-(cd "$WORKTREE_DIR/app" && docker compose build) >&2
-
-# 4. Set git config core.hooksPath in the worktree.
-(cd "$WORKTREE_DIR" && git config core.hooksPath .githooks)
-echo "  core.hooksPath set to .githooks in $WORKTREE_DIR" >&2
+# Step 5: point git at the enforcement hooks (.githooks) inside the worktree.
+if ( cd "$WORKTREE_DIR" && git config core.hooksPath .githooks ); then
+  echo "  core.hooksPath set to .githooks in $WORKTREE_DIR" >&2
+else
+  echo "  WARN: failed to set core.hooksPath in $WORKTREE_DIR;" >&2
+  echo "        set it manually: (cd '$WORKTREE_DIR' && git config core.hooksPath .githooks)" >&2
+fi
 
 echo "Seeding complete." >&2
 
