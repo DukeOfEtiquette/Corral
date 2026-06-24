@@ -44,7 +44,7 @@ Every commit subject leads with the task or ADR ID it advances (e.g. `COR-T-047:
 
 ### Git workflow
 
-Concurrent Claude sessions operate under a worktree-per-session workflow described in `./GIT_WORKFLOW.md`. Read that file before making any edit. Research happens in the main checkout; switch to a worktree before the first change; test via compose in the worktree; integrate via `bin/git-integrate`. Un-wrapped merges into `master` are refused by the hooks in `.githooks/`.
+This repo uses a mandatory worktree-per-session workflow (`./GIT_WORKFLOW.md`). It applies to every session, not only when sessions run concurrently. **Hard gate: the first file modification of any task MUST happen inside a dedicated worktree, never in the main checkout on `master`.** There is no exception for small, single-file, documentation, ADR, or coordination-surface edits, or for anything that feels "too minor to branch"; if it writes to a tracked file, it goes in a worktree. Only read-only research (reading files, `git log`, surveying state) happens in the main checkout. The instant a task turns into a change, switch to a worktree first (via `EnterWorktree`, branched from local `master` HEAD), then make every edit, commit, and compose test there, and integrate with `bin/git-integrate` from the main checkout. Un-wrapped merges into `master` are refused by the hooks in `.githooks/`. Read `./GIT_WORKFLOW.md` for the full flow before your first integration.
 
 ## Workspace orientation
 
