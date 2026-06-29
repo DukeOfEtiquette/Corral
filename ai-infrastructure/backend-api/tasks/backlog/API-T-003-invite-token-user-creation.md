@@ -41,7 +41,7 @@ References:
 - `ai-infrastructure/project-manager/decisions/ADR-016-testing-strategy-test-designer-agent.md` (TDD two-phase flow)
 - `ai-infrastructure/project-manager/decisions/ADR-003-docker-compose-runtime.md` (compose-only run path)
 - `ai-infrastructure/project-manager/docs/architecture/OVERVIEW.md` (target runtime shape: invites on the api service)
-- `ai-infrastructure/backend-api/tasks/backlog/API-T-002-auth-sessions-admin-bootstrap.md` (the auth/admin foundation this builds on), `app/db/` (schema layer), `app/docker-compose.yml`
+- `ai-infrastructure/backend-api/tasks/done/API-T-002-auth-sessions-admin-bootstrap.md` (the auth/admin foundation this builds on, now done), `app/db/` (schema layer), `app/docker-compose.yml`
 
 ## Activity log
 
