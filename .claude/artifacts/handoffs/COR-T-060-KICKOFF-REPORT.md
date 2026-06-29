@@ -2,6 +2,7 @@
 
 Kickoff: `.claude/artifacts/handoffs/COR-T-060-KICKOFF.md`
 Worktree/branch: `cor-t-060-impl` (stacked on `cor-t-059-impl`)
+Commit: `d517ed5`
 Attempt: 1
 
 ## Deliverables completed
@@ -41,11 +42,11 @@ One observation: the `COR-T-059-KICKOFF.md` and `COR-T-059-KICKOFF-REPORT.md` fi
 
 ## Files touched
 
-- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/docs/ai-orchestration/roles/EXECUTOR-ROLE.md` (3 edits, committed on branch `cor-t-060-impl`)
-- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` (2 edits, committed on branch `cor-t-060-impl`)
-- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/GIT_WORKFLOW.md` (1 edit, committed on branch `cor-t-060-impl`)
-- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/CLAUDE.md` (1 edit, committed on branch `cor-t-060-impl`)
-- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/.claude/artifacts/handoffs/COR-T-060-KICKOFF-REPORT.md` (this file, dual-channel report write, committed on branch `cor-t-060-impl`)
+- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/docs/ai-orchestration/roles/EXECUTOR-ROLE.md` (3 edits, committed at `d517ed5` on branch `cor-t-060-impl`)
+- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/docs/ai-orchestration/roles/ORCHESTRATOR-ROLE.md` (2 edits, committed at `d517ed5`)
+- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/GIT_WORKFLOW.md` (1 edit, committed at `d517ed5`)
+- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/CLAUDE.md` (1 edit, committed at `d517ed5`)
+- `/home/adam/src/corral/.claude/worktrees/cor-t-060-impl/.claude/artifacts/handoffs/COR-T-060-KICKOFF-REPORT.md` (this file, dual-channel report write, committed at `d517ed5`; hash-fixup commit follows)
 
 ## Build / verification status
 
@@ -58,4 +59,4 @@ Cross-file consistency verified:
 - **Hard gate stays unconditional**: CLAUDE.md "Git workflow" section retains "MUST happen inside a dedicated worktree, never in the main checkout on `master`" and all "no exception" language. GIT_WORKFLOW.md step 2 keeps "same gate" for both paths. No exception added to either file.
 - **COR-T-059 content in GIT_WORKFLOW.md unchanged**: Step 6 (`ExitWorktree {action: "keep"}` with `remove` caution) and step 9 (exact teardown commands with `remove` caution) are verbatim from the base branch. Only step 2 was modified.
 - **No em dashes in any of the four edited files**: grep -P check returned no matches.
-- Branch: `cor-t-060-impl`; commit hash: (see commit below)
+- Branch: `cor-t-060-impl`; primary commit: `d517ed5`
