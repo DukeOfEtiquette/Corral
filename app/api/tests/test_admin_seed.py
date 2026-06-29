@@ -135,3 +135,46 @@ def test_reseed_does_not_overwrite_existing_admin(admin_env, cur):
 
     assert len(rows) == 1
     assert rows[0][0] == first_id, "reseed must not replace the existing admin row"
+
+
+def test_seed_raises_when_admin_email_unset(monkeypatch):
+    """Fail-fast (ADR-006, COR-09): with ADMIN_EMAIL unset, seed_admin() raises a
+    clear RuntimeError naming the missing variable, BEFORE any DB connect. This is
+    the boot guard the FastAPI lifespan relies on to refuse to start without creds.
+
+    Deliberately does NOT use the `admin_env` fixture: that fixture sets the env,
+    which would defeat the missing-cred path. Both admin vars are removed so the
+    very first check (ADMIN_EMAIL) is the one that fires. No live DB is needed:
+    seed_admin() reads the creds before it calls get_database_url() or connects.
+    """
+    monkeypatch.delenv("ADMIN_EMAIL", raising=False)
+    monkeypatch.delenv("ADMIN_PASSWORD_HASH", raising=False)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        seed_admin()
+
+    assert "ADMIN_EMAIL" in str(excinfo.value), (
+        "the fail-fast error must name the missing ADMIN_EMAIL variable"
+    )
+
+
+def test_seed_raises_when_admin_password_hash_unset(monkeypatch):
+    """Fail-fast (ADR-006, COR-09): with ADMIN_EMAIL present but
+    ADMIN_PASSWORD_HASH unset, seed_admin() raises a clear RuntimeError naming the
+    missing hash variable, BEFORE any DB connect. Pins the second-check guard
+    (email supplied, hash missing).
+
+    Sets a throwaway ADMIN_EMAIL (never a real credential; ADR-006 / repo secret
+    rule) so the email check passes and the hash check is the one that fires. Does
+    NOT use the `admin_env` fixture, which would set the hash too. No live DB is
+    needed: the cred check runs before any connection.
+    """
+    monkeypatch.setenv("ADMIN_EMAIL", ADMIN_EMAIL)
+    monkeypatch.delenv("ADMIN_PASSWORD_HASH", raising=False)
+
+    with pytest.raises(RuntimeError) as excinfo:
+        seed_admin()
+
+    assert "ADMIN_PASSWORD_HASH" in str(excinfo.value), (
+        "the fail-fast error must name the missing ADMIN_PASSWORD_HASH variable"
+    )

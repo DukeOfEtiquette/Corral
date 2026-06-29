@@ -13,6 +13,16 @@
 # Each flag updates only its own key in app/.env and leaves the other untouched.
 # `docker compose -f app/docker-compose.yml up api` reads app/.env directly.
 # After the update, warns if either ADMIN_EMAIL or ADMIN_PASSWORD_HASH is unset.
+#
+# app/.env.example is the tracked template for app/.env; copy it and fill in
+# ADMIN_EMAIL and ADMIN_PASSWORD_HASH before first use.
+#
+# Reseed gotcha: seed_admin() in app/api/admin_seed.py is idempotent -- it seeds
+# the admin only if no users row with ADMIN_EMAIL already exists. Re-running this
+# script with a new password and restarting the api does NOT update an already-seeded
+# admin. To re-seed (e.g. to rotate the password), do a full volume reset first:
+#   docker compose -f app/docker-compose.yml down -v
+# then bring the stack back up and seed_admin() will seed with the new credentials.
 
 set -euo pipefail
 
