@@ -2,11 +2,11 @@
 schema_version: 1
 id: API-T-006
 title: "api devex hardening: .env.example placement, missing-admin-creds fail-fast test, gen-admin-hash.sh helper"
-status: backlog
+status: in-progress
 labels: []
 priority: P3
 created: 2026-06-15
-updated: 2026-06-15
+updated: 2026-06-29
 ---
 
 ## Description
@@ -30,3 +30,4 @@ References:
 ## Activity log
 
 - 2026-06-15: Created in backlog by the Backend API Orchestrator. Surfaced bringing API-T-002 up locally: the `.env.example` placement mismatch, the uncovered missing-`ADMIN_EMAIL` fail-fast path (COR-09), and the `gen-admin-hash.sh` one-off helper needing proper ownership. Standalone, P3. The helper is committed under this task as an orchestrator-direct one-off ($$-escaped, docker-based hashing); this task tracks its formalization. Item 2 (the fail-fast test) routes through a test-designer dispatch (ADR-016). Unlabelled per ADR-031.
+- 2026-06-29: Picked up by the Backend API Orchestrator; moved to in-progress in worktree `api-t-006-devex-hardening`. Decisions pinned with the user: (1) item 1 produces a SINGLE tracked `app/.env.example` at the compose project dir documenting every var the stack drives today (required: ADMIN_EMAIL, ADMIN_PASSWORD_HASH; optional w/ defaults: DATABASE_URL, API_HOST_PORT, API_DOCS_ENABLED, SESSION_COOKIE_NAME, SESSION_LIFETIME_SECONDS, SESSION_COOKIE_SECURE), deleting the scattered `app/api/.env.example` and `app/db/.env.example`; the unwired vars (API_DOCS_ENABLED, SESSION_*) get `${VAR:-default}` passthrough on the compose `api` service so `app/.env` genuinely drives them. Verified: nothing consumes any `.env.example` (no `env_file:` in compose; the only references are `.dockerignore` exclusions). (2) item 3: NO shell smoke test for `gen-admin-hash.sh`; document the reseed gotcha in the helper header (no new README, per the global docs-placement rule). Cross-dept follow-up to file: unify DATABASE_URL/postgres creds across the `migrate`/`test`/`postgres` compose services from `app/.env` (database department). Routing: items 1+3 via one `executor` dispatch; item 2 via one `test-designer` dispatch (ADR-016).
