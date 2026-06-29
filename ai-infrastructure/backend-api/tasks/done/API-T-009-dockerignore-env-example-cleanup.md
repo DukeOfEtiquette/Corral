@@ -2,7 +2,7 @@
 schema_version: 1
 id: API-T-009
 title: "remove now-moot .env.example exclusion lines from app/api/.dockerignore and app/db/.dockerignore"
-status: in-progress
+status: done
 labels: []
 priority: P3
 created: 2026-06-29
@@ -26,3 +26,4 @@ References:
 
 - 2026-06-29: Filed in backlog by the Backend API Orchestrator as a triaged follow-up from API-T-006 (item 1, the .env.example consolidation). The two `.dockerignore` files retain `.env.example` exclusion lines that are now no-ops. Standalone, P3, unlabelled per ADR-031.
 - 2026-06-29: Picked up and executed orchestrator-direct (not dispatched) at the user's explicit request, given the trivial inert-config scope; worktree `api-t-009-dockerignore-cleanup`. Removed the `.env.example` line from `app/api/.dockerignore` and `app/db/.dockerignore`.
+- 2026-06-29: Resolved and moved to done. Both `.dockerignore` edits committed in 8c7303c; verified inert (`docker compose -f app/docker-compose.yml build api migrate` both succeed, covering the `./api` and `./db` build contexts). This done-move follows in the next commit.
