@@ -6,7 +6,10 @@ This file describes the operational flow for working on this repo across concurr
 
 1. **Research in the main checkout.** Start any task in the main worktree. Research (reading files, running git log, surveying state) mutates nothing and requires no worktree.
 
-2. **Switch to a fresh worktree before the first edit.** The moment a task turns into a change, switch into a dedicated worktree before writing any file. The harness creates and seeds the worktree automatically via the `WorktreeCreate` hook in `.claude/settings.json`. Worktrees live under `.claude/worktrees/<name>/`.
+2. **Switch to a fresh worktree before the first edit.** The moment a task turns into a change, switch into a dedicated worktree before writing any file. Worktrees live under `.claude/worktrees/<name>/`. Two paths, same gate:
+
+   - **Interactive sessions** (human-facing Orchestrator, `/project-manager-orchestrator`, etc.): the harness creates and seeds the worktree automatically via the `WorktreeCreate` hook in `.claude/settings.json`. Use `EnterWorktree` to create and enter the worktree, and `ExitWorktree {action: "keep"}` before integrating (step 6).
+   - **Dispatched executor subagents** (`executor`, `test-designer`): the harness `EnterWorktree` / `ExitWorktree` tools are refused in a subagent context. Create the worktree with the equivalent plain git commands: `git worktree add <abs-path>/.claude/worktrees/<branch> -b <branch> <base>`, make all edits via absolute paths inside it, commit on the feature branch, and leave the worktree on disk for the Orchestrator to integrate. See `docs/ai-orchestration/roles/EXECUTOR-ROLE.md`, section "Worktree handling (dispatched executor)".
 
 3. **Branch from local `master` HEAD.** New worktrees branch from local `master` HEAD (not `origin/master`) because local `master` may lead `origin` and the work is local-first.
 
