@@ -77,7 +77,7 @@ where `<base>` is the branch to stack on (usually `master`; the kickoff names th
 
 **Commit on the feature branch** inside the worktree. See the "Commit on the feature branch" bullet under "Universal conventions" above.
 
-**Leave the worktree on disk** when done. Do not call `ExitWorktree` (refused) and do not run `bin/git-integrate`. The Orchestrator handles integration from the main checkout.
+**Leave the worktree on disk** when done. Do not call `ExitWorktree` (refused) and do not run `bin/git-integrate`. The Orchestrator handles integration from the main checkout, and adds the resolve-gate commit (the kickoff plus the task-tree move) onto your feature branch before that single integrate, so your worktree carries the whole task through one merge (ADR-047). Leave it intact; do not remove it.
 
 For the full interactive-session path (using `EnterWorktree` / `ExitWorktree`), see `./GIT_WORKFLOW.md`.
 

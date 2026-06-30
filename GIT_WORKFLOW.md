@@ -9,7 +9,7 @@ This file describes the operational flow for working on this repo across concurr
 2. **Switch to a fresh worktree before the first edit.** The moment a task turns into a change, switch into a dedicated worktree before writing any file. Worktrees live under `.claude/worktrees/<name>/`. Two paths, same gate:
 
    - **Interactive sessions** (human-facing Orchestrator, `/project-manager-orchestrator`, etc.): the harness creates and seeds the worktree automatically via the `WorktreeCreate` hook in `.claude/settings.json`. Use `EnterWorktree` to create and enter the worktree, and `ExitWorktree {action: "keep"}` before integrating (step 6).
-   - **Dispatched executor subagents** (`executor`, `test-designer`): the harness `EnterWorktree` / `ExitWorktree` tools are refused in a subagent context. Create the worktree with the equivalent plain git commands: `git worktree add <abs-path>/.claude/worktrees/<branch> -b <branch> <base>`, make all edits via absolute paths inside it, commit on the feature branch, and leave the worktree on disk for the Orchestrator to integrate. See `docs/ai-orchestration/roles/EXECUTOR-ROLE.md`, section "Worktree handling (dispatched executor)".
+   - **Dispatched executor subagents** (`executor`, `test-designer`): the harness `EnterWorktree` / `ExitWorktree` tools are refused in a subagent context. Create the worktree with the equivalent plain git commands: `git worktree add <abs-path>/.claude/worktrees/<branch> -b <branch> <base>`, make all edits via absolute paths inside it, commit on the feature branch, and leave the worktree on disk for the Orchestrator to integrate. The Orchestrator then adds the resolve-gate commit (the kickoff plus the in-progress-to-done task move) onto this same feature branch before a single `bin/git-integrate`, so each task is one worktree and one merge (ADR-047). See `docs/ai-orchestration/roles/EXECUTOR-ROLE.md`, section "Worktree handling (dispatched executor)".
 
 3. **Branch from local `master` HEAD.** New worktrees branch from local `master` HEAD (not `origin/master`) because local `master` may lead `origin` and the work is local-first.
 
@@ -46,4 +46,4 @@ The merge lock lives at `.claude/artifacts/tmp/merge.lock` (gitignored scratch).
 
 ---
 
-See `ai-infrastructure/project-manager/decisions/ADR-046-concurrent-session-git-workflow-worktrees-enforced-merge-lock.md` for rationale, alternatives, and upgrade paths.
+See `ai-infrastructure/project-manager/decisions/ADR-046-concurrent-session-git-workflow-worktrees-enforced-merge-lock.md` for rationale, alternatives, and upgrade paths, and `ai-infrastructure/project-manager/decisions/ADR-047-single-worktree-task-resolve.md` for the single-worktree resolve-gate amendment (the resolve commit lands on the deliverable branch; one worktree, one merge per task).
