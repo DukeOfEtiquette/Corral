@@ -121,9 +121,10 @@ The Orchestrator passes these via the Task-tool dispatch prompt. The executor pa
 
 ### Phase 3: Execute the kickoff
 
-1. Make the changes the kickoff specifies, in order, against the in-scope files it names, per `EXECUTOR-ROLE.md` section "Execute the plan". Advance one step at a time; verify intermediate state.
-2. On `attempt_number > 1`: treat `escalation_answer` as a pinned decision (authoritative, like a kickoff decision); treat `prior_progress_summary` as already done (do NOT re-execute it); continue from the resume point.
-3. At each step, watch for an `EXECUTOR-ROLE.md` failure mode. If one fires and the work cannot proceed correctly without a decision you must not make, go to Phase 4 (escalate). Otherwise continue to Phase 5 (complete).
+1. Before the first file edit, create your worktree per the `./CLAUDE.md` worktree-first hard gate. As a dispatched subagent you cannot use the harness `EnterWorktree` / `ExitWorktree` tools (refused in a subagent context): create it with `git worktree add`, edit via absolute paths inside it, commit on the feature branch, and leave it on disk for the Orchestrator to integrate. Full procedure: `EXECUTOR-ROLE.md` section "Worktree handling (dispatched executor)".
+2. Make the changes the kickoff specifies, in order, against the in-scope files it names, per `EXECUTOR-ROLE.md` section "Execute the plan". Advance one step at a time; verify intermediate state.
+3. On `attempt_number > 1`: treat `escalation_answer` as a pinned decision (authoritative, like a kickoff decision); treat `prior_progress_summary` as already done (do NOT re-execute it); continue from the resume point.
+4. At each step, watch for an `EXECUTOR-ROLE.md` failure mode. If one fires and the work cannot proceed correctly without a decision you must not make, go to Phase 4 (escalate). Otherwise continue to Phase 5 (complete).
 
 ### Phase 4: Escalation return (when a failure mode blocks correct execution)
 
