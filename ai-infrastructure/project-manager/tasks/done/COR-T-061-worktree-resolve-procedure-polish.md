@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-061
 title: "Worktree-workflow doc polish: resolve-gate move-not-copy + dispatched-executor cross-references"
-status: in-progress
+status: done
 labels: []
 priority: P3
 created: 2026-06-30
@@ -28,3 +28,4 @@ Out of scope: any change to the merge-lock, hooks, `bin/git-integrate`, or the s
 ## Activity log
 
 - 2026-06-30: Created and picked up (in-progress) by the project-manager orchestrator, handled orchestrator-direct by user direction (do it myself, not dispatched). Two doc-polish follow-ons from the COR-T-059/060 landing: the resolve-gate copy-vs-move abort (caught live during this session's resolve) and the missing dispatched-executor cross-references in the executor agent file and spec (COR-T-060 report Follow-up). P3: pure doc polish, non-blocking. Standalone (no epic), worktree-workflow family (COR-T-057/058/059/060).
+- 2026-06-30: Done. Orchestrator-direct (no dispatch, no kickoff/report pair) per user direction. Deliverable committed `887ff9b`: `ORCHESTRATOR-ROLE.md` Gap-2b note reworded to move (`mv`, not copy) with the integrate-abort failure mode named; `.claude/agents/executor.md` core-principle pointer added; `.claude/agents/specs/EXECUTOR-AGENT-SPEC.md` Phase 3 step added (renumbered 1-4), both cross-referencing `EXECUTOR-ROLE.md` "Worktree handling (dispatched executor)". Verified: no em dashes, cross-ref target section resolves, Phase 3 numbering clean. The move-not-copy lesson came from the COR-T-059/060 resolve, which had to hand-remove the leftover untracked copies before the merge would proceed.
