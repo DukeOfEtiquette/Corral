@@ -30,9 +30,6 @@ fails at collection. That is the intended phase-1 state.
 """
 
 import pytest
-from argon2 import PasswordHasher
-
-from app.api.admin_seed import seed_admin
 
 ME_URL = "/api/v1/me"
 LOGIN_URL = "/api/v1/auth/login"
@@ -41,19 +38,9 @@ LOGOUT_URL = "/api/v1/auth/logout"
 ADMIN_EMAIL = "session-admin@example.test"
 ADMIN_PASSWORD = "session-throwaway-password"  # throwaway test password
 
-
-@pytest.fixture()
-def seeded_admin(monkeypatch, cur):
-    """Seed an admin with a known throwaway password (in-harness argon2id hash,
-    never a real credential, ADR-006). Returns (email, password, user_id).
-    """
-    password_hash = PasswordHasher().hash(ADMIN_PASSWORD)
-    monkeypatch.setenv("ADMIN_EMAIL", ADMIN_EMAIL)
-    monkeypatch.setenv("ADMIN_PASSWORD_HASH", password_hash)
-    seed_admin()
-    cur.execute("SELECT id FROM users WHERE email = %s", (ADMIN_EMAIL,))
-    (user_id,) = cur.fetchone()
-    return ADMIN_EMAIL, ADMIN_PASSWORD, user_id
+# The `seeded_admin` fixture is now the shared one in conftest.py (API-T-005);
+# it reads this module's ADMIN_EMAIL / ADMIN_PASSWORD via request.module
+# introspection and hashes once per session through the memoized helper.
 
 
 async def _login(client, email, password):
