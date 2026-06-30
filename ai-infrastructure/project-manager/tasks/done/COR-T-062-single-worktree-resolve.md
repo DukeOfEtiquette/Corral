@@ -2,7 +2,7 @@
 schema_version: 1
 id: COR-T-062
 title: "Single-worktree task resolve: fold the resolve-gate commit into the deliverable branch"
-status: in-progress
+status: done
 labels: []
 priority: P1
 created: 2026-06-30
@@ -32,3 +32,4 @@ Out of scope: any change to the merge lock, the hooks, `bin/git-integrate`, the 
 ## Activity log
 
 - 2026-06-30: Created and picked up (in-progress) by the project-manager orchestrator, handled orchestrator-direct by user direction (this exact resolve-gate-doc family was handled orchestrator-direct in COR-T-060/061; user wants it ASAP as a hard block). Root-caused from DB-T-006 session `13d596a8` (two worktrees / two merges for one task). Design confirmed with user: fold the resolve-gate commit onto the deliverable feature branch (single worktree, single integrate). P1: flagged a hard block on all other work. Standalone (no epic), worktree-workflow family (COR-T-057/058/059/060/061, COR-11). Dogfoods its own fix: this task's deliverable and resolve land on one branch (`cor-t-062`), one merge.
+- 2026-06-30: Done. Orchestrator-direct (no dispatch, no kickoff/report pair) per user direction. Deliverable committed `e662305`: ADR-047 (new, accepted) records the single-worktree resolve decision; `ORCHESTRATOR-ROLE.md` Dispatched-worker-flow step 7 Gap-2b note rewritten to the deliverable-branch resolve (dispatched + orchestrator-direct paths) plus a Task-lifecycle Resolve-bullet pointer; `GIT_WORKFLOW.md` dispatched-executor step + footer updated; `EXECUTOR-ROLE.md` "Worktree handling" updated; `ADR-046` forward-pointer item 12 appended (append-only; item 11c left intact, marked superseded). Verified: no em dashes, ADR-047 cross-refs resolve, no stale "resolve worktree" text outside append-only history. Closed under the new procedure itself: deliverable (`e662305`) + this resolve commit on one branch (`cor-t-062`), one `bin/git-integrate`, one teardown.
