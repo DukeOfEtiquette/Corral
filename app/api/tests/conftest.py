@@ -40,11 +40,13 @@ Run path is compose only (ADR-003): the api `test` one-shot is the phase-2
 executor's deliverable; these tests only assume DATABASE_URL is present.
 """
 
+import functools
 import os
 
 import psycopg2
 import pytest
 import pytest_asyncio
+from argon2 import PasswordHasher
 from httpx import ASGITransport, AsyncClient
 
 # The application under test. This import is EXPECTED to fail today: `app/api/`
@@ -53,6 +55,7 @@ from httpx import ASGITransport, AsyncClient
 # module path is the implementer's to satisfy; if it differs, the correction is
 # routed to a fresh test-designer dispatch (ADR-016), not an executor edit.
 from app.api.main import app as fastapi_app
+from app.api.admin_seed import seed_admin
 
 # Tables the auth suite mutates; reset between tests (pinned TRUNCATE strategy).
 _MUTATED_TABLES = ("sessions", "users")
@@ -139,3 +142,48 @@ async def client():
     transport = ASGITransport(app=fastapi_app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as ac:
         yield ac
+
+
+@pytest.fixture(scope="session")
+def hash_password():
+    """A session-scoped, memoized argon2id hashing callable (API-T-005).
+
+    argon2id is deliberately expensive (ADR-011), and a test password's hash is
+    a pure function of the constant password string, so recomputing it per test
+    is pure waste. This session-scoped fixture returns a callable that hashes a
+    password string with argon2-cffi's `PasswordHasher` and caches the result
+    keyed by the password string (via `functools.lru_cache`), so each distinct
+    constant test password is argon2-hashed at most once per test session. The
+    seeding fixtures obtain their hashes through this helper.
+    """
+    hasher = PasswordHasher()
+
+    @functools.lru_cache(maxsize=None)
+    def _hash(password):
+        return hasher.hash(password)
+
+    return _hash
+
+
+@pytest.fixture()
+def seeded_admin(request, monkeypatch, cur, hash_password):
+    """Seed an admin from the requesting module's own ADMIN_EMAIL / ADMIN_PASSWORD
+    constants (API-T-005: the unified replacement for the near-identical local
+    `seeded_admin` fixtures in test_auth_login.py and test_sessions.py).
+
+    Reads the test module's `ADMIN_EMAIL` / `ADMIN_PASSWORD` module-level
+    constants via pytest's `request.module` introspection, computes the admin's
+    argon2id hash once per session through the memoized `hash_password` helper
+    (never a real credential, ADR-006), seeds via `seed_admin()`, and returns
+    the admin's `(email, password, user_id)` so login tests can authenticate as
+    it.
+    """
+    email = request.module.ADMIN_EMAIL
+    password = request.module.ADMIN_PASSWORD
+    password_hash = hash_password(password)
+    monkeypatch.setenv("ADMIN_EMAIL", email)
+    monkeypatch.setenv("ADMIN_PASSWORD_HASH", password_hash)
+    seed_admin()
+    cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+    (user_id,) = cur.fetchone()
+    return email, password, user_id

@@ -48,12 +48,16 @@ def _make_test_hash(password: str = "throwaway-test-password") -> str:
 
 
 @pytest.fixture()
-def admin_env(monkeypatch):
+def admin_env(monkeypatch, hash_password):
     """Set ADMIN_EMAIL / ADMIN_PASSWORD_HASH in the environment for the seed,
     using a throwaway in-harness hash. Returns (email, password_hash) so tests
     can assert the seeded row matches the env-supplied values.
+
+    The argon2id hash is obtained from the shared session-scoped memoized
+    `hash_password` helper (API-T-005), so the throwaway password is hashed at
+    most once per session instead of once per test.
     """
-    password_hash = _make_test_hash()
+    password_hash = hash_password("throwaway-test-password")
     monkeypatch.setenv("ADMIN_EMAIL", ADMIN_EMAIL)
     monkeypatch.setenv("ADMIN_PASSWORD_HASH", password_hash)
     return ADMIN_EMAIL, password_hash

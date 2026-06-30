@@ -31,27 +31,14 @@ import pytest
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from app.api.admin_seed import seed_admin
-
 LOGIN_URL = "/api/v1/auth/login"
 
 ADMIN_EMAIL = "login-admin@example.test"
 ADMIN_PASSWORD = "correct-horse-battery-staple"  # throwaway test password
 
-
-@pytest.fixture()
-def seeded_admin(monkeypatch, cur):
-    """Seed an admin with a known throwaway password whose argon2id hash is
-    generated in-harness (never a real credential, ADR-006). Returns the admin's
-    (email, password, user_id) so login tests can authenticate as it.
-    """
-    password_hash = PasswordHasher().hash(ADMIN_PASSWORD)
-    monkeypatch.setenv("ADMIN_EMAIL", ADMIN_EMAIL)
-    monkeypatch.setenv("ADMIN_PASSWORD_HASH", password_hash)
-    seed_admin()
-    cur.execute("SELECT id FROM users WHERE email = %s", (ADMIN_EMAIL,))
-    (user_id,) = cur.fetchone()
-    return ADMIN_EMAIL, ADMIN_PASSWORD, user_id
+# The `seeded_admin` fixture is now the shared one in conftest.py (API-T-005);
+# it reads this module's ADMIN_EMAIL / ADMIN_PASSWORD via request.module
+# introspection and hashes once per session through the memoized helper.
 
 
 def _session_count(cur, user_id):
