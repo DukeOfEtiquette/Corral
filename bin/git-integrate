@@ -84,6 +84,9 @@ if git diff --name-only --diff-filter=U | grep -q .; then
 fi
 
 echo "Merge complete. '$FEATURE_BRANCH' integrated into master."
-echo "Next steps: delete the feature branch and remove its worktree."
+echo ""
+echo "To clean up, run these commands from the main checkout:"
+echo "  git worktree remove .claude/worktrees/$FEATURE_BRANCH"
+echo "  git branch -d $FEATURE_BRANCH"
 
 # The lock is released automatically when this script exits (flock on fd $LOCK_FD).

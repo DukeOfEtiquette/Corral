@@ -55,11 +55,31 @@ These apply to every Executor session. Per-task content lives in the kickoff; th
 - **Verify before asserting (universal).** See `./CLAUDE.md` (section "Agent Discipline"); that is the authoritative copy and this role doc does not duplicate it. Every claim an Executor makes about repository state must be verified in-session before it is asserted to the user or written into the closing report.
 - **Repo writing rules.** The global rules in `./CLAUDE.md` bind every Executor session: no em dashes in files, repo-root-relative `./` paths, no secrets in tracked files, `.md` files only in sanctioned locations. Reference them; do not restate them in reports or kickoffs.
 - **Run policy: docker compose only.** Per `./ai-infrastructure/project-manager/decisions/ADR-003-docker-compose-runtime.md`, compose is the only supported run path once code exists. Run compose-based verification only as the kickoff names it; never assume host-installed Python or Node.
-- **Stage, do not commit.** Surface changes for review. Commits happen at the Orchestrator's commit gate when the task resolves, or earlier only when the user explicitly asks. Never push.
+- **Commit on the feature branch; never push; never integrate.** Under the worktree workflow, the executor commits its work on the feature branch inside the worktree. Those commits never reach `master`; the executor never runs `bin/git-integrate` and never pushes. Integration into `master` stays the orchestrator's gated `bin/git-integrate` step.
 - **No-touch rule for test files (TDD enforcement, ADR-016).** The implementation executor never creates or edits test files. If the executor believes a test is wrong, the sanctioned path is `RETURN: ESCALATION` (the Orchestrator then routes the correction to a fresh `test-designer` dispatch). Editing a test to make it pass inverts the TDD cycle and undermines the design-implementation separation ADR-016 establishes.
 - **No edits outside the kickoff's scope.** Do not modify files the kickoff did not put in scope. Out-of-scope discoveries go under "Follow-ups" in the report.
 - **Do not touch `./ai-infrastructure/project-manager/tasks/`.** Task transitions are the Orchestrator's job. The Executor may read task files the kickoff references; it never moves, edits, or creates them.
 - **File-edit hygiene.** Read before edit. Match indentation exactly. Prefer Edit over Write for existing files; Write only for new files or full rewrites. Do not introduce unrelated cleanup, refactoring, or comment-rot in the same edit pass.
+
+## Worktree handling (dispatched executor)
+
+A dispatched executor subagent cannot call the harness `EnterWorktree` / `ExitWorktree` tools: the harness refuses those in a subagent context. Use the equivalent plain git commands instead.
+
+**Create the worktree** before the first edit:
+
+```
+git worktree add <abs-path>/.claude/worktrees/<branch> -b <branch> <base>
+```
+
+where `<base>` is the branch to stack on (usually `master`; the kickoff names the base when the work stacks on an in-flight branch).
+
+**Make all edits via absolute paths** inside the worktree (e.g. `/home/adam/src/corral/.claude/worktrees/<branch>/...`). Never edit files in the main checkout.
+
+**Commit on the feature branch** inside the worktree. See the "Commit on the feature branch" bullet under "Universal conventions" above.
+
+**Leave the worktree on disk** when done. Do not call `ExitWorktree` (refused) and do not run `bin/git-integrate`. The Orchestrator handles integration from the main checkout.
+
+For the full interactive-session path (using `EnterWorktree` / `ExitWorktree`), see `./GIT_WORKFLOW.md`.
 
 ## Failure modes
 
@@ -122,7 +142,7 @@ Every Executor session writes the six-section report to two channels:
 1. **Chat.** Print the six sections in the session transcript as the closing message, so the user can skim immediately.
 2. **File.** Write the same content (verbatim; no divergence between channels) to a markdown file at a derivable path.
 
-**Path derivation.** The report file is named after the kickoff and lives in the kickoff's own directory: `<kickoff-dir>/<KICKOFF-BASENAME>-REPORT.md`, where `<KICKOFF-BASENAME>` is the kickoff filename with the trailing `.md` removed. Example: a kickoff at `./.claude/artifacts/handoffs/COR-T-007-KICKOFF.md` produces a report at `./.claude/artifacts/handoffs/COR-T-007-KICKOFF-REPORT.md`. The derivation rule applies wherever the kickoff lives; the report sits next to its kickoff.
+**Path derivation.** The report file is named after the kickoff and lives in the kickoff's own directory: `<kickoff-dir>/<KICKOFF-BASENAME>-REPORT.md`, where `<KICKOFF-BASENAME>` is the kickoff filename with the trailing `.md` removed. Example: a kickoff at `./.claude/artifacts/handoffs/COR-T-007-KICKOFF.md` produces a report at `./.claude/artifacts/handoffs/COR-T-007-KICKOFF-REPORT.md`. The derivation rule applies wherever the kickoff lives; the report sits next to its kickoff. Under the worktree workflow, `<kickoff-dir>` resolves inside the worktree (the executor writes all files via absolute worktree paths), so the report file is written inside the worktree and committed on the feature branch alongside the other deliverables.
 
 **Edge case.** If the derived directory is not writable or the convention is otherwise unworkable (for example, the kickoff was supplied as inline text without a path), surface the conflict to the user before ending the session and ask where to save the report. Do not skip the file write silently. The file is the durable cross-session handoff channel; omitting it without acknowledgement breaks the contract.
 
