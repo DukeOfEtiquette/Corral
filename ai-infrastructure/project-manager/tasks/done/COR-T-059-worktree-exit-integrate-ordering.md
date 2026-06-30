@@ -2,11 +2,11 @@
 schema_version: 1
 id: COR-T-059
 title: "Reconcile ExitWorktree / git-integrate ordering so worktree cleanup does not require a discard_changes override"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-29
-updated: 2026-06-29
+updated: 2026-06-30
 ---
 
 ## Description
@@ -52,3 +52,4 @@ Out of scope: changing the merge-lock mechanism, the enforcement hooks (`.githoo
 
 - 2026-06-29: Created in backlog. Triaged by the project-manager orchestrator from a review of session `79f3e0a0` (the second live run of the ADR-046 worktree workflow). The `ExitWorktree`-refusal-after-`git-integrate` papercut forced a `discard_changes: true` override on the cleanup happy path. Kin to COR-10 (seam behavior diverging from the assumed contract, visible only on a real firing). P2: not blocking any phase, but it sits on the cleanup path every concurrent session traverses and the discard-reflex it trains is a correctness hazard. Standalone (no epic): the worktree workflow infra is repo-global tooling, like its predecessors COR-T-057/058. An OBSERVATIONS entry (`COR-11`) for the pattern was offered separately and not taken at filing time.
 - 2026-06-29: Picked up -> in-progress. A review of session `18483dae-e56c-4077-9b1d-410240321995` (the API-T-006 run) surfaced a third data point that pins the root cause and a proven clean pattern. `18483dae` cleaned up with `ExitWorktree {action: keep}` BEFORE integrating, then `bin/git-integrate` from the main checkout, then plain `git worktree remove` + `git branch -d` -- and hit NO refusal and used NO discard flag. So the refusal is exclusively on the harness `ExitWorktree {action: remove}` verification path; `action: keep` plus plain `git worktree remove` avoids it entirely (confirmed across three sessions: `79f3e0a0` and the COR-T-059 filing run both hit the refusal via `remove`; `18483dae` stayed clean via `keep`). Root cause is therefore empirically settled, not open; the investigation deliverable collapses to documenting it. Scope decision pinned with the user (2026-06-29): **docs + git-integrate message only** (candidate direction 1), NOT git-integrate-owns-teardown. Deliverable narrows to: make `GIT_WORKFLOW.md` steps 6-8 prescribe the proven sequence explicitly (`ExitWorktree keep` before integrate; plain `git worktree remove` + `git branch -d` for teardown), and update `bin/git-integrate`'s closing "Next steps" line to print those exact commands. No new automation; `.githooks/` and the merge-lock untouched. Next: draft the kickoff.
+- 2026-06-30: Done. Kickoff drafted (PASS) and dispatched-executor close ran clean (kickoff/prelaunch/close checkers all PASS; orchestrator disk re-derivation clean). Deliverable committed `7a49b89` (`GIT_WORKFLOW.md` Flow steps 6 + 9 rewritten; `bin/git-integrate` closing line prints the exact `git worktree remove` / `git branch -d` teardown). Landed on `master` via merge `155963b` (stacked behind COR-T-060 and integrated together per user direction). The cleanup happy path no longer requires a `discard_changes: true` override; the new sequence was dogfooded by every worktree teardown in this session. Kickoff/report pair committed with this resolution (ADR-024).

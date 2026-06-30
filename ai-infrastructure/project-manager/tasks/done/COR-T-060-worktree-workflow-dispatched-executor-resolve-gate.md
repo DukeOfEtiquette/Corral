@@ -2,11 +2,11 @@
 schema_version: 1
 id: COR-T-060
 title: "ADR-046 follow-on: make the worktree workflow usable by dispatched executors and at the resolve gate"
-status: in-progress
+status: done
 labels: []
 priority: P2
 created: 2026-06-29
-updated: 2026-06-29
+updated: 2026-06-30
 ---
 
 ## Description
@@ -46,3 +46,4 @@ Out of scope: changing the merge-lock, the `--no-ff` policy, the enforcement hoo
 ## Activity log
 
 - 2026-06-29: Created and picked up (in-progress) by the project-manager orchestrator. Triaged from two gaps the COR-T-059 dispatched-executor firing surfaced (recorded in the COR-T-059 report Follow-ups): EnterWorktree/ExitWorktree are unavailable to dispatched subagents, and handoff-artifact/task-tree commits do not compose with the `5592cc4` hard gate. Same family as COR-T-057/058/059 and the COR-10 observation (seam friction visible only on a real firing). Decisions pinned with the user 2026-06-29: hold COR-T-059 and land it together with these fixes; keep the hard gate and route handoff-artifact + task-tree commits through a worktree (gate-preserving), not via direct main-checkout commits. Gap-1 and gap-2a resolutions are forced/mechanical (git-command path; commit-on-feature-branch). P2: not phase-blocking, but it sits on every future dispatched task's path. Standalone (no epic): repo-global workflow tooling, like COR-T-057/058/059.
+- 2026-06-30: Done. Kickoff drafted (PASS) and the dispatched executor ran clean (kickoff/prelaunch/close checkers all PASS; orchestrator disk re-derivation confirmed cross-file consistency, an unconditional hard gate, no COR-T-059 regression in `GIT_WORKFLOW.md`, and all cited section names resolving). Deliverable committed `d517ed5` (+ report-hash fixup `49445c7`): `EXECUTOR-ROLE.md` (commit-on-feature-branch reword; new "Worktree handling (dispatched executor)" section; report-into-worktree path note), `ORCHESTRATOR-ROLE.md` (Gap-2b resolve-gate-worktree note + dispatched-executor git-command note), `GIT_WORKFLOW.md` step 2 (interactive-vs-dispatched split), `CLAUDE.md` hard-gate mechanism broadened (gate stays unconditional). Stacked on COR-T-059 and landed together on `master` via merge `155963b`. ADR-046 Consequences item 11 (forward-pointer note) added with this resolution; kickoff/report pair committed (ADR-024; the report rode the feature branch per the new Gap-2b behavior, the kickoff via the resolve worktree). The executor's report Follow-up (cross-reference the new section from `executor.md` / `EXECUTOR-AGENT-SPEC.md`) is left for orchestrator triage.
