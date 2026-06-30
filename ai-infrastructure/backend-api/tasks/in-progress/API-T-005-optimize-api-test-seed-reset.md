@@ -2,7 +2,7 @@
 schema_version: 1
 id: API-T-005
 title: "Optimize the api test harness: reduce the redundant per-test admin re-seed + table reset"
-status: backlog
+status: in-progress
 labels: []
 priority: P3
 created: 2026-06-15
@@ -35,3 +35,4 @@ References:
 - 2026-06-15: Created in backlog by the Backend API Orchestrator. Surfaced as a follow-up in the API-T-002 implementation report (`a40cf3d`): per-test lifespan seeds are redundant (idempotent, currently fast). Pure optimization, deferred (P3). Routes through a `test-designer` dispatch because it edits protected test-harness files (ADR-016), not an executor. Standalone, unlabelled per ADR-031.
 - 2026-06-30: Premise re-anchored to the verified cost source and the file renamed (slug `optimize-api-test-seed-reset`) by the Backend API Orchestrator. The originally-filed diagnosis (per-test FastAPI lifespan re-seed, fixed by a session-scoped app fixture) was verified against disk and does not hold: the app is module-scoped and the lifespan never fires through the test `client`. The real per-test cost is the explicit `seed_admin()` calls in the test modules plus the autouse `reset_auth_tables` TRUNCATE; the proposed remedy is moot and the scope is restated around those levers. No change to priority (P3), routing (test-designer dispatch), or standalone status. Logged as observation API-01.
 - 2026-06-30: Open optimization-approach decision resolved with the user (Backend API Orchestrator). Pinned the seed-consolidation lever (hoist the argon2id hash to session/module scope + unify the duplicated `seeded_admin` fixtures), keeping the autouse blanket TRUNCATE; reset narrowing demoted to an optional secondary. Homework: read all five api test modules; argon2id hashing in the seeding fixtures is the dominant per-test cost (deliberately expensive), not the TRUNCATE. Decision recorded in the "Pinned approach" block above as the `decisions_resolved` for the eventual test-design kickoff. Still backlog/P3 (deferred until suite growth justifies the work).
+- 2026-06-30: Picked up; moved to in-progress (Backend API Orchestrator). Routes as a single `test-designer` dispatch (ADR-016), NOT the two-phase TDD red/green flow: this is a green-preserving harness refactor (consolidate the seeding per the pinned approach), not the authoring of new failing tests. Decisions are already resolved (the "Pinned approach" block); drafting the test-design kickoff next.
