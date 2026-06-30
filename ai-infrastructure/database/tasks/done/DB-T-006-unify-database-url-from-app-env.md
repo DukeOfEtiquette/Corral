@@ -2,11 +2,11 @@
 schema_version: 1
 id: DB-T-006
 title: "unify DATABASE_URL and postgres credentials across compose services from app/.env"
-status: backlog
+status: done
 labels: []
 priority: P3
 created: 2026-06-29
-updated: 2026-06-29
+updated: 2026-06-30
 ---
 
 ## Description
@@ -24,3 +24,5 @@ References:
 ## Activity log
 
 - 2026-06-29: Filed in backlog (database department) by the Backend API Orchestrator as a cross-department triaged follow-up from API-T-006. API-T-006 wired only the `api` service's DATABASE_URL from app/.env to stay in the backend-api lane; unifying the database-owned compose services is database-department scope. Standalone, P3, unlabelled per ADR-031.
+- 2026-06-30: Picked up by the Database Orchestrator; moved to in-progress. Design choices resolved with the user: (1) drive constituent `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB` from app/.env with dev defaults and assemble every `DATABASE_URL` in-string from those same vars (keeps postgres service and connection string in sync by construction); (2) `migrate` and `api` honor a top-level `${DATABASE_URL:-<assembled>}` external override, while `test`/`test-roundtrip`/`api-test` assemble from `POSTGRES_*` only with no external override (preserves API-T-006's test-isolation intent). Routing through the dispatched-worker flow next.
+- 2026-06-30: Done. Executed via the dispatched-worker flow (kickoff `DB-T-006-KICKOFF.md`; executor report `DB-T-006-KICKOFF-REPORT.md`). `app/docker-compose.yml` and `app/.env.example` unified per both resolved decisions, committed in `f42c797` (deliverable) and `7ff51c7` (report), integrated to master in merge `0dc5e70`. Orchestrator independently re-derived all three `docker compose config` verification scenarios (default render, `POSTGRES_PASSWORD` sync-by-construction, external-`DATABASE_URL` isolation) against disk; all passed. kickoff-checker (R1-R8), prelaunch (W1), and close checker (W2) all PASS. Moved to done.
