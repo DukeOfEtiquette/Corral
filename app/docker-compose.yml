@@ -2,11 +2,11 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: corral
-      POSTGRES_USER: corral
-      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: ${POSTGRES_DB:-corral}
+      POSTGRES_USER: ${POSTGRES_USER:-corral}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U corral -d corral"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-corral} -d ${POSTGRES_DB:-corral}"]
       interval: 2s
       timeout: 5s
       retries: 10
@@ -18,7 +18,7 @@ services:
     working_dir: /app/db
     command: alembic upgrade head
     environment:
-      DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-corral}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-corral}}
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,7 +28,7 @@ services:
       context: ./db
       target: test
     environment:
-      DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
+      DATABASE_URL: postgresql://${POSTGRES_USER:-corral}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-corral}
     depends_on:
       postgres:
         condition: service_healthy
@@ -40,7 +40,7 @@ services:
       context: ./db
       target: test-roundtrip
     environment:
-      DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
+      DATABASE_URL: postgresql://${POSTGRES_USER:-corral}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-corral}
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,7 +52,7 @@ services:
       context: ./api
       target: runtime
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://corral:devpassword@postgres:5432/corral}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-corral}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-corral}}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
       API_DOCS_ENABLED: ${API_DOCS_ENABLED:-true}
@@ -77,7 +77,7 @@ services:
       context: ./api
       target: test
     environment:
-      DATABASE_URL: postgresql://corral:devpassword@postgres:5432/corral
+      DATABASE_URL: postgresql://${POSTGRES_USER:-corral}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-corral}
     depends_on:
       postgres:
         condition: service_healthy
